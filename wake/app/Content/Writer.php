@@ -28,6 +28,7 @@ class Writer
         protected Languages $languages,
         protected Revisions $revisions,
         protected Redirects $redirects,
+        protected History $history,
     ) {}
 
     /**
@@ -66,6 +67,7 @@ class Writer
             : $id.'/index.'.$language.'.md';
 
         Files::lock('entry-'.md5($id), fn () => Files::write(Paths::content($file), FrontMatter::dump($this->clean($fields), $body)));
+        $this->history->record('create', $id, $language);
 
         return $this->fresh($id, $language);
     }
@@ -99,6 +101,9 @@ class Writer
         });
 
         $entry = $this->fresh($id, $language);
+        $this->history->record(match ($fields['status'] ?? null) {
+            'published' => 'publish', 'scheduled' => 'schedule', 'draft' => $before?->isPublished() ? 'unpublish' : 'update', default => 'update',
+        }, $id, $language);
 
         if ($oldPath !== null && $entry->path() !== $oldPath) {
             $this->redirects->add($language, $oldPath, $id);
@@ -115,6 +120,7 @@ class Writer
         return $this->update($id, $language, [
             'status' => $at !== null && $at->isFuture() ? 'scheduled' : 'published',
             'published' => ($at ?? ($published ? CarbonImmutable::parse((string) $published) : CarbonImmutable::now()))->format('Y-m-d H:i'),
+            'review' => null,
         ]);
     }
 
@@ -146,6 +152,7 @@ class Writer
         });
 
         $this->index->refresh();
+        $this->history->record('trash', $id);
 
         return $target;
     }

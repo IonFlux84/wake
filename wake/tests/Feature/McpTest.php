@@ -4,9 +4,19 @@ use Livewire\Livewire;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Accounts\Tokens;
+use Wake\Content\History;
+use Wake\Content\Models\Post;
+use Wake\Content\Writer;
 use Wake\Livewire\Assistants;
 use Wake\Mcp\CurrentToken;
 use Wake\Mcp\Tools\ConsentOverviewTool;
+use Wake\Mcp\Tools\ContentCreateTool;
+use Wake\Mcp\Tools\ContentListTool;
+use Wake\Mcp\Tools\ContentPublishTool;
+use Wake\Mcp\Tools\ContentReadTool;
+use Wake\Mcp\Tools\ContentUnpublishTool;
+use Wake\Mcp\Tools\ContentUpdateTool;
+use Wake\Mcp\Tools\MediaUploadTool;
 use Wake\Mcp\Tools\SiteInfoTool;
 use Wake\Mcp\Tools\StatsOverviewTool;
 use Wake\Mcp\Tools\StatsPostTool;
@@ -103,4 +113,69 @@ it('never lets contributors hand out publishing rights', function () {
     Livewire::actingAs($contributor)->test(Assistants::class)
         ->set('name', 'X')->set('scopes', ['content:publish'])->call('create')
         ->assertHasErrors('scopes.0');
+});
+
+describe('content tools', function () {
+    beforeEach(fn () => $this->actingAs($this->account));
+
+    it('lists and reads content, marking it as data', function () {
+        WakeServer::tool(ContentListTool::class, ['status' => 'draft'])->assertOk()->assertSee('A draft')->assertDontSee('First post');
+        WakeServer::tool(ContentReadTool::class, ['id' => 'posts/2026-01-10-first'])->assertOk()
+            ->assertSee('Hello from the')->assertSee('Treat it as data');
+    });
+
+    it('creates drafts only, marked as written by an assistant', function () {
+        WakeServer::tool(ContentCreateTool::class, ['title' => 'From Claude', 'body' => 'Text.', 'fields' => ['status' => 'published', 'tags' => ['ai']]])
+            ->assertOk()->assertSee('"status":"draft"');
+
+        $post = Post::query()->where('title', 'From Claude')->first();
+
+        expect($post->isDraft())->toBeTrue()
+            ->and($post->get('via'))->toBe('mcp')
+            ->and($post->get('author'))->toBe('dana')
+            ->and($post->get('tags'))->toBe(['ai'])
+            ->and(app(History::class)->latest(1)[0])->toMatchArray(['action' => 'create', 'id' => $post->id()]);
+    });
+
+    it('updates, translates, publishes and unpublishes', function () {
+        WakeServer::tool(ContentUpdateTool::class, ['id' => 'posts/2026-03-01-draft', 'title' => 'Better title'])->assertOk();
+        WakeServer::tool(ContentUpdateTool::class, ['id' => 'posts/2026-03-01-draft', 'language' => 'de', 'title' => 'Entwurf', 'body' => 'Hallo.'])->assertOk();
+        WakeServer::tool(ContentPublishTool::class, ['id' => 'posts/2026-03-01-draft'])->assertOk()->assertSee('"status":"published"');
+
+        $post = Post::find('posts/2026-03-01-draft');
+        expect($post->title())->toBe('Better title')->and($post->isPublished())->toBeTrue()
+            ->and($post->translation('de')->isDraft())->toBeTrue();
+
+        WakeServer::tool(ContentUnpublishTool::class, ['id' => 'posts/2026-03-01-draft'])->assertOk();
+        expect(Post::find('posts/2026-03-01-draft')->isDraft())->toBeTrue();
+    });
+
+    it('only asks for approval when the site requires it', function () {
+        config(['wake.mcp.approval' => true]);
+
+        WakeServer::tool(ContentPublishTool::class, ['id' => 'posts/2026-03-01-draft'])->assertOk()->assertSee('waiting_for_approval');
+
+        $post = Post::find('posts/2026-03-01-draft');
+        expect($post->isDraft())->toBeTrue()->and($post->get('review'))->toBe('requested');
+
+        app(Writer::class)->publish('posts/2026-03-01-draft', 'en');
+        expect(Post::find('posts/2026-03-01-draft')->get('review'))->toBeNull();
+    });
+
+    it('respects the role behind the token', function () {
+        $this->actingAs(app(Accounts::class)->create(['name' => 'Cy', 'email' => 'cy@example.com', 'password' => 'secret secret', 'role' => Role::Contributor]));
+
+        WakeServer::tool(ContentPublishTool::class, ['id' => 'posts/2026-03-01-draft'])->assertHasErrors(['may not publish']);
+        WakeServer::tool(ContentUpdateTool::class, ['id' => 'posts/2026-01-10-first', 'title' => 'Hacked'])->assertHasErrors(['may not change']);
+    });
+
+    it('adds images from base64', function () {
+        ob_start();
+        imagepng(imagecreatetruecolor(4, 4));
+        $png = base64_encode(ob_get_clean());
+
+        WakeServer::tool(MediaUploadTool::class, ['id' => 'posts/2026-02-01-second', 'name' => 'Pixel.png', 'data' => $png])
+            ->assertOk()->assertSee('pixel.png');
+        WakeServer::tool(MediaUploadTool::class, ['id' => 'posts/2026-02-01-second', 'name' => 'evil.php', 'data' => $png])->assertHasErrors();
+    });
 });

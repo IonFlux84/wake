@@ -81,6 +81,12 @@ How Wake counts visits is explained in [analytics](../concepts/analytics.md).
 | `tracking.retention` | `30` | Days to keep raw data. Daily and monthly sums are kept. |
 | `tracking.geo` | `storage/stats/geo/country.mmdb` | Optional IP-to-country database in MaxMind format, e.g. [DB-IP Lite](https://db-ip.com/db/lite.php) (free, CC BY 4.0). Without it, countries stay empty. |
 
+## Assistants (MCP)
+
+| Setting | Default | Description |
+|---|---|---|
+| `mcp.approval` | `false` | `true` lets assistants only ask for publishing; a person approves in the panel. See [MCP server](mcp.md#approval-mode). |
+
 ## Panel
 
 | Setting | Default | Description |

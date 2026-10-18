@@ -10,7 +10,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Wake\Accounts\Account;
-use Wake\Accounts\Role;
+use Wake\Accounts\Permissions;
 use Wake\Content\ContentTypes;
 use Wake\Content\Entry;
 use Wake\Content\Index;
@@ -30,7 +30,7 @@ class EntryEditor extends Component
     use WithFileUploads;
 
     /** Fields every entry has; anything else comes from the blueprint. */
-    public const BASE_FIELDS = ['title', 'slug', 'status', 'published', 'author', 'tags', 'excerpt', 'cover', 'template', 'seo', 'noindex', 'via'];
+    public const BASE_FIELDS = ['title', 'slug', 'status', 'published', 'author', 'tags', 'excerpt', 'cover', 'template', 'seo', 'noindex', 'via', 'review'];
 
     public string $type = 'post';
 
@@ -185,11 +185,7 @@ class EntryEditor extends Component
 
     public function trash(): void
     {
-        $entry = $this->entry();
-        $own = $entry?->get('author') === $this->account()->id();
-
-        // Editors may delete anything; everyone else only their own drafts.
-        abort_unless($entry && ($this->account()->role()->atLeast(Role::Editor) || ($own && $entry->isDraft())), 403);
+        abort_unless(Permissions::mayDelete($this->account(), $this->entry()), 403);
 
         app(Writer::class)->trash($this->id);
         session()->flash('status', __('Moved to the trash.'));
@@ -318,22 +314,12 @@ class EntryEditor extends Component
 
     protected function mayEdit(?Entry $entry): bool
     {
-        if ($entry === null) {
-            return true;
-        }
-
-        $role = $this->account()->role();
-        $own = $entry->get('author') === $this->account()->id();
-
-        return $role->atLeast(Role::Editor) || ($own && ($role->atLeast(Role::Author) || $entry->isDraft()));
+        return Permissions::mayEdit($this->account(), $entry);
     }
 
     protected function mayPublish(): bool
     {
-        $role = $this->account()->role();
-
-        return $role->atLeast(Role::Editor)
-            || ($role === Role::Author && ($this->id === null || $this->entry()?->get('author') === $this->account()->id()));
+        return Permissions::mayPublish($this->account(), $this->entry());
     }
 
     protected function authorizePublishing(): void

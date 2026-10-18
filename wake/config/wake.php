@@ -86,6 +86,11 @@ return [
         'geo' => dirname(base_path()).'/storage/stats/geo/country.mmdb',
     ],
 
+    'mcp' => [
+        // Assistants may only ask for publishing; a person approves in the panel.
+        'approval' => false,
+    ],
+
     'panel' => [
         // The one neon colour of the panel. Text on it turns black or white by itself.
         'accent' => '#C6FF3D',

@@ -70,3 +70,7 @@ All notable changes to Wake are documented here. The format follows
   redirects (`site/redirects.yml`), deleted entries go to `storage/trash/`, and
   the editor shows who else is editing.
 - Front matter is written without needless quotes and with inline lists.
+- MCP tools for content: list, read, create (always as a draft), update,
+  translate, publish, unpublish and upload images, with the role of the
+  token's owner, an optional approval mode (`mcp.approval`) and a history of
+  every change in `storage/history/`.

@@ -36,6 +36,7 @@
                         <td>
                             <a href="{{ route('wake.entries.edit', ['type' => $type, 'id' => $entry->id()]) }}" style="text-decoration:none;font-weight:600">{{ $entry->title() }}</a>
                             @if ($entry->get('via') === 'mcp')<span class="badge mcp" title="{{ __('Created by an AI assistant') }}">MCP</span>@endif
+                            @if ($entry->get('review'))<span class="badge" style="background:var(--accent);color:var(--on-accent)">{{ __('Waiting for approval') }}</span>@endif
                             <br><span class="muted mono" style="font-size:12px">/{{ $entry->path() }}</span>
                         </td>
                         <td><span class="status {{ $entry->isScheduled() ? 'scheduled' : ($entry->isPublished() ? 'published' : 'draft') }}">{{ $entry->isScheduled() ? __('Scheduled') : ($entry->isPublished() ? __('Published') : __('Draft')) }}</span></td>

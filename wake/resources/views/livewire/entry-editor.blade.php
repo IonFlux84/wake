@@ -44,6 +44,9 @@
     @if ($otherEditor)
         <div class="flash error" role="alert">{{ __(':name is editing this entry right now. Changes made at the same time may overwrite each other.', ['name' => $otherEditor]) }}</div>
     @endif
+    @if ($entry?->get('review'))
+        <div class="flash" role="status">{{ __('An assistant asked to publish this entry. Check it and click Publish to approve.') }}</div>
+    @endif
     @if ($entry && ! $entry->hasTranslation($language))
         <div class="flash" role="status">{{ __('This entry has no :language version yet. Write it here and save to add the translation.', ['language' => $languages->name($language)]) }}</div>
     @endif

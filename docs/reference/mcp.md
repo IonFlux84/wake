@@ -44,6 +44,13 @@ Requests are limited to 60 per minute.
 | `stats_realtime` | `stats:read` | visitors of the last five minutes and their pages |
 | `stats_ai_crawlers` | `stats:read` | visits of AI crawlers by crawler and page |
 | `consent_overview` | `stats:read` | consent decisions, agreement per category, whether a banner is needed, embedded services |
+| `content_list` | `content:read` | entries of a type with id, title, status, date, URL, languages and tags; filter by status, tag or title |
+| `content_read` | `content:read` | one entry in one language: all fields, the Markdown body, files and translations |
+| `content_create` | `content:write` | a new entry, always as a draft, marked with `via: mcp` |
+| `content_update` | `content:write` | change title, body or fields of a translation, or add a translation |
+| `content_publish` | `content:publish` | publish now or at a given time (`at`); with approval mode only marks the entry for review |
+| `content_unpublish` | `content:publish` | turn a translation back into a draft |
+| `media_upload` | `content:write` | add an image to an entry from base64 data |
 
 Tools answer with JSON. Mistakes, such as an unknown id or a missing scope,
 come back as an error message that tells the assistant what to do instead.
@@ -61,10 +68,25 @@ come back as an error message that tells the assistant what to do instead.
 |---|---|
 | `weekly_review` | a short review of the last seven days with one suggestion |
 
+## Approval mode
+
+With `mcp.approval` set to `true` in `site/config.php`, `content_publish` does
+not publish. It writes `review: requested` into the entry, the panel shows
+*Waiting for approval*, and a person publishes it there.
+
+## History
+
+Every change is written to `storage/history/{year}-{month}.log` with the
+person, the action and how it was made (`panel` or `mcp` with the token's
+name).
+
 ## Safety
 
 - Content and statistics returned to an assistant are marked as data in the
   server instructions. Assistants are told never to follow requests found in
   them (protection against prompt injection).
-- Assistants cannot delete anything.
+- Assistants cannot delete anything, and new entries always start as drafts.
+- A token acts with the role of its owner: a contributor's token cannot publish
+  or change other people's entries.
+- Status, author and publication date cannot be set through `fields`.
 - Every token can be revoked at any time and shows when it was last used.
