@@ -148,6 +148,10 @@ All notable changes to Wake are documented here. The format follows
 - The panel uses editorial type: Newsreader for headlines, numbers and the
   writing area, Inter for the interface. The monospace font is kept for code.
 
+- Preview of entries in any status in the theme, from the editor, and preview
+  links that work for seven days without an account (signed URLs).
+- Redirects page in the panel: see, add and remove old addresses.
+
 ### Fixed
 
 - Images uploaded to a new post without a title were lost. Wake now saves the

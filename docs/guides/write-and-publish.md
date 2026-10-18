@@ -40,6 +40,12 @@ description: Create a post in the panel, add images and cards, translate it and 
    *Later, at* first; the button turns into *Schedule*. Scheduled posts go live
    on their own, no cron needed.
 
+**Preview.** *Preview* saves the entry and opens it on the website in your
+theme, also while it is a draft. *Share a preview link* in the side panel gives
+you an address that works for seven days without an account, for example to
+let someone proofread. Previews carry a "Preview" band and are hidden from
+search engines.
+
 Once published, *Save* becomes *Update*, and every update is live immediately.
 *Unpublish* turns the post back into a draft.
 

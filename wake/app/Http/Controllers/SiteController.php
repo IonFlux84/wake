@@ -63,6 +63,17 @@ class SiteController
             return $this->redirect($language, $rest) ?? $this->notFound();
         }
 
+        return $this->renderEntry($entry);
+    }
+
+    /**
+     * Render one entry with the theme, whatever its status. Also used by
+     * the preview.
+     */
+    public function renderEntry(Entry $entry): Response
+    {
+        $this->languages->setCurrent($entry->requestedLanguage());
+
         $templates = $entry instanceof Page && $entry->isHome()
             ? [$entry->get('template', ''), 'home', 'page', 'default']
             : array_filter([

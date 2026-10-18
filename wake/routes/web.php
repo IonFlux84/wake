@@ -5,6 +5,7 @@ use Wake\Http\Controllers\Panel\ContentController;
 use Wake\Http\Controllers\Panel\DashboardController;
 use Wake\Http\Controllers\Panel\LoginController;
 use Wake\Http\Controllers\Panel\PasswordController;
+use Wake\Http\Controllers\Panel\PreviewController;
 use Wake\Http\Controllers\Panel\SetupController;
 
 // The panel lives under /wake. These routes use sessions and CSRF protection.
@@ -12,6 +13,8 @@ use Wake\Http\Controllers\Panel\SetupController;
 Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function () {
     Route::get('setup', [SetupController::class, 'show'])->name('setup');
     Route::post('setup', [SetupController::class, 'store'])->middleware('throttle:10,1');
+
+    Route::get('preview/shared', [PreviewController::class, 'shared'])->middleware('signed')->name('preview.shared');
 
     Route::middleware('guest')->group(function () {
         Route::get('login', [LoginController::class, 'show'])->name('login');
@@ -35,10 +38,12 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::view('settings', 'wake::panel.settings')->name('settings');
         Route::view('media', 'wake::panel.media')->name('media.index');
         Route::view('categories', 'wake::panel.categories')->name('categories');
+        Route::view('redirects', 'wake::panel.redirects')->middleware('can:settings.manage')->name('redirects');
         Route::view('themes', 'wake::panel.themes')->middleware('can:themes.manage')->name('themes');
 
         Route::get('posts', [ContentController::class, 'index'])->defaults('type', 'post')->name('posts');
         Route::get('pages', [ContentController::class, 'index'])->defaults('type', 'page')->name('pages');
+        Route::get('preview', [PreviewController::class, 'show'])->name('preview');
         Route::get('content/{type}', [ContentController::class, 'index'])->name('entries');
         Route::get('content/{type}/new', [ContentController::class, 'edit'])->name('entries.create');
         Route::get('content/{type}/edit', [ContentController::class, 'edit'])->name('entries.edit');

@@ -21,6 +21,7 @@ use Wake\Content\Query;
 use Wake\Content\Recurrence;
 use Wake\Content\Revisions;
 use Wake\Content\Writer;
+use Wake\Http\Controllers\Panel\PreviewController;
 use Wake\Localization\Languages;
 use Wake\Media\Media;
 use Wake\Stats\Stats;
@@ -319,6 +320,30 @@ class EntryEditor extends Component
         abort_unless($this->mayEdit($this->entry()), 403);
 
         return app(Writer::class)->addMedia($this->id, $upload->getClientOriginalName(), $upload->getRealPath());
+    }
+
+    /**
+     * Save and open the preview in a new tab.
+     */
+    public function preview(): void
+    {
+        $this->save();
+
+        if ($this->id !== null && $this->getErrorBag()->isEmpty()) {
+            $this->dispatch('wake-open', url: route('wake.preview', ['id' => $this->id, 'language' => $this->language]));
+        }
+    }
+
+    /** A preview link others can open without an account, valid for a week. */
+    public ?string $sharedLink = null;
+
+    public function shareLink(): void
+    {
+        $this->save();
+
+        if ($this->id !== null && $this->getErrorBag()->isEmpty()) {
+            $this->sharedLink = PreviewController::sharedUrl($this->entry());
+        }
     }
 
     public function restore(string $revision): void

@@ -50,6 +50,16 @@ class Redirects
         $this->map = $map;
     }
 
+    public function remove(string $language, string $path): void
+    {
+        $map = $this->all();
+        unset($map[$language][trim($path, '/')]);
+        $map = array_filter($map);
+
+        Files::write($this->file(), Yaml::dump($map, 3, 2));
+        $this->map = $map;
+    }
+
     public function file(): string
     {
         return Paths::site('redirects.yml');

@@ -19,6 +19,7 @@
             ['themes', 'wake.themes', __('Themes'), 'brush', 'themes.manage'],
             ['assistant', 'wake.assistants', __('Assistants'), 'assistant', 'assistants.use'],
             ['team', 'wake.team', __('Team'), 'team', 'team.manage'],
+            ['redirects', 'wake.redirects', __('Redirects'), 'arrow-left', 'settings.manage'],
             ['settings', 'wake.settings', __('Settings'), 'settings', null],
         ]],
     ];

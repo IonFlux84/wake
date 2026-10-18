@@ -34,6 +34,7 @@
             @if ($entry?->hasTranslation($language) && $entry->isPublished())
                 <a class="btn" href="{{ $entry->translation($language)->url() }}" target="_blank" rel="noopener"><x-wake::icon name="eye" />{{ __('View') }}</a>
             @endif
+            <button type="button" class="btn" wire:click="preview" x-on:wake-open.window="window.open($event.detail.url, '_blank')" title="{{ __('Save and see it on the website') }}"><x-wake::icon name="eye" />{{ __('Preview') }}</button>
             <button type="button" class="btn" wire:click="save" wire:loading.attr="disabled">{{ $isPublished ? __('Update') : __('Save draft') }}</button>
             @if ($mayPublish && ! $isPublished)
                 <button type="button" class="btn btn-primary" wire:click="publish">{{ $scheduleAt ? __('Schedule') : __('Publish') }}</button>
@@ -41,6 +42,16 @@
         </div>
     </header>
 
+    @if ($sharedLink)
+        <div class="card" style="gap:8px" x-data="{ copied: false }">
+            <div class="card-head"><h2 class="h2">{{ __('Preview link') }}</h2><button type="button" class="btn btn-small" wire:click="$set('sharedLink', null)">{{ __('Close') }}</button></div>
+            <p class="muted" style="margin:0;font-size:13px">{{ __('Anyone with this link can see this version until :date, without an account. Search engines cannot.', ['date' => now()->addDays(\Wake\Http\Controllers\Panel\PreviewController::DAYS)->locale(app()->getLocale())->isoFormat('LL')]) }}</p>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <code style="flex:1;font:500 12px var(--mono);background:var(--hover);padding:10px 12px;border-radius:10px;word-break:break-all">{{ $sharedLink }}</code>
+                <button type="button" class="btn btn-small btn-primary" @click="navigator.clipboard.writeText(@js($sharedLink)); copied = true"><span x-text="copied ? @js(__('Copied')) : @js(__('Copy'))"></span></button>
+            </div>
+        </div>
+    @endif
     @if ($otherEditor)
         <div class="flash error" role="alert">{{ __(':name is editing this entry right now. Changes made at the same time may overwrite each other.', ['name' => $otherEditor]) }}</div>
     @endif
@@ -272,6 +283,7 @@
 
                 @if ($entry)
                     <div class="actions">
+                        <button type="button" class="btn btn-small" wire:click="shareLink"><x-wake::icon name="external" />{{ __('Share a preview link') }}</button>
                         @if ($isPublished && $mayPublish)
                             <button type="button" class="btn btn-small" wire:click="unpublish">{{ __('Unpublish') }}</button>
                         @endif
