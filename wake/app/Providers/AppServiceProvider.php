@@ -47,6 +47,7 @@ use Wake\Livewire\TwoFactorSettings;
 use Wake\Localization\Languages;
 use Wake\Mail\MailSettings;
 use Wake\Maintenance\Maintenance;
+use Wake\Markdown\Cards\CardTypes;
 use Wake\Markdown\Markdown;
 use Wake\Mcp\CurrentToken;
 use Wake\Panel\Panel;
@@ -88,7 +89,7 @@ class AppServiceProvider extends ServiceProvider
         $this->mergeSiteConfig();
 
         foreach ([Languages::class, ContentTypes::class, Index::class, Site::class, Markdown::class,
-            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class, Writer::class, Redirects::class, CurrentToken::class, Categories::class, Roles::class, Themes::class, Plugins::class] as $service) {
+            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class, Writer::class, Redirects::class, CurrentToken::class, Categories::class, Roles::class, Themes::class, Plugins::class, CardTypes::class] as $service) {
             $this->app->singleton($service);
         }
     }

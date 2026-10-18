@@ -57,7 +57,7 @@ A token has one or more scopes, chosen when it is created:
 | Scope | Allows | Offered to |
 |---|---|---|
 | `stats:read` | all statistics tools, `consent_overview` and `wake://stats/today` | people with `stats.view` |
-| `content:read` | `content_list` and `content_read` | people with `content.write` |
+| `content:read` | `content_list`, `content_read` and `content_cards` | people with `content.write` |
 | `content:write` | `content_create`, `content_update`, `content_style` and `media_upload` | people with `content.write` |
 | `content:publish` | `content_publish` and `content_unpublish` | people with `content.publish` or `content.publish_all` |
 
@@ -205,6 +205,22 @@ entry's media folder, e.g. `media/posts/harbour/boats.jpg`), `style` (the
 entry's `style.css`, empty without one), `classes` (the CSS classes in the
 rendered text, e.g. `card-callout`, to write CSS against), `translations` and
 `body` (the Markdown, marked as data).
+
+### `content_cards`
+
+Scope `content:read`. The cards the site offers for the body: Wake's, those of
+running plugins and the theme's, from their
+[descriptions](templates.md#card-descriptions).
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `language` | string | no | language of titles and labels, default the site's default language |
+
+Returns `cards`, each with `name`, `title`, `description`, `hint`, `source`
+(`wake`, `plugin:{folder}` or `theme`), `value` (label and whether it is
+required, or `null`), `content` (whether it holds Markdown), `fields` (`key`,
+`type`, `label`, `required`, `default`, `options`) and `example`, the card
+written out in Markdown. Also `syntax` and a `note` on image fields.
 
 ### `content_create`
 

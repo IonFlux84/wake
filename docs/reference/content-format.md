@@ -240,7 +240,9 @@ Cards cannot be nested.
 
 Any other name becomes `<div class="card card-{name}">`, and a theme can give it
 its own look with a template in `templates/cards/{name}.blade.php`
-(see [templates](templates.md#cards)).
+(see [templates](templates.md#cards)). With a
+[description](templates.md#card-descriptions) next to it, the editor shows a
+form for the card's settings and offers it in the `/` menu.
 
 ## Categories
 

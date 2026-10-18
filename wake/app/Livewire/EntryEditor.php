@@ -24,6 +24,7 @@ use Wake\Content\Revisions;
 use Wake\Content\Writer;
 use Wake\Http\Controllers\Panel\PreviewController;
 use Wake\Localization\Languages;
+use Wake\Markdown\Cards\CardTypes;
 use Wake\Media\Media;
 use Wake\Stats\Stats;
 use Wake\Support\Files;
@@ -402,6 +403,7 @@ class EntryEditor extends Component
             'languages' => app(Languages::class),
             'media' => $entry ? $entry->media()->values() : collect(),
             'mediaMap' => $this->mediaMap($entry),
+            'cards' => app(CardTypes::class)->toArray(),
             'blueprint' => app(ContentTypes::class)->get($this->type)->blueprint['fields'] ?? [],
             'categories' => $this->type === 'post' ? app(Categories::class)->all() : [],
             'occurrences' => $this->previewOccurrences(),

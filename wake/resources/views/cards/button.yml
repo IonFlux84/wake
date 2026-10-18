@@ -1,0 +1,7 @@
+title: { en: Button, de: Schaltfläche }
+description:
+  en: A link that looks like a button. The text inside is its label.
+  de: Ein Link, der wie eine Schaltfläche aussieht. Der Text darin ist die Beschriftung.
+hint: ⬭
+fields:
+  href: { type: url, label: { en: Link, de: Link }, placeholder: /join, required: true, default: / }

@@ -252,8 +252,20 @@ A card view gets four variables:
 `$attributes`: editors and AI assistants write them. `$content` is safe HTML
 from Wake's Markdown renderer, so `{{ $content }}` prints it as is.
 
+Describe the card next to its view in `views/cards/hours.yml`, so the editor
+shows a form and the `/` menu offers it:
+
+```yaml
+title: { en: Opening hours, de: Öffnungszeiten }
+hint: ⏰
+value: { label: { en: Heading, de: Überschrift } }
+fields:
+  compact: { type: toggle, label: { en: Compact, de: Kompakt } }
+```
+
 A theme can still give the card its own look with
-`templates/cards/hours.blade.php`; the theme's view wins over the plugin's.
+`templates/cards/hours.blade.php` (and its own `hours.yml`); the theme's view
+and description win over the plugin's.
 
 ## 5. Translations
 

@@ -1,5 +1,6 @@
 // Wake's editor: Tiptap that reads and writes Markdown, with Wake's cards
-// (::: name … :::), images from the entry's folder and a slash menu.
+// (::: name … :::, with forms from their descriptions), images from the
+// media library and a slash menu.
 import { Editor, Node, mergeAttributes } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
@@ -8,71 +9,169 @@ import { Markdown } from '@tiptap/markdown'
 
 const MEDIA_URL = /\/media\/[a-f0-9]{10}\/[a-z0-9]+\/[^/]+\/([^/?#]+)$/
 
-// A card keeps its name and the rest of the opening line as written, and
-// holds normal Markdown content.
-const Card = Node.create({
-  name: 'card',
-  group: 'block',
-  content: 'block*',
-  defining: true,
+// Splits the text after a card's name into key="value" pairs and the rest,
+// like Wake\Markdown\Cards\Card::parseArguments().
+function parseArgs(args) {
+  const attrs = {}
+  const rest = (args || '').replace(/(^|\s)([a-z][a-z0-9_-]*)=(?:"([^"]*)"|'([^']*)'|(\S+))/gi, (_, space, key, a, b, c) => {
+    attrs[key.toLowerCase()] = a !== undefined ? a : b !== undefined ? b : c
+    return space
+  })
+  return { attrs, value: rest.replace(/\s+/g, ' ').trim() }
+}
 
-  addAttributes() {
-    return { name: { default: 'callout' }, args: { default: '' } }
-  },
+function quote(text) {
+  text = String(text).replace(/[\r\n]+/g, ' ')
+  return text.includes('"') ? "'" + text.replace(/'/g, '’') + "'" : '"' + text + '"'
+}
 
-  parseHTML() {
-    return [{ tag: 'div[data-card]', getAttrs: el => ({ name: el.dataset.card, args: el.dataset.args || '' }) }]
-  },
+// Writes value and settings back: the value first, then the described
+// fields in their order, then settings the description does not know.
+function buildArgs(type, value, attrs) {
+  const keys = [...type.fields.map(f => f.key), ...Object.keys(attrs).filter(k => !type.fields.some(f => f.key === k))]
+  const parts = type.value && value ? [value] : []
+  keys.forEach(key => { if (attrs[key] !== undefined && attrs[key] !== '') parts.push(key + '=' + quote(attrs[key])) })
+  return parts.join(' ')
+}
 
-  renderHTML({ node, HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, { 'data-card': node.attrs.name, 'data-args': node.attrs.args, class: 'wake-card' }), 0]
-  },
-
-  addNodeView() {
-    return ({ node, getPos, editor }) => {
-      const dom = document.createElement('div')
-      dom.className = 'wake-card wake-card--' + node.attrs.name
-      const head = document.createElement('div')
-      head.className = 'wake-card__head'
-      head.contentEditable = 'false'
-      const label = document.createElement('span')
-      label.className = 'wake-card__name'
-      label.textContent = node.attrs.name
-      const args = document.createElement('input')
-      args.className = 'wake-card__args'
-      args.value = node.attrs.args
-      args.placeholder = { callout: '💡', button: 'href="/…"', embed: 'https://…' }[node.attrs.name] || ''
-      args.addEventListener('change', () => {
-        if (typeof getPos === 'function') editor.chain().command(({ tr }) => { tr.setNodeMarkup(getPos(), undefined, { ...node.attrs, args: args.value }); return true }).run()
-      })
-      head.append(label, args)
-      const content = document.createElement('div')
-      content.className = 'wake-card__body'
-      dom.append(head, content)
-      return { dom, contentDOM: content, ignoreMutation: m => head.contains(m.target) }
+// One input per setting of a described card.
+function fieldInput(field, current, files, onChange) {
+  const label = document.createElement('label')
+  label.className = 'wake-card__field' + (field.required ? ' is-required' : '')
+  const caption = document.createElement('span')
+  caption.textContent = field.label
+  let input
+  if (field.type === 'select') {
+    input = document.createElement('select')
+    input.append(new Option('', ''), ...Object.entries(field.options).map(([v, l]) => new Option(l, v)))
+    input.value = current
+  } else if (field.type === 'toggle') {
+    input = document.createElement('input')
+    input.type = 'checkbox'
+    input.checked = current === 'true'
+  } else {
+    input = document.createElement('input')
+    input.type = { url: 'text', number: 'number', date: 'date', color: 'text' }[field.type] || 'text'
+    input.value = current
+    input.placeholder = field.placeholder || (field.type === 'image' ? 'photo.jpg' : '')
+    if (field.type === 'image' && files.length) {
+      const list = document.createElement('datalist')
+      list.id = 'wake-files-' + Math.random().toString(36).slice(2)
+      files.forEach(f => list.append(new Option(f)))
+      input.setAttribute('list', list.id)
+      label.append(list)
     }
-  },
+  }
+  const read = () => onChange(field.type === 'toggle' ? (input.checked ? 'true' : '') : input.value.trim())
+  input.addEventListener('change', read)
+  label.append(caption, input)
+  return label
+}
 
-  markdownTokenizer: {
+// A card keeps its name and the rest of the opening line as written, and
+// holds normal Markdown content. Cards with a description (cards/{name}.yml)
+// get a small form for their settings instead of the raw line.
+function wakeCard(types, files) {
+  const byName = Object.fromEntries(types.map(t => [t.name, t]))
+
+  return Node.create({
     name: 'card',
-    level: 'block',
-    start: src => src.search(/^:::[ \t]*[a-z]/m),
-    tokenize(src, _tokens, lexer) {
-      const match = /^:::[ \t]*([a-z][a-z0-9-]*)([^\n]*)\n([\s\S]*?)(?:^|\n):::[ \t]*(?:\n|$)/.exec(src)
-      if (!match) return undefined
-      return { type: 'card', raw: match[0], name: match[1], args: match[2].trim(), tokens: lexer.blockTokens(match[3] || '') }
+    group: 'block',
+    content: 'block*',
+    defining: true,
+
+    addAttributes() {
+      return { name: { default: 'callout' }, args: { default: '' } }
     },
-  },
 
-  parseMarkdown(token, helpers) {
-    return helpers.createNode('card', { name: token.name, args: token.args }, helpers.parseChildren(token.tokens || []))
-  },
+    parseHTML() {
+      return [{ tag: 'div[data-card]', getAttrs: el => ({ name: el.dataset.card, args: el.dataset.args || '' }) }]
+    },
 
-  renderMarkdown(node, helpers) {
-    const inner = helpers.renderChildren(node.content || [], '\n\n').trim()
-    return ':::' + ' ' + node.attrs.name + (node.attrs.args ? ' ' + node.attrs.args : '') + '\n' + (inner ? inner + '\n' : '') + ':::'
-  },
-})
+    renderHTML({ node, HTMLAttributes }) {
+      return ['div', mergeAttributes(HTMLAttributes, { 'data-card': node.attrs.name, 'data-args': node.attrs.args, class: 'wake-card' }), 0]
+    },
+
+    addNodeView() {
+      return ({ node, getPos, editor }) => {
+        const type = byName[node.attrs.name]
+        const save = args => {
+          if (typeof getPos === 'function') editor.chain().command(({ tr }) => { tr.setNodeMarkup(getPos(), undefined, { ...node.attrs, args }); return true }).run()
+        }
+        const dom = document.createElement('div')
+        dom.className = 'wake-card wake-card--' + node.attrs.name
+        const head = document.createElement('div')
+        head.className = 'wake-card__head'
+        head.contentEditable = 'false'
+        const label = document.createElement('span')
+        label.className = 'wake-card__name'
+        label.textContent = type ? type.title : node.attrs.name
+        label.title = type && type.description ? type.description : node.attrs.name
+        head.append(label)
+        const parts = [head]
+
+        if (type) {
+          const { attrs, value } = parseArgs(node.attrs.args)
+          const state = { attrs: { ...attrs }, value }
+          const form = document.createElement('div')
+          form.className = 'wake-card__form'
+          form.contentEditable = 'false'
+          const update = () => save(buildArgs(type, state.value, state.attrs))
+          if (type.value) form.append(fieldInput({ ...type.value, type: 'text', key: '' }, value, files, v => { state.value = v; update() }))
+          type.fields.forEach(field => form.append(fieldInput(field, attrs[field.key] ?? '', files, v => { state.attrs[field.key] = v; update() })))
+          if (form.childNodes.length) parts.push(form)
+        } else {
+          const args = document.createElement('input')
+          args.className = 'wake-card__args'
+          args.value = node.attrs.args
+          args.addEventListener('change', () => save(args.value))
+          head.append(args)
+        }
+
+        const content = document.createElement('div')
+        content.className = 'wake-card__body'
+        content.hidden = !!type && !type.content
+        dom.append(...parts, content)
+        // The head and form are not part of the document: typing, clicking
+        // and selecting there must not reach the editor.
+        const outside = target => !content.contains(target)
+        return { dom, contentDOM: content, stopEvent: e => outside(e.target), ignoreMutation: m => m.type === 'selection' ? false : outside(m.target) }
+      }
+    },
+
+    markdownTokenizer: {
+      name: 'card',
+      level: 'block',
+      start: src => src.search(/^:::[ \t]*[a-z]/m),
+      tokenize(src, _tokens, lexer) {
+        const match = /^:::[ \t]*([a-z][a-z0-9-]*)([^\n]*)\n([\s\S]*?)(?:^|\n):::[ \t]*(?:\n|$)/.exec(src)
+        if (!match) return undefined
+        return { type: 'card', raw: match[0], name: match[1], args: match[2].trim(), tokens: lexer.blockTokens(match[3] || '') }
+      },
+    },
+
+    parseMarkdown(token, helpers) {
+      return helpers.createNode('card', { name: token.name, args: token.args }, helpers.parseChildren(token.tokens || []))
+    },
+
+    renderMarkdown(node, helpers) {
+      const inner = helpers.renderChildren(node.content || [], '\n\n').trim()
+      return ':::' + ' ' + node.attrs.name + (node.attrs.args ? ' ' + node.attrs.args : '') + '\n' + (inner ? inner + '\n' : '') + ':::'
+    },
+  })
+}
+
+// The / menu entry for a described card, with its defaults filled in.
+function cardItem(type) {
+  const attrs = Object.fromEntries(type.fields.filter(f => f.default).map(f => [f.key, f.default]))
+  const value = type.value && type.value.placeholder && !type.value.required ? type.value.placeholder : ''
+  return {
+    key: 'card:' + type.name,
+    label: type.title,
+    hint: type.hint,
+    run: c => c.insertContent({ type: 'card', attrs: { name: type.name, args: buildArgs(type, value, attrs) }, content: type.content ? [{ type: 'paragraph' }] : [] }),
+  }
+}
 
 // Images are stored by file name; the editor shows them through their media URL.
 function wakeImage(media) {
@@ -98,9 +197,6 @@ const SLASH_ITEMS = [
   { key: 'code', label: 'Code', hint: '</>', run: c => c.toggleCodeBlock() },
   { key: 'divider', label: 'Divider', hint: '—', run: c => c.setHorizontalRule() },
   { key: 'image', label: 'Image', hint: '▣', run: null },
-  { key: 'callout', label: 'Callout', hint: '💡', run: c => c.insertContent({ type: 'card', attrs: { name: 'callout', args: '💡' }, content: [{ type: 'paragraph' }] }) },
-  { key: 'button', label: 'Button', hint: '⬭', run: c => c.insertContent({ type: 'card', attrs: { name: 'button', args: 'href="/"' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Button' }] }] }) },
-  { key: 'embed', label: 'Embed (YouTube, map …)', hint: '▶', run: c => c.insertContent({ type: 'card', attrs: { name: 'embed', args: 'https://' }, content: [] }) },
 ]
 
 // Soft line breaks inside paragraphs mean nothing in Markdown, but the
@@ -115,7 +211,8 @@ function joinSoftBreaks(json) {
   return walk(json)
 }
 
-export function create(element, { markdown, media = {}, labels = {}, placeholder = '', onChange, onUpload }) {
+export function create(element, { markdown, media = {}, cards = [], labels = {}, placeholder = '', onChange, onUpload }) {
+  const slashItems = [...SLASH_ITEMS, ...cards.filter(t => t.menu).map(cardItem)]
   const menu = document.createElement('div')
   menu.className = 'wake-slash'
   menu.hidden = true
@@ -128,7 +225,7 @@ export function create(element, { markdown, media = {}, labels = {}, placeholder
     extensions: [
       StarterKit.configure({ link: { openOnClick: false } }),
       wakeImage(media),
-      Card,
+      wakeCard(cards, Object.keys(media)),
       Placeholder.configure({ placeholder }),
       Markdown.configure({ markedOptions: { gfm: true, breaks: false } }),
     ],
@@ -157,7 +254,7 @@ export function create(element, { markdown, media = {}, labels = {}, placeholder
     const text = $from.parent.textContent
     if (!empty || $from.parent.type.name !== 'paragraph' || !text.startsWith('/') || text.length > 20) { menu.hidden = true; return }
     const query = text.slice(1).toLowerCase()
-    items = SLASH_ITEMS.filter(i => (labels[i.key] || i.label).toLowerCase().includes(query) || i.key.includes(query))
+    items = slashItems.filter(i => (labels[i.key] || i.label).toLowerCase().includes(query) || i.key.includes(query))
     if (!items.length) { menu.hidden = true; return }
     active = Math.min(active, items.length - 1)
     menu.innerHTML = ''

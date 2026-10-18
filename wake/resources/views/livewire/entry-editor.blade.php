@@ -4,8 +4,7 @@
     $isPublished = $statusClass === 'published';
     $labels = [
         'h2' => __('Heading'), 'h3' => __('Subheading'), 'ul' => __('List'), 'ol' => __('Numbered list'), 'quote' => __('Quote'),
-        'code' => __('Code'), 'divider' => __('Divider'), 'image' => __('Image'), 'callout' => __('Callout'), 'button' => __('Button'),
-        'embed' => __('Embed (YouTube, map …)'), 'link' => __('Link address'),
+        'code' => __('Code'), 'divider' => __('Divider'), 'image' => __('Image'), 'link' => __('Link address'),
     ];
     $duration = fn (int $s) => $s >= 60 ? intdiv($s, 60).' min '.str_pad((string) ($s % 60), 2, '0', STR_PAD_LEFT).' s' : $s.' s';
 @endphp
@@ -78,6 +77,7 @@
                             this.api = window.WakeEditor.create(this.$refs.editor, {
                                 markdown: @js($body),
                                 media: @js($mediaMap),
+                                cards: @js($cards),
                                 labels: @js($labels),
                                 placeholder: @js(__('Start writing, or type / for blocks …')),
                                 onChange: (push => md => { this.dirty = true; this.rev++; push(md) })(Alpine.debounce(md => $wire.set('body', md, false), 400)),

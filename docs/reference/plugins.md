@@ -82,7 +82,7 @@ Laravel's container: `app()->instance(MyService::class, new MyService($plugin));
 
 | Method | Adds |
 |---|---|
-| `card($name, $view)` | a card for Markdown, `::: name … :::`. The view gets `$name`, `$value`, `$attributes` and `$content`. A theme's `cards/{name}.blade.php` still wins. See [cards](content-format.md#cards). |
+| `card($name, $view)` | a card for Markdown, `::: name … :::`. The view gets `$name`, `$value`, `$attributes` and `$content`. A theme's `cards/{name}.blade.php` still wins. A `views/cards/{name}.yml` [describes it](templates.md#card-descriptions) for the editor and assistants. See [cards](content-format.md#cards). |
 | `field($type, $view, $label)` | a field type for [categories](content-format.md#categories). The view renders the input in the editor and gets `$key`, `$field`, `$model` (for `wire:model`) and `$disabled`. `$label` is a text or one per language. |
 | `routes($closure)` | website routes, registered before Wake's own addresses, in the alphabetical order of the plugin folders. They have no session and no page cache. While the site is [closed](configuration.md#site), they answer only signed-in team members, like the website. Wrap them in `Route::middleware('web')` only for routes used by signed-in team members (session and CSRF protection). |
 | `task($class)` | a [maintenance](../concepts/architecture.md#maintenance-without-cron) task, a class implementing `Wake\Maintenance\Task` with `run(Deadline $deadline)`. Wake creates it through Laravel's container, so the constructor can ask for services. Check `$deadline->expired()` in loops. |

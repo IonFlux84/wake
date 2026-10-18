@@ -1,0 +1,8 @@
+title:
+  en: Embed (YouTube, map …)
+  de: Einbetten (YouTube, Karte …)
+description:
+  en: A video, map or post from another site. It loads only after a click or consent. The text inside is the caption.
+  de: Ein Video, eine Karte oder ein Beitrag von einer anderen Website. Lädt erst nach Klick oder Einwilligung. Der Text darin ist die Bildunterschrift.
+hint: ▶
+value: { label: { en: Address, de: Adresse }, placeholder: 'https://www.youtube.com/watch?v=…', required: true }

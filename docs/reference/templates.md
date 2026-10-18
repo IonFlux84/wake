@@ -312,11 +312,63 @@ restyle built-in cards and add new ones. The template receives:
 | `$value` | free text after the name |
 | `$attributes` | `key="value"` settings |
 | `$content` | the card's content as HTML |
+| `$card` | its [description](#card-descriptions), or `null` |
+| `$images` | the media files (`Wake\Media\Media`, or `null` if missing) of its `image` fields, by field |
 
 ```blade
 {{-- templates/cards/callout.blade.php --}}
 <aside class="callout">{{ $value }} {{ $content }}</aside>
 ```
+
+### Card descriptions
+
+A `{name}.yml` next to the card's view tells the editor and AI assistants what
+the card is for and which settings it has. The editor then shows a small form
+instead of the raw line and offers the card in its `/` menu; assistants read
+it with the MCP tool [`content_cards`](mcp.md#content_cards).
+
+```yaml
+# templates/cards/member.yml, used as ::: member Jane Doe role="Chair" photo="jane.jpg"
+title: { en: Board member, de: Vorstandsmitglied }
+description:
+  en: A person of the board with photo and role.
+  de: Eine Person aus dem Vorstand mit Foto und Amt.
+hint: 👤                      # short sign in the / menu
+value:                        # the text after the name; leave out if unused
+  label: { en: Name, de: Name }
+  required: true
+content: false                # true (default): the card holds Markdown
+fields:
+  role:  { type: text, label: { en: Role, de: Amt }, required: true }
+  photo: { type: image, label: { en: Photo, de: Foto } }
+  tone:
+    type: select
+    default: light
+    options: { light: { en: Light, de: Hell }, dark: { en: Dark, de: Dunkel } }
+```
+
+| Key | Meaning |
+|---|---|
+| `title`, `description` | text, or one text per language |
+| `hint` | up to three characters for the `/` menu |
+| `value` | `label`, `placeholder`, `required` for the text after the name |
+| `content` | `false` hides the text area of the card in the editor |
+| `menu` | `false` keeps the card out of the `/` menu |
+| `fields` | settings written as `key="value"`, in this order. Keys are lowercase. `type`: `text`, `url`, `image` (a file from the media library, or a name in the entry's media folder), `select` with `options`, `toggle` (written as `"true"`), `number`, `date`, `color`. Also `label`, `placeholder`, `required`, `default` |
+
+```blade
+{{-- templates/cards/member.blade.php --}}
+<figure class="member member-{{ $attributes['tone'] ?? 'light' }}">
+    @if ($images['photo'] ?? null){{ $images['photo']->img($value) }}@endif
+    <figcaption><b>{{ $value }}</b> {{ $attributes['role'] ?? '' }}</figcaption>
+</figure>
+```
+
+Wake reads its own descriptions (for `callout`, `button`, `embed` and
+`divider`) first, then those of running plugins (`views/cards/{name}.yml`),
+then the theme's; the theme wins. A description that cannot be read is shown
+on the *Themes* page in the panel. Settings a description does not know stay
+in the text as they are.
 
 ## Translations
 

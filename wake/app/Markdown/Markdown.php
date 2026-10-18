@@ -51,7 +51,7 @@ class Markdown
 
         $environment->addExtension(new CommonMarkCoreExtension);
         $environment->addExtension(new GithubFlavoredMarkdownExtension);
-        $environment->addExtension(new CardExtension);
+        $environment->addExtension(new CardExtension(fn () => $this->entry));
         $environment->addEventListener(DocumentParsedEvent::class, $this->resolveFiles(...));
 
         return $this->converter = new MarkdownConverter($environment);

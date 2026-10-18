@@ -14,6 +14,9 @@
     @if (session('status'))<div class="flash" role="status">{{ session('status') }}</div>@endif
     @error('zip')<div class="flash error" role="alert">{{ $message }}</div>@enderror
     <span wire:loading wire:target="zip" class="muted">{{ __('Installing …') }}</span>
+    @foreach ($cardErrors as $file => $error)
+        <div class="flash error" role="alert">{{ __('The card description :file cannot be read, so the editor shows no form for this card:', ['file' => $file]) }} <span class="mono">{{ \Illuminate\Support\Str::limit($error, 200) }}</span></div>
+    @endforeach
 
     <section class="grid grid-3">
         @foreach ($themes as $folder => $theme)

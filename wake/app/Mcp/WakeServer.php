@@ -44,6 +44,7 @@ class WakeServer extends Server
         Tools\ConsentOverviewTool::class,
         Tools\ContentListTool::class,
         Tools\ContentReadTool::class,
+        Tools\ContentCardsTool::class,
         Tools\ContentCreateTool::class,
         Tools\ContentUpdateTool::class,
         Tools\ContentStyleTool::class,

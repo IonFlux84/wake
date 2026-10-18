@@ -205,6 +205,13 @@ All notable changes to Wake are documented here. The format follows
     as `media/<path>`; the editor uploads to `media/<entry id>/`.
   - `php wake/artisan wake:layout --apply` moves an existing site, with a
     backup first.
+- Card descriptions: a `{name}.yml` next to a card's view (theme
+  `templates/cards/`, plugin `views/cards/`, and for Wake's own cards) gives it
+  a title, a description and typed settings. The editor shows a form for the
+  card instead of the raw line and offers it in the `/` menu; assistants read
+  them with the MCP tool `content_cards`. The view also gets `$card` and the
+  media files of its image fields as `$images`. Descriptions that cannot be
+  read are shown on the *Themes* page.
 - Design of a single page: a `style.css` next to `content.md`, edited in the
   editor under *Design* with the same rights as the text. Wake loads it only on
   that page, limits it to `<main>` with `@scope`, and cleans it: no `@import`,

@@ -11,6 +11,7 @@ use Laravel\Mcp\Server\Resource;
 use Wake\Content\ContentTypes;
 use Wake\Content\Site;
 use Wake\Localization\Languages;
+use Wake\Markdown\Cards\CardTypes;
 
 #[Uri('wake://site')]
 #[Description('The website at a glance: title, languages, content types and how posts are written in Wake (front matter, cards). Read this before writing content.')]
@@ -26,6 +27,7 @@ class SiteResource extends Resource
         $text .= '- Address: '.url('/')."\n";
         $text .= '- Languages: '.collect($languages->all())->map(fn ($n, $c) => "{$n} ({$c})")->implode(', ').", default {$languages->default()}\n";
         $text .= '- Content types: '.collect(app(ContentTypes::class)->all())->map(fn ($t) => "{$t->name} (folder {$t->folder})")->implode(', ')."\n\n";
+        $cards = collect(app(CardTypes::class)->all())->map(fn ($card) => "`{$card->name}` ({$card->title($languages->default())})")->implode(', ');
         $text .= <<<'MARKDOWN'
         ## How content is written
 
@@ -44,6 +46,7 @@ class SiteResource extends Resource
 
         Each language is its own file. A translation should get its own `slug`.
         MARKDOWN;
+        $text .= "\n\nCards on this site: {$cards}. The tool `content_cards` describes their settings.\n";
 
         return Response::text($text);
     }

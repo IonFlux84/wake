@@ -338,6 +338,19 @@ settings) and `$content` (the inside as HTML):
 </figure>
 ```
 
+Give a new card a description next to its view, `templates/cards/quote.yml`,
+so editors get a form and an entry in the `/` menu, and assistants know how to
+use it:
+
+```yaml
+title: { en: Quote, de: Zitat }
+hint: “
+fields:
+  author: { type: text, label: { en: Author, de: Von } }
+```
+
+All keys are in the [templates reference](../reference/templates.md#card-descriptions).
+
 Leave `embed` alone unless you know what you do: Wake's version asks for
 consent before it loads YouTube or Vimeo ([consent](../concepts/consent.md)).
 

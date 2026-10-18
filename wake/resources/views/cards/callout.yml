@@ -1,0 +1,6 @@
+title: { en: Callout, de: Hinweis }
+description:
+  en: A highlighted box for a tip or a warning.
+  de: Ein hervorgehobener Kasten für einen Tipp oder eine Warnung.
+hint: 💡
+value: { label: { en: Icon, de: Symbol }, placeholder: 💡 }

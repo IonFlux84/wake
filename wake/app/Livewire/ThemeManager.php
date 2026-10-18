@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Wake\Cache\PageCache;
+use Wake\Markdown\Cards\CardTypes;
 use Wake\Support\PublicAssets;
 use Wake\Support\Settings;
 use Wake\Theme\Themes;
@@ -112,6 +113,7 @@ class ThemeManager extends Component
         return view('wake::livewire.theme-manager', [
             'themes' => $all,
             'active' => (string) config('wake.theme'),
+            'cardErrors' => app(CardTypes::class)->errors(),
             'screenshots' => collect($all)->map(fn ($t) => $t->screenshot()
                 ? PublicAssets::url($t->screenshot(), 'assets/themes/'.$t->folder.'/'.basename($t->screenshot()))
                 : null),
