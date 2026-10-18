@@ -180,8 +180,11 @@ folder, by its name:
 - The media library in the panel shows which entries use a file, lists unused
   files and warns before deleting one in use. Only people who may delete every
   entry may delete a file that is used.
-- Media of drafts are not hidden; their addresses carry a hash and are hard to
-  guess.
+- Files that only drafts or scheduled entries use stay **private**: Wake shows
+  them to team members who may read such an entry, but nobody else, and makes
+  no public copy. Once one entry using a file is published, the file is public;
+  when it goes offline again, Wake removes the public copies. Files that no
+  entry uses are public, so links from elsewhere keep working.
 
 Wake turns these references into public URLs. Images are resized on first use to the
 widths in `images.widths` and converted to WebP for browsers that support it.

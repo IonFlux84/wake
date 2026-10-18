@@ -50,6 +50,7 @@ use Wake\Maintenance\Maintenance;
 use Wake\Markdown\Cards\CardTypes;
 use Wake\Markdown\Markdown;
 use Wake\Mcp\CurrentToken;
+use Wake\Media\MediaAccess;
 use Wake\Panel\Panel;
 use Wake\Plugins\Plugins;
 use Wake\Support\Paths;
@@ -125,6 +126,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('wakeHead', fn () => "<?php echo view('wake::head', ['site' => \$site ?? app(\\Wake\\Content\\Site::class), 'entry' => \$entry ?? null])->render(); ?>");
 
         Event::listen(ContentChanged::class, fn () => $this->app->make(PageCache::class)->flush());
+        Event::listen(ContentChanged::class, fn () => MediaAccess::prune());
 
         $this->app->terminating(function () {
             if (config('wake.maintenance.mode') === 'requests'

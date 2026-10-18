@@ -75,8 +75,8 @@ content/
   to change an address, and the panel writes a redirect when it does that.
 - The page tree needs a small write into the file instead of a rename, so Git
   diffs of a reorder show `order:` lines.
-- Images are no longer hidden with a draft. Their addresses carry a hash, so
-  they stay hard to guess.
+- Files that only drafts use stay private: Wake serves them to team members
+  only and makes no public copy until an entry using them is published.
 - Two uploads with the same name in one folder get `-2`; files overwritten by
   FTP are noticed by their modification time.
 - Wake reads only the new layout. Sites from 0.1 run `wake:layout` once.

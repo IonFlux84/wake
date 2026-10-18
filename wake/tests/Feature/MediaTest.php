@@ -6,9 +6,11 @@ use Symfony\Component\Yaml\Yaml;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Permissions;
 use Wake\Accounts\Role;
+use Wake\Content\Index;
 use Wake\Content\Models\Post;
 use Wake\Content\Writer;
 use Wake\Livewire\MediaLibrary;
+use Wake\Media\Media;
 use Wake\Support\Files;
 use Wake\Support\Paths;
 
@@ -168,4 +170,39 @@ it('lets only people who may delete everything delete used files', function () {
     Files::copy(Paths::content('media/posts/first/photo.png'), Paths::content('media/documents/spare.png'));
 
     expect(Permissions::mayDeleteMedia($editor, 'documents/spare.png'))->toBeTrue();
+});
+
+it('keeps images of drafts private until the entry is published', function () {
+    Files::copy(Paths::content('media/posts/first/photo.png'), Paths::content('media/posts/draft/secret.png'));
+    app(Writer::class)->update('posts/draft', 'en', body: '![](secret.png)');
+
+    $url = Post::find('posts/draft')->file('secret.png')->url();
+    $path = parse_url($url, PHP_URL_PATH);
+    $hash = explode('/', $path)[2];
+
+    $this->get($path)->assertNotFound();
+    expect(is_dir(public_path('media/'.$hash)))->toBeFalse();
+
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+    $response = $this->actingAs($owner)->get($path)->assertOk();
+    expect($response->headers->get('Cache-Control'))->toContain('no-store')->toContain('private');
+    expect(is_dir(public_path('media/'.$hash)))->toBeFalse();
+
+    app(Writer::class)->update('posts/draft', 'en', ['status' => 'published']);
+    auth()->logout();
+
+    $this->get($path)->assertOk();
+    expect(is_dir(public_path('media/'.$hash)))->toBeTrue();
+
+    app(Writer::class)->update('posts/draft', 'en', ['status' => 'draft']);
+
+    expect(is_dir(public_path('media/'.$hash)))->toBeFalse();
+    $this->get($path)->assertNotFound();
+});
+
+it('serves files nobody uses, so links from elsewhere keep working', function () {
+    Files::copy(Paths::content('media/posts/first/photo.png'), Paths::content('media/documents/flyer.png'));
+    app(Index::class)->refresh();
+
+    $this->get(parse_url(Media::find('documents/flyer.png')->url(), PHP_URL_PATH))->assertOk();
 });

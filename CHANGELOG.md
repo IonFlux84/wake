@@ -196,6 +196,10 @@ All notable changes to Wake are documented here. The format follows
   `track.js` sends nothing until the visitor agrees; the page view is counted
   as soon as they do. Before, any decision, even "Decline", counted as consent.
 - `wake:clear` also clears the compiled templates.
+- Files of the media library that only drafts or scheduled entries use stay
+  private: only team members who may read such an entry see them, and no
+  public copy is made. Public copies are removed when the last published entry
+  using a file goes offline.
 - New folder layout ([decision 0011](docs/decisions/0011-one-folder-per-entry.md)):
   - `site/` and `storage/` are split into `settings/`, `themes/`, `plugins/`,
     `data/` (to back up) and `temp/` (may be deleted). The panel settings are
