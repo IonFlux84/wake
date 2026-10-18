@@ -134,12 +134,14 @@ it('does not let anyone turn it off while the site requires it', function () {
 it('lets owners require it only with it set up for themselves', function () {
     $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
 
-    Livewire::actingAs($owner)->test(Settings::class)->set('requireTwoFactor', true)->call('saveSite')->assertHasErrors('requireTwoFactor');
+    Livewire::actingAs($owner)->test(Settings::class)->set('requireTwoFactor', true)->assertHasErrors('requireTwoFactor');
     expect(config('wake.security.require_two_factor'))->toBeFalse();
 
+    // The switch takes effect at once, without saving the form.
     [$secured] = withTwoFactor(Role::Owner, 'owen@example.com');
-    Livewire::actingAs($secured)->test(Settings::class)->set('requireTwoFactor', true)->call('saveSite')->assertHasNoErrors();
-    expect(config('wake.security.require_two_factor'))->toBeTrue();
+    Livewire::actingAs($secured)->test(Settings::class)->set('requireTwoFactor', true)->assertHasNoErrors();
+    expect(config('wake.security.require_two_factor'))->toBeTrue()
+        ->and(Wake\Support\Settings::read()['security']['require_two_factor'])->toBeTrue();
 });
 
 it('reminds people on the dashboard and shows the state in the team', function () {

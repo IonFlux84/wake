@@ -103,6 +103,32 @@ class Settings extends Component
         $this->language = $me->chosenLanguage() ?? '';
     }
 
+    /**
+     * The two switches at the top take effect at once, not with the form.
+     */
+    public function updatedClosed(): void
+    {
+        $this->authorizeAdmin();
+        SiteSettings::save(['closed' => $this->closed]);
+        app(PageCache::class)->flush();
+        session()->flash('status', $this->closed ? __('The website is closed now.') : __('The website is open now.'));
+    }
+
+    public function updatedRequireTwoFactor(): void
+    {
+        $this->authorizeAdmin();
+
+        if ($this->requireTwoFactor && ! TwoFactor::isEnabled(auth()->user())) {
+            $this->addError('requireTwoFactor', __('Set up two-factor sign-in for your own account first.'));
+            $this->requireTwoFactor = false;
+
+            return;
+        }
+
+        SiteSettings::save(['security.require_two_factor' => $this->requireTwoFactor]);
+        session()->flash('status', $this->requireTwoFactor ? __('Two-factor sign-in is now required for everyone.') : __('Two-factor sign-in is optional again.'));
+    }
+
     public function saveSite(Index $index): void
     {
         $this->authorizeAdmin();

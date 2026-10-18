@@ -43,7 +43,7 @@
                     <p class="muted" style="margin:4px 0 0;font-size:14px">{{ __('Everyone on the team must set up two-factor sign-in before they can use the panel. People who have not done it yet are taken to the setup right after signing in.') }}</p>
                     @error('requireTwoFactor')<p class="error" style="margin:6px 0 0;font-size:13px;color:var(--danger)">{{ $message }}</p>@enderror
                 </div>
-                <label class="check" style="white-space:nowrap"><input type="checkbox" wire:model="requireTwoFactor"> {{ __('Required') }}</label>
+                <label class="check" style="white-space:nowrap"><input type="checkbox" wire:model.live="requireTwoFactor"> {{ __('Required') }}</label>
             </section>
             <section class="grid grid-2">
                 <div class="card form">

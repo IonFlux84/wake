@@ -164,6 +164,8 @@ All notable changes to Wake are documented here. The format follows
   people without it are taken to the setup after signing in. The setup sits
   next to *Your account* at the top of *Settings*, the dashboard reminds
   people who have not set it up, and *Team* shows who has it.
+- The switches *Closed site* and *Require two-factor sign-in* take effect at
+  once instead of waiting for the settings form to be saved.
 - Two-factor sign-in with codes from an authenticator app (TOTP) and eight
   recovery codes, set up per account under Settings. Team managers can turn
   it off for someone who lost their phone.
