@@ -45,3 +45,12 @@ it('has no unused German translations', function () {
 
     expect($unused)->toBe([], 'Translations in wake/lang/de.json that no code uses');
 });
+
+it('uses no text that clashes with a translation file name', function () {
+    // __('History') would return the array from lang/en/history.php on
+    // case-insensitive file systems.
+    $files = array_map(fn ($f) => strtolower(basename($f, '.php')), glob(base_path('lang/en/*.php')));
+    $clashes = array_values(array_filter(translationKeys(), fn ($key) => in_array(strtolower($key), $files, true)));
+
+    expect($clashes)->toBe([]);
+});

@@ -33,6 +33,7 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::view('assistants', 'wake::panel.assistants')->name('assistants');
         Route::view('team', 'wake::panel.team')->name('team');
         Route::view('settings', 'wake::panel.settings')->name('settings');
+        Route::view('media', 'wake::panel.media')->name('media.index');
 
         Route::get('posts', [ContentController::class, 'index'])->defaults('type', 'post')->name('posts');
         Route::get('pages', [ContentController::class, 'index'])->defaults('type', 'page')->name('pages');

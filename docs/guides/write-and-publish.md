@@ -37,7 +37,8 @@ Once published, *Save* becomes *Update*, and every update is live immediately.
 
 ## What happens in the background
 
-- Every save keeps the previous version as a revision.
+- Every save keeps the previous version as a revision. The *Versions* tab in
+  the side panel lists them and puts an earlier one back with one click.
 - Changing the address of a published post adds a redirect from the old one.
 - *Delete* moves the post with all languages and files to `storage/trash/`.
 - If someone else has the post open, the editor says so.

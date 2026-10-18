@@ -124,6 +124,26 @@ class Writer
         ]);
     }
 
+    /**
+     * Put an earlier version of a translation back. The current version is
+     * kept as a revision too, so restoring can be undone.
+     */
+    public function restore(string $id, string $language, string $revision): Entry
+    {
+        $row = $this->existing($id);
+        $file = $this->fileFor($row, $language);
+        $contents = $this->revisions->get($file, $revision) ?? throw new InvalidArgumentException('There is no such revision.');
+        [$fields, $body] = FrontMatter::parse($contents, $file);
+
+        $current = $row['languages'][$language]['fields'] ?? [];
+        $removed = array_fill_keys(array_keys(array_diff_key($current, $fields)), null);
+
+        $entry = $this->update($id, $language, [...$removed, ...$fields], $body);
+        $this->history->record('restore', $id, $language);
+
+        return $entry;
+    }
+
     public function unpublish(string $id, string $language): Entry
     {
         return $this->update($id, $language, ['status' => 'draft']);

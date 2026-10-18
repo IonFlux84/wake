@@ -13,8 +13,10 @@ use Wake\Accounts\Account;
 use Wake\Accounts\Permissions;
 use Wake\Content\ContentTypes;
 use Wake\Content\Entry;
+use Wake\Content\History;
 use Wake\Content\Index;
 use Wake\Content\Query;
+use Wake\Content\Revisions;
 use Wake\Content\Writer;
 use Wake\Localization\Languages;
 use Wake\Media\Media;
@@ -216,6 +218,16 @@ class EntryEditor extends Component
         return $file ? ['name' => $name, 'url' => $file->url()] : null;
     }
 
+    public function restore(string $revision): void
+    {
+        abort_unless($this->id && $this->mayEdit($this->entry()), 403);
+
+        $entry = app(Writer::class)->restore($this->id, $this->language, $revision);
+        $this->loadEntry($entry);
+        $this->dispatch('wake-editor-load', markdown: $this->body);
+        session()->flash('status', __('The earlier version is back. The version before is kept as a revision.'));
+    }
+
     public function setCover(string $name): void
     {
         $this->cover = $name;
@@ -249,6 +261,9 @@ class EntryEditor extends Component
             'mayPublish' => $this->mayPublish(),
             'otherEditor' => $this->otherEditor(),
             'stats' => $this->tab === 'stats' && $entry ? $this->stats($entry) : null,
+            'revisions' => $this->tab === 'history' && $entry?->hasTranslation($this->language)
+                ? app(Revisions::class)->of($entry->row()['languages'][$this->language]['file']) : [],
+            'history' => $this->tab === 'history' && $entry ? app(History::class)->latest(20, $entry->id()) : [],
             'pages' => $this->type === 'page' ? (new Query('page'))->withFallback(true)->orderBy('title')->get() : collect(),
         ]);
     }

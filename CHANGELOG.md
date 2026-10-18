@@ -81,3 +81,6 @@ All notable changes to Wake are documented here. The format follows
   addresses, missing translations, statistics, approval for assistants and the
   accent colour (stored in `site/settings.yml`), your own account and
   password, notes on content problems and the latest changes.
+- Earlier versions of every translation in the editor, with one-click restore
+  (the current text is kept), and the changes of the entry.
+- Media page with every file of every entry.

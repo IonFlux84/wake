@@ -91,9 +91,32 @@
             <div class="segmented" role="tablist">
                 <button type="button" role="tab" wire:click="$set('tab', 'entry')" @class(['on' => $tab === 'entry'])>{{ __('Entry') }}</button>
                 <button type="button" role="tab" wire:click="$set('tab', 'stats')" @class(['on' => $tab === 'stats']) @disabled(! $entry)>{{ __('Statistics') }}</button>
+                <button type="button" role="tab" wire:click="$set('tab', 'history')" @class(['on' => $tab === 'history']) @disabled(! $entry)>{{ __('Versions') }}</button>
             </div>
 
-            @if ($tab === 'stats' && $stats)
+            @if ($tab === 'history')
+                <div class="card" style="gap:10px">
+                    <h2 class="h2">{{ __('Earlier versions') }}</h2>
+                    @forelse ($revisions as $revision)
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px" wire:key="rev-{{ $revision['id'] }}">
+                            <span class="mono">{{ $revision['time']->locale(app()->getLocale())->isoFormat('D. MMM, H:mm') }}</span>
+                            <button type="button" class="btn btn-small" wire:click="restore('{{ $revision['id'] }}')" wire:confirm="{{ __('Put this version back? The current text is kept as a revision.') }}">{{ __('Restore') }}</button>
+                        </div>
+                    @empty
+                        <p class="muted" style="margin:0">{{ __('No earlier versions yet. Wake keeps one each time you save.') }}</p>
+                    @endforelse
+                </div>
+                <div class="card" style="gap:8px">
+                    <h2 class="h2">{{ __('Changes') }}</h2>
+                    @forelse ($history as $item)
+                        <div style="font-size:13px"><b>{{ __('wake::history.'.$item['action']) }}</b>@if (! empty($item['language'])) <span class="chip current">{{ $item['language'] }}</span>@endif
+                            <span class="muted">· {{ $item['account'] ?? '' }} · {{ \Carbon\CarbonImmutable::parse($item['time'])->locale(app()->getLocale())->diffForHumans() }}</span>
+                            @if (($item['via'] ?? '') === 'mcp')<span class="badge mcp">MCP</span>@endif</div>
+                    @empty
+                        <p class="muted" style="margin:0">{{ __('Nothing changed yet.') }}</p>
+                    @endforelse
+                </div>
+            @elseif ($tab === 'stats' && $stats)
                 <div class="grid grid-2" style="gap:10px">
                     <div class="card" style="padding:16px;gap:6px"><div class="kpi-label">{{ __('Visitors') }}</div><div class="kpi-value" style="font-size:26px">{{ $stats['page']['visitors'] }}</div></div>
                     <div class="card" style="padding:16px;gap:6px"><div class="kpi-label">{{ __('Page views') }}</div><div class="kpi-value" style="font-size:26px">{{ $stats['page']['pageviews'] }}</div></div>

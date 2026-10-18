@@ -26,6 +26,7 @@ use Wake\Livewire\Entries;
 use Wake\Livewire\EntryEditor;
 use Wake\Livewire\Journey;
 use Wake\Livewire\LiveVisitors;
+use Wake\Livewire\MediaLibrary;
 use Wake\Livewire\Statistics;
 use Wake\Livewire\Team;
 use Wake\Localization\Languages;
@@ -50,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
         'entries' => Entries::class,
         'entry-editor' => EntryEditor::class,
         'team' => Team::class,
+        'media-library' => MediaLibrary::class,
         'settings' => \Wake\Livewire\Settings::class,
     ];
 

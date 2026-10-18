@@ -5,7 +5,10 @@ use Livewire\Livewire;
 use Wake\Accounts\Account;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
+use Wake\Content\History;
 use Wake\Content\Models\Post;
+use Wake\Content\Revisions;
+use Wake\Content\Writer;
 use Wake\Livewire\Entries;
 use Wake\Livewire\EntryEditor;
 
@@ -130,4 +133,26 @@ it('shows who else is editing', function () {
 
     Livewire::actingAs($dana)->test(EntryEditor::class, ['type' => 'post'])->set('id', 'posts/2026-01-10-first')
         ->assertSee('Eve is editing this entry right now');
+});
+
+it('restores an earlier version from the history tab', function () {
+    $owner = member(Role::Owner);
+    app(Writer::class)->update('posts/2026-02-01-second', 'en', ['title' => 'Changed', 'extra' => 'x'], 'Changed body.');
+    $revision = app(Revisions::class)->of('posts/2026-02-01-second/index.en.md')[0]['id'];
+
+    Livewire::actingAs($owner)->test(EntryEditor::class, ['type' => 'post'])
+        ->set('id', 'posts/2026-02-01-second')->set('tab', 'history')
+        ->assertSee('Earlier versions')
+        ->call('restore', $revision)
+        ->assertSet('title', 'Second post');
+
+    $post = Post::find('posts/2026-02-01-second');
+
+    expect($post->body())->toBe("Only in English.\n")
+        ->and($post->get('extra'))->toBeNull()
+        ->and(app(History::class)->latest(1)[0]['action'])->toBe('restore');
+});
+
+it('shows all media in the library', function () {
+    $this->actingAs(member(Role::Owner))->get('/wake/media')->assertOk()->assertSee('photo.png')->assertSee('First post');
 });
