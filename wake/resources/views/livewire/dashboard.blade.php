@@ -13,6 +13,19 @@
     @unless (\Wake\Accounts\TwoFactor::isEnabled(auth()->user()))
         <a href="{{ route('wake.settings') }}#two-factor" class="flash"><x-wake::icon name="key" size="16" /><span class="grow">{{ __('Protect your account with two-factor sign-in: a stolen password alone is then not enough.') }}</span><span class="go">{{ __('Set up') }} →</span></a>
     @endunless
+    @php($legalTodo = app(\Wake\Content\LegalPages::class)->todo())
+    @if ($legalTodo && (auth()->user()->can('content.edit_all') || auth()->user()->can('settings.manage')))
+        <div class="flash" role="status" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <x-wake::icon name="pages" size="16" />
+            <span class="grow">{{ in_array('missing', $legalTodo, true) ? __('Your site has no imprint or privacy policy yet.') : __('Imprint and privacy policy are drafts: fill in the placeholders and publish them.') }}</span>
+            @if (in_array('missing', $legalTodo, true))
+                <button type="button" class="btn btn-small" wire:click="createLegalPages">{{ __('Create from templates') }}</button>
+            @endif
+            @foreach (['imprint' => __('Imprint'), 'privacy' => __('Privacy policy')] as $kind => $label)
+                @if (($legalTodo[$kind] ?? '') === 'draft')<a class="btn btn-small" href="{{ route('wake.entries.edit', ['type' => 'page', 'id' => config('wake.legal.'.$kind)]) }}">{{ $label }} →</a>@endif
+            @endforeach
+        </div>
+    @endif
     <header class="page-head">
         <div>
             <div class="eyebrow">{{ now()->locale(app()->getLocale())->isoFormat('dd, D. MMMM · H:mm') }}</div>

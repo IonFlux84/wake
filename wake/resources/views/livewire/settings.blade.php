@@ -65,6 +65,20 @@
                             <select id="missing" class="select" wire:model="missingTranslation"><option value="hide">{{ __('Show nothing (404)') }}</option><option value="fallback">{{ __('Show the default language with a notice') }}</option></select></div>
                     @endif
                     <p class="muted" style="margin:0;font-size:13px">{{ __('Languages are set in settings/config.php.') }}</p>
+                    <h2 class="h2" style="margin-top:8px">{{ __('Legal pages') }}</h2>
+                    <div class="grid grid-2" style="gap:12px">
+                        @foreach (['imprint' => __('Imprint'), 'privacyPage' => __('Privacy policy')] as $model => $label)
+                            <div class="field"><label for="legal-{{ $model }}">{{ $label }}</label>
+                                <select id="legal-{{ $model }}" class="select" wire:model="{{ $model }}">
+                                    <option value="">{{ __('None') }}</option>
+                                    @php($current = $model === 'imprint' ? config('wake.legal.imprint') : config('wake.legal.privacy'))
+                                    @if ($current && ! $pages->contains(fn ($page) => $page->id() === $current))<option value="{{ $current }}">{{ $current }} ({{ __('missing') }})</option>@endif
+                                    @foreach ($pages as $page)<option value="{{ $page->id() }}">{{ $page->title() }}{{ $page->isPublished() ? '' : ' ('.__('Draft').')' }}</option>@endforeach
+                                </select>
+                                @error($model)<span class="error">{{ $message }}</span>@enderror</div>
+                        @endforeach
+                    </div>
+                    <p class="muted" style="margin:0;font-size:13px">{{ __('Themes link them in the footer once they are published; the cookie banner links the privacy policy.') }}</p>
                     <h2 class="h2" style="margin-top:8px">{{ __('Panel') }}</h2>
                     <div class="field"><label for="panel-lang">{{ __('Language of the panel') }}</label>
                         <select id="panel-lang" class="select" wire:model="panelLanguage"><option value="de">Deutsch</option><option value="en">English</option></select>

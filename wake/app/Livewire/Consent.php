@@ -8,6 +8,7 @@ use Livewire\Component;
 use Wake\Consent\ConsentRecords;
 use Wake\Consent\ConsentSettings;
 use Wake\Content\Index;
+use Wake\Content\Query;
 use Wake\Localization\Languages;
 
 /**
@@ -23,6 +24,10 @@ class Consent extends Component
 
     public string $position = 'bottom';
 
+    /** The banner's privacy link: "" for the site's privacy policy, a page id, or "custom". */
+    public string $privacy = '';
+
+    /** The address when $privacy is "custom". */
     public string $privacyUrl = '';
 
     /** @var array<string, array<string, string>> */
@@ -37,6 +42,7 @@ class Consent extends Component
         $this->always = (bool) $settings->get('always');
         $this->position = (string) $settings->get('position');
         $this->privacyUrl = (string) $settings->get('privacy_url');
+        $this->privacy = $this->privacyUrl !== '' ? 'custom' : (string) $settings->get('privacy_page');
         $this->language = $languages->default();
 
         foreach ($languages->codes() as $code) {
@@ -50,7 +56,12 @@ class Consent extends Component
 
         $this->validate([
             'position' => 'in:bottom,center',
-            'privacyUrl' => 'nullable|string|max:300',
+            'privacy' => ['nullable', 'string', function (string $attribute, mixed $value, \Closure $fail) {
+                if ($value !== '' && $value !== 'custom' && (new Query('page'))->find((string) $value) === null) {
+                    $fail(__('This page does not exist.'));
+                }
+            }],
+            'privacyUrl' => ['nullable', 'string', 'max:300', 'required_if:privacy,custom', 'regex:#^(/|https?://)#i'],
             'texts.*.title' => 'required|string|max:120',
             'texts.*.text' => 'required|string|max:1000',
             'texts.*.accept' => 'required|string|max:40',
@@ -74,7 +85,8 @@ class Consent extends Component
             'marketing' => $this->marketing,
             'always' => $this->always,
             'position' => $this->position,
-            'privacy_url' => $this->privacyUrl,
+            'privacy_page' => $this->privacy === 'custom' ? '' : $this->privacy,
+            'privacy_url' => $this->privacy === 'custom' ? trim($this->privacyUrl) : '',
             'texts' => $texts,
         ]);
 
@@ -94,6 +106,8 @@ class Consent extends Component
             'version' => (int) $settings->get('version'),
             'bannerNeeded' => $settings->bannerNeeded(),
             'services' => $index->services(),
+            'pages' => (new Query('page'))->withFallback(true)->any()->orderBy('title')->get(),
+            'sitePrivacy' => (new Query('page'))->withFallback(true)->any()->find((string) config('wake.legal.privacy', '')),
         ]);
     }
 }

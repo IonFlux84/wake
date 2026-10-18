@@ -65,10 +65,27 @@ Scripts in a theme or code injection run only after consent when you mark them:
 
 ## The list for your privacy policy
 
-`@wakeServices` prints a ready-made section for the privacy policy: Wake's
-statistics, the cookies in use and every service embedded anywhere in your
-content. It updates itself when you embed something new. It is a starting
-point, not legal advice.
+Wake writes a ready-made section for the privacy policy: Wake's statistics
+(and whether they wait for consent), the cookies in use and every service
+embedded anywhere in your content. It updates itself when you embed something
+new or change a setting. Put it into the privacy page as a card, or into a
+theme template with `@wakeServices`:
+
+```markdown
+::: privacy-details
+:::
+```
+
+The privacy policy that Wake creates during setup already contains it. It is a
+starting point, not legal advice.
+
+## The privacy link
+
+The banner links the privacy policy. Under *Consent* in the panel you choose
+which: the site's privacy policy (the page in `legal.privacy`, see
+[configuration](../reference/configuration.md#site)), any other page, or
+another address. A page is linked only once it is published, in the visitor's
+language if it has a translation.
 
 ## Records
 
@@ -105,7 +122,8 @@ statistics: true          # offer the level-2 statistics cookie
 marketing: false
 always: true              # show the banner even if nothing needs consent (default)
 position: bottom          # bottom or center
-privacy_url: /privacy
+privacy_page: ''          # page for the banner's privacy link; '' = the site's privacy policy (legal.privacy)
+privacy_url: ''           # or any address; wins over privacy_page
 texts:
   de:
     title: Ihre Privatsphäre

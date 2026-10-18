@@ -15,6 +15,7 @@ use Wake\Content\ContentTypes;
 use Wake\Content\FrontMatter;
 use Wake\Content\History;
 use Wake\Content\Index;
+use Wake\Content\Query;
 use Wake\Import\GhostImporter;
 use Wake\Localization\Languages;
 use Wake\Stats\TrackingConfig;
@@ -46,6 +47,11 @@ class Settings extends Component
     public string $timezone = 'UTC';
 
     public string $postUrl = '{slug}';
+
+    /** Entry ids of the imprint and the privacy policy ("" for none). */
+    public string $imprint = '';
+
+    public string $privacyPage = '';
 
     public string $missingTranslation = 'hide';
 
@@ -86,6 +92,8 @@ class Settings extends Component
 
         $this->timezone = (string) config('app.timezone');
         $this->postUrl = (string) config('wake.post_url');
+        $this->imprint = (string) config('wake.legal.imprint', '');
+        $this->privacyPage = (string) config('wake.legal.privacy', '');
         $this->missingTranslation = (string) config('wake.missing_translation');
         $this->trackingEnabled = (bool) config('wake.tracking.enabled');
         $this->level1 = (string) config('wake.tracking.level1');
@@ -144,6 +152,9 @@ class Settings extends Component
             'retention' => 'integer|min:1|max:3650',
             'accent' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'panelLanguage' => 'in:de,en',
+            // The current value may name a page that does not exist yet (the default before setup created it).
+            'imprint' => ['nullable', 'string', fn ($attribute, $value, $fail) => $value === '' || $value === config('wake.legal.imprint') || (new Query('page'))->find((string) $value) || $fail(__('This page does not exist.'))],
+            'privacyPage' => ['nullable', 'string', fn ($attribute, $value, $fail) => $value === '' || $value === config('wake.legal.privacy') || (new Query('page'))->find((string) $value) || $fail(__('This page does not exist.'))],
         ]);
 
         foreach ($this->site as $code => $values) {
@@ -170,6 +181,8 @@ class Settings extends Component
             'tracking.respect_privacy_signals' => $this->privacySignals,
             'tracking.retention' => $this->retention,
             'mcp.approval' => $this->approval,
+            'legal.imprint' => $this->imprint,
+            'legal.privacy' => $this->privacyPage,
             'panel.accent' => strtoupper($this->accent),
             'panel.language' => $this->panelLanguage,
             'closed' => $this->closed,
@@ -286,6 +299,7 @@ class Settings extends Component
             'timezones' => DateTimeZone::listIdentifiers(),
             'languages' => app(Languages::class),
             'warnings' => app(Index::class)->warnings(),
+            'pages' => (new Query('page'))->withFallback(true)->any()->orderBy('title')->get(),
         ]);
     }
 }

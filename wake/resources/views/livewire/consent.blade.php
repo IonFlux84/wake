@@ -29,8 +29,22 @@
             <div class="grid grid-2" style="gap:12px">
                 <div class="field"><label for="position">{{ __('Position') }}</label>
                     <select id="position" class="select" wire:model.live="position"><option value="bottom">{{ __('Bottom') }}</option><option value="center">{{ __('Centre') }}</option></select></div>
-                <div class="field"><label for="privacy">{{ __('Privacy policy') }}</label><input id="privacy" class="input" wire:model="privacyUrl" placeholder="/privacy"></div>
+                <div class="field"><label for="privacy">{{ __('Privacy policy') }}</label>
+                    <select id="privacy" class="select" wire:model.live="privacy">
+                        <option value="">{{ __('Privacy policy of the site') }}{{ $sitePrivacy ? ' ('.$sitePrivacy->title().')' : '' }}</option>
+                        @foreach ($pages as $page)<option value="{{ $page->id() }}">{{ $page->title() }} · {{ $page->id() }}</option>@endforeach
+                        <option value="custom">{{ __('Other address …') }}</option>
+                    </select>
+                    @error('privacy')<span class="error">{{ $message }}</span>@enderror
+                </div>
             </div>
+            @if ($privacy === 'custom')
+                <div class="field"><label for="privacy-url">{{ __('Address of the privacy policy') }}</label><input id="privacy-url" class="input" wire:model="privacyUrl" placeholder="https://example.org/privacy">
+                    @error('privacyUrl')<span class="error">{{ $message }}</span>@enderror</div>
+            @endif
+            @if (! app(\Wake\Consent\ConsentSettings::class)->privacyLink())
+                <p class="muted" style="margin:0;font-size:13px">{{ __('The banner shows no privacy link yet: the chosen page is not published.') }}</p>
+            @endif
             @if ($languages->isMultilingual())
                 <div class="segmented" role="group" aria-label="{{ __('Language') }}">
                     @foreach ($languages->all() as $code => $name)

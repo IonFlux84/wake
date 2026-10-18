@@ -1,5 +1,7 @@
 <?php
 
+use Wake\Content\LegalPages;
+use Wake\Content\Writer;
 use Wake\Theme\Theme;
 
 // Renders every template of the default theme with the fixture content.
@@ -38,4 +40,13 @@ it('renders events, the event list and the next events on the start page', funct
     $this->get('/events/summer-fest')->assertOk()->assertSee('Summer fest')->assertSee('Show on the map')->assertSee('Register')->assertSee('summer-fest.ics');
     $this->get('/events')->assertOk()->assertSee('July 2026');
     $this->get('/')->assertOk()->assertSee('Next Events');
+});
+
+it('links imprint and privacy policy in the footer once published', function () {
+    app(LegalPages::class)->ensure();
+    $this->get('/')->assertDontSee('Legal notice');
+
+    app(Writer::class)->update('pages/imprint', 'en', ['status' => 'published']);
+
+    $this->get('/')->assertSee('href="'.url('/imprint').'"', false)->assertSee('Legal notice');
 });

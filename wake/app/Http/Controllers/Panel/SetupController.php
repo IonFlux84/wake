@@ -9,6 +9,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
+use Wake\Content\LegalPages;
 use Wake\Support\Files;
 use Wake\Support\Health;
 use Wake\Support\Settings;
@@ -56,6 +57,7 @@ class SetupController
 
         Auth::login($account, remember: true);
         $request->session()->regenerate();
+        app(LegalPages::class)->ensure(); // imprint and privacy policy as drafts
 
         return redirect()->route('wake.dashboard')->with('status', __('Welcome aboard, :name.', ['name' => $account->name()]));
     }

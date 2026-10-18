@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\View\View;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Wake\Content\LegalPages;
 use Wake\Content\Models\Post;
 use Wake\Stats\Insights;
 use Wake\Stats\Stats;
@@ -20,6 +21,14 @@ class Dashboard extends Component
 
     #[Url]
     public string $period = '7d';
+
+    /** Creates the missing imprint and privacy policy as drafts. */
+    public function createLegalPages(LegalPages $legal): void
+    {
+        abort_unless(auth()->user()->can('content.edit_all') || auth()->user()->can('settings.manage'), 403);
+
+        $legal->ensure();
+    }
 
     public function setPeriod(string $period): void
     {

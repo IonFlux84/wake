@@ -115,6 +115,9 @@ Every page shares one layout. Create `templates/layouts/default.blade.php`:
             @foreach ($site->menu('footer') as $item)
                 <a href="{{ $item->url() }}">{{ $item->title() }}</a>
             @endforeach
+            @foreach ($site->legalPages() as $page)
+                <a href="{{ $page->url() }}">{{ $page->title() }}</a>
+            @endforeach
             @wakeConsentLink
         </nav>
         @if (theme_option('footer_text'))<p>{{ theme_option('footer_text') }}</p>@endif
@@ -122,6 +125,10 @@ Every page shares one layout. Create `templates/layouts/default.blade.php`:
 </body>
 </html>
 ```
+
+`$site->legalPages()` adds the imprint and the privacy policy once they are
+published, unless the footer menu has them already. Every site needs them, so
+keep this line.
 
 What the three directives do:
 

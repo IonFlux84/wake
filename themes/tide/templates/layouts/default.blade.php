@@ -56,6 +56,7 @@
             </div>
             <nav class="footer-nav" aria-label="{{ __('Footer') }}">
                 @foreach ($site->menu('footer')->whenEmpty(fn () => $site->menu()) as $item)<a href="{{ $item->url() }}">{{ $item->title() }}</a>@endforeach
+                @foreach ($site->legalPages() as $page)<a href="{{ $page->url() }}">{{ $page->title() }}</a>@endforeach
                 <a href="{{ $languages->url('feed.xml') }}">RSS</a>
                 @wakeConsentLink
             </nav>

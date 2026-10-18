@@ -3,6 +3,8 @@
 namespace Wake\Consent;
 
 use Symfony\Component\Yaml\Yaml;
+use Wake\Content\Query;
+use Wake\Localization\Languages;
 use Wake\Support\Files;
 use Wake\Support\Paths;
 
@@ -47,6 +49,26 @@ class ConsentSettings
             'media',
             $this->get('marketing') ? 'marketing' : null,
         ]));
+    }
+
+    /**
+     * Where the banner's privacy link leads: a custom address (privacy_url),
+     * else the chosen page (privacy_page), else the site's privacy policy
+     * (setting legal.privacy). Pages count only once published; null hides
+     * the link.
+     */
+    public function privacyLink(?string $language = null): ?string
+    {
+        $url = trim((string) $this->get('privacy_url'));
+
+        if ($url !== '') {
+            return preg_match('#^https?://#i', $url) ? $url : url($url);
+        }
+
+        $id = (string) ($this->get('privacy_page') ?: config('wake.legal.privacy', ''));
+        $page = $id !== '' ? (new Query)->withFallback(true)->in($language ?? app(Languages::class)->current())->find($id) : null;
+
+        return $page?->isPublished() ? $page->url() : null;
     }
 
     /**
@@ -118,6 +140,7 @@ class ConsentSettings
             'marketing' => false,
             'always' => true,
             'position' => 'bottom',
+            'privacy_page' => '',
             'privacy_url' => '',
             'texts' => [],
         ];

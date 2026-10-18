@@ -30,7 +30,7 @@ Owners and administrators can change some settings under *Settings* in the
 panel. Wake stores them in `settings/general.yml`, which overrides
 `settings/config.php`, so the panel always shows what is in effect. These are
 `timezone`, `post_url`, `missing_translation`, `prefix_default_language`, the
-`tracking.*` settings, `mcp.approval`, `panel.accent`, `panel.language`, `closed`, `security.require_two_factor`, `theme`, `theme_options`, `plugins.disabled` and `plugins.options`. Everything else is
+`tracking.*` settings, `mcp.approval`, `legal.imprint`, `legal.privacy`, `panel.accent`, `panel.language`, `closed`, `security.require_two_factor`, `theme`, `theme_options`, `plugins.disabled` and `plugins.options`. Everything else is
 only set in `settings/config.php`.
 
 Secrets such as the application key and mail passwords belong in `.env`, not
@@ -43,6 +43,8 @@ panel are stored encrypted in `data/secrets/mail.yml`.
 |---|---|---|
 | `closed` | `false` | Closed site: only signed-in team members see the website; everyone else is sent to the sign-in page. `robots.txt` then disallows everything, pages carry `noindex`, nothing is cached or counted, and the API needs a token. Switch it in the panel under *Settings*. |
 | `security.require_two_factor` | `false` | Everyone must set up [two-factor sign-in](../guides/two-factor.md) before they can use the panel; people without it are sent to the setup after signing in. Switch it in the panel under *Settings*; you need it set up for your own account first. |
+| `legal.imprint` | `'pages/imprint'` | The page with the imprint (entry id). Themes link it in the footer once it is published. Wake creates it as a draft from a template during setup; choose another page under *Settings* → *Legal pages*. `''` for none. |
+| `legal.privacy` | `'pages/privacy'` | The page with the privacy policy. Linked in the footer and, unless the consent settings name another page or address, in the cookie banner. Created as a draft during setup, with the [privacy details card](../concepts/consent.md#the-list-for-your-privacy-policy). |
 | `languages` | `['en' => 'English']` | Languages of the site, code → name. The first one is the default language. See [content format](content-format.md#languages). |
 | `prefix_default_language` | `false` | `true` puts the default language in the URL too (`/en/about` instead of `/about`). Requests without the prefix are redirected. |
 | `missing_translation` | `'hide'` | What happens when an entry has no translation in the requested language. `'hide'` answers with 404. `'fallback'` shows the default language with a notice and `noindex`, under the default language's slug. |

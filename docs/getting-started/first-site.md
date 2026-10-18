@@ -87,6 +87,9 @@ gives you a ready-made section for your privacy policy.
       mail ([Invite your team](../guides/invite-your-team.md)).
 - [ ] Turn on [two-factor sign-in](../guides/two-factor.md) for your account.
 - [ ] Write a [backup](../guides/backups.md) and download it.
+- [ ] Fill in the **imprint** and the **privacy policy**. Wake created both as
+      drafts with placeholders in square brackets; the dashboard links them.
+      Publish them, and your theme links them in the footer.
 - [ ] Still building? Switch on **Closed site** under *Settings*: visitors are
       sent to the sign-in page and search engines stay out.
 - [ ] Moved to your real domain? Correct `APP_URL` in `.env`; *Settings* warns

@@ -15,6 +15,14 @@ return [
         'data' => env('WAKE_DATA_PATH', dirname(base_path()).'/data'),
     ],
 
+    // The imprint and the privacy policy: entry ids of two pages. Themes link
+    // them in the footer once they are published, and the consent banner links
+    // the privacy policy. Wake creates both as drafts during setup.
+    'legal' => [
+        'imprint' => 'pages/imprint',
+        'privacy' => 'pages/privacy',
+    ],
+
     // Closed site: only signed-in team members see it, everyone else lands on
     // the sign-in page, and search engines are kept out.
     'closed' => false,

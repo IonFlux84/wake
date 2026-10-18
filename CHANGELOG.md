@@ -196,6 +196,17 @@ All notable changes to Wake are documented here. The format follows
   `track.js` sends nothing until the visitor agrees; the page view is counted
   as soon as they do. Before, any decision, even "Decline", counted as consent.
 - `wake:clear` also clears the compiled templates.
+- Imprint and privacy policy as standard pages: setup creates both as drafts
+  from German and English templates (`legal.imprint`, `legal.privacy`,
+  selectable under *Settings*), the dashboard reminds until they are published,
+  Tide links them in the footer (`$site->legalPages()`), and the privacy policy
+  contains the new card `::: privacy-details` with Wake's always current
+  section on statistics, cookies and embeds.
+- The privacy link of the cookie banner can be the site's privacy policy, any
+  page or another address (`privacy_page`, `privacy_url`); pages are linked in
+  the visitor's language once published.
+- The privacy details showed raw template code (`@if`) after "operating
+  system"; fixed.
 - OAuth for the MCP server, so claude.ai connectors connect with just the
   address: resource and authorization server metadata, dynamic client
   registration, authorization code with PKCE, refresh tokens, and a consent

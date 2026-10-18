@@ -127,4 +127,46 @@ class Site
     {
         return (new Query)->find($id);
     }
+
+    /**
+     * The imprint page (setting legal.imprint) in the current language, if
+     * it is published.
+     */
+    public function imprint(): ?Entry
+    {
+        return $this->legalPage('imprint');
+    }
+
+    /**
+     * The privacy policy page (setting legal.privacy) in the current
+     * language, if it is published.
+     */
+    public function privacy(): ?Entry
+    {
+        return $this->legalPage('privacy');
+    }
+
+    /**
+     * Imprint and privacy policy for the footer: the published ones that are
+     * not in the footer menu already.
+     *
+     * @return Collection<int, Entry>
+     */
+    public function legalPages(): Collection
+    {
+        $inMenu = $this->menu('footer')->map(fn ($item) => $item->url())->all();
+
+        return collect([$this->imprint(), $this->privacy()])
+            ->filter()
+            ->reject(fn (Entry $page) => in_array($page->url(), $inMenu, true))
+            ->values();
+    }
+
+    protected function legalPage(string $kind): ?Entry
+    {
+        $id = (string) config('wake.legal.'.$kind, '');
+        $page = $id !== '' ? (new Query)->withFallback(true)->in($this->language())->find($id) : null;
+
+        return $page?->isPublished() ? $page : null;
+    }
 }

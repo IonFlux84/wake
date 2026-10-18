@@ -112,6 +112,8 @@ page. `$entry->template()` returns the `template` field, else the type.
 | `$site->tags()` | all tags used by published posts, most used first |
 | `$site->entries('event')` | a query for any content type |
 | `$site->find('posts/hello-world')` | one entry by its folder |
+| `$site->imprint()`, `$site->privacy()` | the imprint and privacy policy (settings `legal.*`) in the current language, or `null` until published |
+| `$site->legalPages()` | both, published and not already in the footer menu: what a footer should link |
 
 ## Menus
 
