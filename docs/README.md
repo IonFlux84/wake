@@ -19,7 +19,9 @@ The documentation is split by what you want to do, following the
 
 ## Getting started
 
-- [Installation](getting-started/installation.md)
+- [Installation](getting-started/installation.md) on your computer
+- [Install on a web host](getting-started/hosting.md)
+- [Updating](getting-started/updating.md)
 
 ## Guides
 

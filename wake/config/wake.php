@@ -94,6 +94,11 @@ return [
         'approval' => false,
     ],
 
+    'update' => [
+        // GitHub repository whose releases the updater installs.
+        'repository' => 'IonFlux84/wake',
+    ],
+
     'panel' => [
         // The one neon colour of the panel. Text on it turns black or white by itself.
         'accent' => '#C6FF3D',

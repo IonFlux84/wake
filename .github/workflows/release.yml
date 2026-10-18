@@ -1,0 +1,27 @@
+name: Release
+
+# Pushing a tag like v1.0.0 builds the installation ZIP and attaches it,
+# with its SHA-256 checksum, to a GitHub release. The updater in the panel
+# downloads exactly these two files.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, gd, zip
+          coverage: none
+      - run: scripts/build-release.sh "${GITHUB_REF_NAME#v}"
+      - run: gh release create "$GITHUB_REF_NAME" dist/*.zip dist/*.sha256 --title "Wake ${GITHUB_REF_NAME#v}" --notes-file CHANGELOG.md
+        env:
+          GH_TOKEN: ${{ github.token }}

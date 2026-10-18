@@ -95,3 +95,13 @@ All notable changes to Wake are documented here. The format follows
   pages, a mobile menu, dark mode, bundled Archivo and an accent colour option
   (`theme_options.accent`).
 - Automatic excerpts use paragraphs only.
+- Installation without a shell: Wake writes `.env` with a fresh application
+  key on the first request. A build script and a release workflow produce the
+  installation ZIP with `vendor/` included.
+- An `.htaccess` in the main folder for hosts that cannot use `public/` as the
+  document root: every request is mapped into `public/`, and it does nothing
+  when the document root is `public/` already. Tested with Apache.
+- The page cache keeps pages per scheme and host.
+- Updates from the panel (owner only): Wake checks GitHub only on request,
+  verifies the SHA-256 checksum, swaps the `wake/` folder atomically and keeps
+  the previous version as a backup in `storage/updates/`.

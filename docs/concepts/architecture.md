@@ -49,6 +49,10 @@ loads anything else. If the file exists and is younger than `page_cache.ttl`
 seconds, it is sent straight away. Such a request costs about as much as
 serving a static file.
 
+Pages are cached per scheme and host (`storage/cache/pages/https_example.org/…`),
+so the `http://` or `www.` version of a site never hands out links of another.
+At most ten hosts are kept, so forged `Host` headers cannot fill the disk.
+
 Pages are only cached when they are the same for everyone: `GET` requests
 without a query string, without the panel's session cookie, with status 200.
 The website routes don't start a session or set cookies at all.

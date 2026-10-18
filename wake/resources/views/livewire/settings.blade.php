@@ -62,6 +62,24 @@
     @endif
 
     @if ($isAdmin)
+        <div class="card">
+            <div class="card-head"><h2 class="h2">{{ __('Updates') }}</h2><span class="badge">{{ \Wake\Wake::VERSION }}</span></div>
+            <p class="muted" style="margin:0;font-size:14px">{{ __('Wake only asks GitHub for a new version when you click the button.') }}</p>
+            @if ($release)
+                <div class="night" style="padding:18px">
+                    <h3 class="h2" style="margin:0 0 8px">{{ __('Wake :version is available', ['version' => $release['version']]) }}</h3>
+                    <div class="muted" style="white-space:pre-line;font-size:13px;max-height:180px;overflow:auto">{{ \Illuminate\Support\Str::limit($release['notes'], 1500) }}</div>
+                </div>
+                @if (auth()->user()->role() === \Wake\Accounts\Role::Owner)
+                    <div class="actions"><button type="button" class="btn btn-primary" wire:click="installUpdate" wire:confirm="{{ __('Install the update now? Your content and settings are not touched; the current version is kept as a backup.') }}" wire:loading.attr="disabled">{{ __('Install') }}</button><span wire:loading wire:target="installUpdate" class="muted">{{ __('Installing …') }}</span></div>
+                @else
+                    <p class="muted" style="margin:0">{{ __('Only the owner can install updates.') }}</p>
+                @endif
+            @endif
+            @if ($updateMessage)<p style="margin:0">{{ $updateMessage }}</p>@endif
+            <div class="actions"><button type="button" class="btn" wire:click="checkForUpdates" wire:loading.attr="disabled">{{ __('Check for updates') }}</button></div>
+        </div>
+
         <form class="card form" wire:submit="importGhost">
             <h2 class="h2">{{ __('Import from Ghost') }}</h2>
             <p class="muted" style="margin:0;font-size:14px">{{ __('In Ghost, open Settings → Labs → Export your content. Upload the JSON file here. With the address of the old site, Wake also copies the images.') }}</p>

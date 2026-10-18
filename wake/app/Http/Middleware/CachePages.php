@@ -19,7 +19,7 @@ class CachePages
         $response = $next($request);
 
         if ($this->cacheable($request, $response)) {
-            $this->cache->put(rawurldecode($request->getPathInfo()), (string) $response->getContent());
+            $this->cache->put(PageCache::hostKey($request->server->all()).'/'.trim(rawurldecode($request->getPathInfo()), '/'), (string) $response->getContent());
             $response->headers->set('X-Wake-Cache', 'miss');
         }
 

@@ -1,0 +1,25 @@
+# Only for hosts that cannot point the document root to the public/ folder.
+# Then every address is mapped into public/, so no file outside it can ever be
+# served: /content/site.md becomes public/content/site.md, which does not exist
+# and ends as a 404 from Wake. Pointing the document root to public/ is better;
+# Wake shows a warning in the panel until you do.
+#
+# When the document root already is public/, Apache may still read this file
+# (it lies in a parent folder). The rules below then do nothing.
+
+<IfModule mod_dir.c>
+    # wake/ is a real folder here, but /wake is the panel: no automatic slash.
+    DirectorySlash Off
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Hidden files such as .env are never served.
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
+    # Only act when this folder is the document root.
+    RewriteCond %{DOCUMENT_ROOT}/public/index.php -f
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L,E=WAKE_ROOT_REWRITE:1]
+</IfModule>

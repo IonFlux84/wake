@@ -97,6 +97,12 @@ How Wake counts visits is explained in [analytics](../concepts/analytics.md).
 |---|---|---|
 | `mcp.approval` | `false` | `true` lets assistants only ask for publishing; a person approves in the panel. See [MCP server](mcp.md#approval-mode). |
 
+## Updates
+
+| Setting | Default | Description |
+|---|---|---|
+| `update.repository` | `'IonFlux84/wake'` | GitHub repository whose releases the updater installs. See [Updating](../getting-started/updating.md). |
+
 ## Panel
 
 | Setting | Default | Description |

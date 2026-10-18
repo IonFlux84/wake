@@ -13,9 +13,10 @@
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
-    # Redirect Trailing Slashes If Not A Folder...
+    # Redirect trailing slashes, using the address as it was requested (it may
+    # have been rewritten into public/ by the .htaccess one folder up)...
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteCond %{THE_REQUEST} ^\S+\s(/[^?\s]*?)/+(\?\S*)?\s
     RewriteRule ^ %1 [L,R=301]
 
     # Send Requests To Front Controller...

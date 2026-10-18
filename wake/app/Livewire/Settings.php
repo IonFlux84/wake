@@ -21,6 +21,7 @@ use Wake\Support\Files;
 use Wake\Support\Health;
 use Wake\Support\Paths;
 use Wake\Support\Settings as SiteSettings;
+use Wake\Update\Updater;
 
 /**
  * Settings: the site (owners and administrators) and your own account
@@ -182,6 +183,43 @@ class Settings extends Component
 
         $this->importResult = ['counts' => $importer->counts, 'warnings' => array_slice($importer->warnings, 0, 20)];
         $this->ghostFile = null;
+    }
+
+    /** @var array<string, string>|null a newer release, after checking */
+    public ?array $release = null;
+
+    public ?string $updateMessage = null;
+
+    public function checkForUpdates(Updater $updater): void
+    {
+        $this->authorizeAdmin();
+
+        try {
+            $this->release = $updater->check();
+            $this->updateMessage = $this->release ? null : __('Wake is up to date.');
+        } catch (\RuntimeException $e) {
+            $this->updateMessage = $e->getMessage();
+        }
+    }
+
+    public function installUpdate(Updater $updater): void
+    {
+        abort_unless(auth()->user()->role() === Role::Owner, 403);
+
+        if ($this->release === null) {
+            return;
+        }
+
+        try {
+            $updater->install($this->release);
+        } catch (\RuntimeException $e) {
+            $this->updateMessage = $e->getMessage();
+
+            return;
+        }
+
+        session()->flash('status', __('Wake :version is installed.', ['version' => $this->release['version']]));
+        $this->redirectRoute('wake.settings');
     }
 
     protected function authorizeAdmin(): void

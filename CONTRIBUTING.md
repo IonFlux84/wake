@@ -52,6 +52,14 @@ vendor/bin/pint --config=pint.json ..   # code style, including public/
   shared hosting without SSH. See [decision 0002](docs/decisions/0002-no-database.md).
 - Prefer the Laravel way. If Laravel already does it, use that.
 
+## Releases
+
+1. Move the *Unreleased* entries in `CHANGELOG.md` under the new version.
+2. Set `Wake::VERSION` in `wake/app/Wake.php`.
+3. Tag the commit (`git tag v1.2.0 && git push --tags`). The release workflow
+   builds the ZIP with `scripts/build-release.sh` and attaches it with its
+   checksum to the GitHub release, where the updater finds it.
+
 ## Commit messages
 
 We use [Conventional Commits](https://www.conventionalcommits.org):

@@ -27,9 +27,31 @@ class PageCache
         return $this->directory().($path === '' ? '' : '/'.$path).'/index.html';
     }
 
+    /**
+     * The folder for one scheme and host, e.g. "https_example.org". Must
+     * match the code in public/index.php.
+     *
+     * @param  array<string, mixed>  $server  $_SERVER or the request's server bag
+     */
+    public static function hostKey(array $server): string
+    {
+        $secure = (! empty($server['HTTPS']) && $server['HTTPS'] !== 'off') || ($server['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+
+        return ($secure ? 'https_' : 'http_').preg_replace('/[^a-z0-9.-]/', '_', strtolower((string) ($server['HTTP_HOST'] ?? 'localhost')));
+    }
+
+    /**
+     * @param  string  $path  "{host key}/{path}"
+     */
     public function put(string $path, string $html): void
     {
         if (! $this->enabled() || str_contains($path, '..')) {
+            return;
+        }
+
+        // A forged Host header must not fill the disk: at most ten hosts.
+        $host = strtok(trim($path, '/'), '/');
+        if (! is_dir($this->directory().'/'.$host) && count(glob($this->directory().'/*', GLOB_ONLYDIR) ?: []) >= 10) {
             return;
         }
 

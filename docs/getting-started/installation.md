@@ -5,8 +5,8 @@ description: Get a Wake site running on your computer.
 
 # Installation
 
-This page gets Wake running on your own computer. Installing on a web host
-follows once the installation ZIP exists (phase 4).
+This page gets Wake running on your own computer, for development or to try it
+out. To put a site online, see [Install on a web host](hosting.md).
 
 ## What you need
 
