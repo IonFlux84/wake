@@ -86,7 +86,31 @@ final class LayoutMigration
         $this->media();
         $this->references();
 
+        if ($apply) {
+            foreach (['site', 'storage', 'content'] as $folder) {
+                $this->prune($this->root.'/'.$folder);
+            }
+        }
+
         return $this->steps;
+    }
+
+    /**
+     * Removes folders the move left empty, the given one included.
+     */
+    protected function prune(string $dir): void
+    {
+        if (! is_dir($dir) || is_link($dir)) {
+            return;
+        }
+
+        foreach (glob($dir.'/*', GLOB_ONLYDIR) ?: [] as $child) {
+            $this->prune($child);
+        }
+
+        if ((scandir($dir) ?: []) === ['.', '..'] && $dir !== $this->root.'/content') {
+            @rmdir($dir);
+        }
     }
 
     // Top level ------------------------------------------------------------
