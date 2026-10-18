@@ -152,6 +152,14 @@ In PHP code the same queries start from the models:
 | `url($width = null, $format = null)` | address of the original or a resized version |
 | `srcset($format = null)` | the `srcset` value |
 | `width()`, `height()`, `isImage()`, `filesize()`, `name()` | file details |
+| `alt($language = null)`, `caption($language = null)`, `credit()` | details from the file's sidecar file, `''` when not set |
+| `focus()` | the focus point as a CSS position, `50% 50%` by default |
+| `meta()` | everything in the sidecar file |
+
+`img()` and `picture()` use the alt text from the details when there is one,
+and add `object-position` for a focus point, so cropped images
+(`object-fit: cover`) keep the important part in view. See
+[file details](content-format.md#file-details).
 
 ## The head
 

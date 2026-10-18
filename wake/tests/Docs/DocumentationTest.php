@@ -52,7 +52,7 @@ it('has no broken relative links', function () {
             continue; // placeholders on purpose
         }
 
-        $markdown = preg_replace('/```.*?```/s', '', file_get_contents($file));
+        $markdown = preg_replace(['/```.*?```/s', '/`[^`\n]*`/'], '', file_get_contents($file));
         preg_match_all('/\]\(([^)\s]+)\)/', $markdown, $matches);
 
         foreach ($matches[1] as $link) {

@@ -151,6 +151,10 @@ All notable changes to Wake are documented here. The format follows
 - Preview of entries in any status in the theme, from the editor, and preview
   links that work for seven days without an account (signed URLs).
 - Redirects page in the panel: see, add and remove old addresses.
+- File details: alt text and caption per language, credit and focus point,
+  edited in the media library and stored next to the file (`photo.jpg.yml`).
+  Images in Markdown without alt text take it from the details; cropped images
+  keep the focus point in view.
 
 ### Fixed
 

@@ -9,6 +9,7 @@ use League\CommonMark\Extension\CommonMark\Node\Inline\Image;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Link;
 use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
 use League\CommonMark\MarkdownConverter;
+use League\CommonMark\Node\Inline\Text;
 use Wake\Content\Entry;
 use Wake\Markdown\Cards\CardExtension;
 
@@ -73,7 +74,17 @@ class Markdown
                 continue;
             }
 
-            if ($file = $this->entry->file(rawurldecode($url))) {
+            if (! $file = $this->entry->file(rawurldecode($url))) {
+                continue;
+            }
+
+            if ($node instanceof Image) {
+                $node->setUrl($file->url(1280));
+
+                if ($node->firstChild() === null && $file->alt() !== '') {
+                    $node->appendChild(new Text($file->alt()));
+                }
+            } else {
                 $node->setUrl($file->url());
             }
         }

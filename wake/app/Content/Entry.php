@@ -356,6 +356,16 @@ class Entry implements JsonSerializable
     }
 
     /**
+     * Details of a file from its sidecar file, see Media::meta().
+     *
+     * @return array<string, mixed>
+     */
+    public function mediaMeta(string $name): array
+    {
+        return $this->row['media_meta'][$name] ?? [];
+    }
+
+    /**
      * The cover image ("cover" field), or the named image.
      */
     public function image(?string $name = null): ?Media

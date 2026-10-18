@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use RuntimeException;
+use Symfony\Component\Yaml\Yaml;
 use Wake\Localization\Languages;
 use Wake\Support\Files;
 use Wake\Support\Paths;
@@ -213,6 +214,41 @@ class Writer
         $target = storage_path('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-'.str_replace('/', '--', $id).'--'.$name);
         @mkdir(dirname($target), 0775, true);
         rename(Paths::content($id.'/'.$name), $target);
+
+        if (is_file($sidecar = Paths::content($id.'/'.$name.'.yml'))) {
+            rename($sidecar, $target.'.yml');
+        }
+
+        $this->index->refresh();
+    }
+
+    /**
+     * Saves alt text, caption, credit and focus point of a file in its sidecar
+     * file (photo.jpg.yml). Empty values are left out; without any, the
+     * sidecar file is removed.
+     *
+     * @param  array<string, mixed>  $meta
+     */
+    public function saveMediaMeta(string $id, string $name, array $meta): void
+    {
+        $row = $this->existing($id);
+
+        if (! isset($row['media'][$name])) {
+            throw new InvalidArgumentException("No file {$name} in {$id}.");
+        }
+
+        $clean = function ($value) use (&$clean) {
+            return is_array($value) ? array_filter(array_map($clean, $value), fn ($v) => $v !== '' && $v !== []) : trim((string) $value);
+        };
+        $meta = array_filter(array_map($clean, array_intersect_key($meta, array_flip(['alt', 'caption', 'credit', 'focus']))), fn ($v) => $v !== '' && $v !== []);
+        $sidecar = Paths::content($id.'/'.$name.'.yml');
+
+        if ($meta === []) {
+            @unlink($sidecar);
+        } else {
+            Files::write($sidecar, Yaml::dump($meta, 3, 2));
+        }
+
         $this->index->refresh();
     }
 

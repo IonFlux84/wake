@@ -105,6 +105,30 @@ languages. Refer to them by file name:
 Wake turns these into public URLs. Images are resized on first use to the
 widths in `images.widths` and converted to WebP for browsers that support it.
 
+### File details
+
+Alt text, caption, credit and focus point of a file live in a small YAML file
+next to it, named after the file plus `.yml`. The panel writes it under
+*Media* when you click a file; you can also write it by hand.
+
+```yaml
+# content/posts/2026-10-17-harbour/harbour.jpg.yml
+alt:
+  en: Fishing boats in the harbour at night
+  de: Fischerboote nachts im Hafen
+caption: The old harbour, October 2026
+credit: "Photo: Jane Doe"
+focus: 30% 60%
+```
+
+- `alt` and `caption` are a text, or one text per language.
+- `focus` is the most important spot of an image, from the left and from the
+  top. Themes crop images around it (CSS `object-position`). Without it, the
+  middle (`50% 50%`) is used.
+- An image in Markdown without its own alt text (`![](harbour.jpg)`) gets the
+  alt text from the details.
+- Deleting the file in the panel moves its details to the trash with it.
+
 ## Cards
 
 Cards are richer blocks inside the text. In the file they stay readable:

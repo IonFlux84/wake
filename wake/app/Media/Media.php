@@ -4,6 +4,7 @@ namespace Wake\Media;
 
 use Illuminate\Support\HtmlString;
 use Wake\Content\Entry;
+use Wake\Localization\Languages;
 
 /**
  * A file in an entry's folder: an image, a PDF, a download.
@@ -87,10 +88,56 @@ class Media
     }
 
     /**
-     * A complete responsive <img> tag.
+     * The details from the sidecar file (photo.jpg.yml).
+     *
+     * @return array<string, mixed>
+     */
+    public function meta(): array
+    {
+        return $this->entry->mediaMeta($this->name);
+    }
+
+    /**
+     * The alt text in the current (or given) language, '' when none is set.
+     */
+    public function alt(?string $language = null): string
+    {
+        return $this->translated('alt', $language);
+    }
+
+    public function caption(?string $language = null): string
+    {
+        return $this->translated('caption', $language);
+    }
+
+    public function credit(): string
+    {
+        return is_scalar($this->meta()['credit'] ?? null) ? (string) $this->meta()['credit'] : '';
+    }
+
+    /**
+     * The focus point as a CSS position ("30% 60%"); the middle by default.
+     */
+    public function focus(): string
+    {
+        $focus = $this->meta()['focus'] ?? null;
+
+        return is_string($focus) && preg_match('/^(\d{1,3})% (\d{1,3})%$/', $focus, $m) && $m[1] <= 100 && $m[2] <= 100
+            ? $focus : '50% 50%';
+    }
+
+    /**
+     * A complete responsive <img> tag. The alt text from the file's details
+     * wins over $alt, and a focus point becomes object-position.
      */
     public function img(string $alt = '', string $sizes = '100vw', array $attributes = []): HtmlString
     {
+        $alt = $this->alt() !== '' ? $this->alt() : $alt;
+
+        if ($this->focus() !== '50% 50%') {
+            $attributes['style'] = trim(($attributes['style'] ?? '').';object-position:'.$this->focus(), ';');
+        }
+
         $attributes = array_merge([
             'src' => $this->url(min(Images::widths()[2] ?? 960, $this->width() ?? PHP_INT_MAX)),
             'srcset' => $this->srcset(),
@@ -123,6 +170,18 @@ class Media
         }
 
         return new HtmlString('<picture><source type="image/webp" srcset="'.e($this->srcset('webp')).'" sizes="'.e($sizes).'">'.$img.'</picture>');
+    }
+
+    protected function translated(string $key, ?string $language): string
+    {
+        $value = $this->meta()[$key] ?? null;
+
+        if (is_array($value)) {
+            $languages = app(Languages::class);
+            $value = $value[$language ?? $languages->current()] ?? $value[$languages->default()] ?? null;
+        }
+
+        return is_scalar($value) ? (string) $value : '';
     }
 
     public function __toString(): string

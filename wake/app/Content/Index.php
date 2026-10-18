@@ -6,6 +6,8 @@ use DateTimeInterface;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Symfony\Component\Yaml\Yaml;
+use Throwable;
 use Wake\Consent\Services;
 use Wake\Localization\Languages;
 use Wake\Support\Files;
@@ -22,7 +24,7 @@ use Wake\Support\Paths;
  */
 class Index
 {
-    public const VERSION = 2;
+    public const VERSION = 3;
 
     /** @var array<string, mixed>|null */
     protected ?array $data = null;
@@ -423,6 +425,7 @@ class Index
             'parent' => null,
             'hash' => substr(md5($dir), 0, 10),
             'media' => $media,
+            'media_meta' => $this->mediaMeta($dir, $media),
             'languages' => [],
         ];
     }
@@ -440,12 +443,44 @@ class Index
 
         foreach ($files as $path => $mtime) {
             if (str_starts_with($path, $prefix) && ! str_contains($rest = substr($path, strlen($prefix)), '/')
-                && ! str_ends_with($rest, '.md')) {
+                && ! str_ends_with($rest, '.md') && ! str_ends_with($rest, '.yml')) {
                 $media[$rest] = $mtime;
             }
         }
 
         return $media;
+    }
+
+    /**
+     * Details of media files from their sidecar files: photo.jpg.yml holds
+     * alt, caption, credit and focus of photo.jpg.
+     *
+     * @param  array<string, int>  $media
+     * @return array<string, array<string, mixed>>
+     */
+    protected function mediaMeta(string $dir, array $media): array
+    {
+        $meta = [];
+
+        foreach (array_keys($media) as $name) {
+            $sidecar = Paths::content($dir.'/'.$name.'.yml');
+
+            if (! is_file($sidecar)) {
+                continue;
+            }
+
+            try {
+                $data = Yaml::parseFile($sidecar);
+            } catch (Throwable) {
+                continue;
+            }
+
+            if (is_array($data) && $data !== []) {
+                $meta[$name] = $data;
+            }
+        }
+
+        return $meta;
     }
 
     /**
