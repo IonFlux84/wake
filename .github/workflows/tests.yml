@@ -1,0 +1,25 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.4', '8.5']
+    name: PHP ${{ matrix.php }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, gd, zip
+          coverage: none
+      - run: composer --working-dir=wake install --no-interaction --prefer-dist
+      - run: cp .env.example .env && php wake/artisan key:generate
+      - run: wake/vendor/bin/pint --config=wake/pint.json --test
+      - run: composer --working-dir=wake test

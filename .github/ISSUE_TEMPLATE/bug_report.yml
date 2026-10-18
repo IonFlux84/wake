@@ -1,0 +1,23 @@
+name: Bug report
+description: Something in Wake does not work as described.
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: How can we reproduce it?
+      placeholder: "1. Create a post with …\n2. Open …"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Wake version or commit
+  - type: input
+    attributes:
+      label: PHP version and hosting
+      placeholder: "PHP 8.4 on shared hosting"

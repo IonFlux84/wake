@@ -1,0 +1,12 @@
+name: Documentation
+description: Something in the docs is missing, wrong or confusing.
+labels: [docs]
+body:
+  - type: input
+    attributes:
+      label: Which page?
+  - type: textarea
+    attributes:
+      label: What was confusing or missing?
+    validations:
+      required: true

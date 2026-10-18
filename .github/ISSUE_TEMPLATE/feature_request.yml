@@ -1,0 +1,13 @@
+name: Idea
+description: Suggest something Wake should do.
+labels: [idea]
+body:
+  - type: textarea
+    attributes:
+      label: What do you want to achieve?
+      description: Describe the problem first, then the solution you have in mind.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Who else would need this?

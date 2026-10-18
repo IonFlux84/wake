@@ -1,0 +1,24 @@
+# Secrets and local settings
+/.env
+/.env.backup
+/.env.production
+
+# Dependencies and build output
+/wake/vendor/
+/node_modules/
+/wake/node_modules/
+/public/build/
+/public/hot
+
+# Generated at runtime (folders are kept by their own .gitignore files)
+/public/media/
+/public/assets/themes/
+
+# Tooling
+/wake/.phpunit.cache
+/wake/.phpunit.result.cache
+/.idea/
+/.vscode/
+/.zed/
+.DS_Store
+Thumbs.db
