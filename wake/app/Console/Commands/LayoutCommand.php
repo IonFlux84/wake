@@ -3,7 +3,6 @@
 namespace Wake\Console\Commands;
 
 use Illuminate\Console\Command;
-use Wake\Backup\Backups;
 use Wake\Content\Index;
 use Wake\Support\LayoutMigration;
 use Wake\Support\Paths;
@@ -14,7 +13,7 @@ class LayoutCommand extends Command
 
     protected $description = 'Move a site from the old folder layout to the current one';
 
-    public function handle(Backups $backups): int
+    public function handle(): int
     {
         $root = $this->option('root') ?: Paths::root();
         $migration = new LayoutMigration(rtrim($root, '/'));
@@ -34,8 +33,8 @@ class LayoutCommand extends Command
             return self::SUCCESS;
         }
 
-        if (! $this->option('no-backup') && ! $this->option('root') && Backups::available()) {
-            $this->components->info('Backup written: '.$backups->create(note: 'before-layout'));
+        if (! $this->option('no-backup') && ($zip = $migration->backup())) {
+            $this->components->info('Backup of the old layout written: '.substr($zip, strlen($root) + 1));
         }
 
         $migration->run(true);

@@ -2,9 +2,13 @@
 
 namespace Wake\Support;
 
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\Yaml\Yaml;
 use Throwable;
 use Wake\Content\FrontMatter;
+use ZipArchive;
 
 /**
  * Moves a site from the first folder layout to the current one (decision 0011):
@@ -49,6 +53,48 @@ final class LayoutMigration
     protected bool $apply = false;
 
     public function __construct(protected string $root) {}
+
+    /**
+     * Zips content/, site/ and storage/ (without caches) as they are now, into
+     * the backups folder, before anything moves. Wake's own backups only know
+     * the new layout, so this one is unzipped by hand to go back.
+     *
+     * @return string|null the ZIP file, or null without the zip extension
+     */
+    public function backup(): ?string
+    {
+        if (! class_exists(ZipArchive::class)) {
+            return null;
+        }
+
+        $folder = is_dir($this->root.'/storage') ? $this->root.'/storage/backups' : $this->root.'/data/backups';
+        $file = $folder.'/before-layout-'.date('Y-m-d-His').'.zip';
+        @mkdir($folder, 0775, true);
+
+        $archive = new ZipArchive;
+        $archive->open($file, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $skip = '#^storage/(cache|framework|logs|locks|updates|backups)/#';
+
+        foreach (['content', 'site', 'storage', 'settings', 'data'] as $area) {
+            if (! is_dir($this->root.'/'.$area)) {
+                continue;
+            }
+
+            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->root.'/'.$area, FilesystemIterator::SKIP_DOTS));
+
+            foreach ($files as $item) {
+                $relative = str_replace('\\', '/', substr($item->getPathname(), strlen($this->root) + 1));
+
+                if ($item->isFile() && ! preg_match($skip, $relative) && ! str_starts_with($relative, 'data/backups/')) {
+                    $archive->addFile($item->getPathname(), $relative);
+                }
+            }
+        }
+
+        $archive->close();
+
+        return $file;
+    }
 
     /**
      * Whether anything of the old layout is left.

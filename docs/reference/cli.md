@@ -71,7 +71,10 @@ every entry becomes a folder with `content.md`, number and date prefixes become
 `order:`, `menu: true` and `published:`, and images move to `content/media/`.
 Menus, redirects, versions and image references follow the new ids.
 
-Without `--apply` it only lists the steps. With it, Wake writes a backup first.
+Without `--apply` it only lists the steps. With it, Wake first zips the old
+`content/`, `site/` and `storage/` (without caches) to
+`storage/backups/before-layout-….zip`, which ends up in `data/backups/`. To go
+back, unzip it over the site folder.
 
 ```bash
 php wake/artisan wake:layout            # show what would happen
@@ -81,8 +84,8 @@ php wake/artisan wake:layout --apply    # do it
 | Option | Meaning |
 | --- | --- |
 | `--apply` | Move the files. |
-| `--no-backup` | Skip the backup before moving. |
-| `--root=PATH` | Move another site folder (no backup is written then). |
+| `--no-backup` | Skip the ZIP of the old folders. |
+| `--root=PATH` | Move another site folder. |
 
 Running it again on a moved site does nothing.
 

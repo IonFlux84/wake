@@ -101,3 +101,17 @@ it('does nothing on a site that is already moved', function () {
     expect($migration->run(false))->toBe([])
         ->and($migration->needed())->toBeFalse();
 });
+
+it('zips the old folders before moving them', function () {
+    $migration = new LayoutMigration($this->root);
+    $zip = $migration->backup();
+    $migration->run(true);
+
+    $archive = new ZipArchive;
+    $archive->open(str_replace('/storage/backups/', '/data/backups/', $zip));
+
+    expect($archive->locateName('content/pages/1_about/index.en.md'))->not->toBeFalse()
+        ->and($archive->locateName('site/config.php'))->not->toBeFalse()
+        ->and($archive->locateName('storage/accounts/ola/account.yml'))->not->toBeFalse()
+        ->and($archive->locateName('storage/cache/index.php'))->toBeFalse();
+});
