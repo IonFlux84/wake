@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\Yaml\Yaml;
 use Wake\Support\Files;
+use Wake\Support\Paths;
 
 /**
  * Reads and writes team accounts. Each account is a folder in
@@ -111,7 +112,7 @@ class Accounts
      */
     public function trash(Account $account): void
     {
-        $target = storage_path('trash/'.now()->format('Y-m-d-His').'-account--'.$account->id());
+        $target = Paths::data('trash/'.now()->format('Y-m-d-His').'-account--'.$account->id());
         @mkdir(dirname($target), 0775, true);
         rename($this->folder($account->id()), $target);
         $this->cache = null;
@@ -119,7 +120,7 @@ class Accounts
 
     public function directory(): string
     {
-        return storage_path('accounts');
+        return Paths::data('accounts');
     }
 
     public function folder(string $id): string

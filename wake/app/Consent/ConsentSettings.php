@@ -87,7 +87,7 @@ class ConsentSettings
 
     public function file(): string
     {
-        return Paths::site('consent.yml');
+        return Paths::settings('consent.yml');
     }
 
     /**

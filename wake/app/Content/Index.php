@@ -249,7 +249,7 @@ class Index
             'types' => array_map(fn (ContentType $type) => [$type->folder, $type->url], $this->types->all()),
             'categories' => app(Categories::class)->fingerprint(),
             // Hand-edited menus and redirects must reach cached pages, too.
-            'site_files' => array_map(fn (string $file) => @filemtime(Paths::site($file)) ?: 0, ['menus.yml', 'redirects.yml']),
+            'site_files' => array_map(fn (string $file) => @filemtime(Paths::settings($file)) ?: 0, ['menus.yml', 'redirects.yml']),
         ];
     }
 

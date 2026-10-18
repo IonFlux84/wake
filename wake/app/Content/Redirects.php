@@ -87,6 +87,6 @@ class Redirects
 
     public function file(): string
     {
-        return Paths::site('redirects.yml');
+        return Paths::settings('redirects.yml');
     }
 }

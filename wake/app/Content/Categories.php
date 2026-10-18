@@ -24,7 +24,7 @@ class Categories
         if ($this->categories === null) {
             $this->categories = [];
 
-            foreach (glob(Paths::site('categories/*.yml')) ?: [] as $file) {
+            foreach (glob(Paths::settings('categories/*.yml')) ?: [] as $file) {
                 $key = basename($file, '.yml');
                 $this->categories[$key] = new Category($key, Yaml::parseFile($file) ?: []);
             }
@@ -76,7 +76,7 @@ class Categories
      */
     public function trash(string $key): void
     {
-        $target = storage_path('trash/'.date('Y-m-d-His').'-category--'.$key.'.yml');
+        $target = Paths::data('trash/'.date('Y-m-d-His').'-category--'.$key.'.yml');
         @mkdir(dirname($target), 0775, true);
         @rename($this->file($key), $target);
         $this->flush();
@@ -99,6 +99,6 @@ class Categories
 
     protected function file(string $key): string
     {
-        return Paths::site('categories/'.$key.'.yml');
+        return Paths::settings('categories/'.$key.'.yml');
     }
 }

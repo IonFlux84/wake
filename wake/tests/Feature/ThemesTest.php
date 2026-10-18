@@ -13,7 +13,7 @@ use Wake\Theme\Themes;
 
 beforeEach(function () {
     $this->owner = app(Accounts::class)->create(['name' => 'Dana', 'email' => 'dana@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
-    file_put_contents($this->sandbox.'/site/themes/test/theme.yml', "name: Test theme\noptions:\n  accent:\n    type: color\n    label: Accent\n    default: '#112233'\n  wide:\n    type: toggle\n    label: Wide\n    default: false\n");
+    file_put_contents($this->sandbox.'/themes/test/theme.yml', "name: Test theme\noptions:\n  accent:\n    type: color\n    label: Accent\n    default: '#112233'\n  wide:\n    type: toggle\n    label: Wide\n    default: false\n");
 });
 
 function themeZip(string $path, array $files): string
@@ -87,7 +87,7 @@ it('is only for people who may manage themes', function () {
 });
 
 it('publishes fonts and images a stylesheet points to', function () {
-    $assets = Paths::site('themes/harbour/assets');
+    $assets = Paths::themes('harbour/assets');
     Files::write($assets.'/css/site.css', "@font-face { src: url('../fonts/sans.woff2') format('woff2'); }\n.hero { background: url(img/wave.png); }\n.x { background: url(\"../../../../.env\"); }\n.y { background: url(data:image/png;base64,AAAA); }\n");
     Files::write($assets.'/fonts/sans.woff2', 'font');
     Files::write($assets.'/css/img/wave.png', 'png');

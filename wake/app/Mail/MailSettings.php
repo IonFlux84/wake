@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Crypt;
 use Symfony\Component\Yaml\Yaml;
 use Throwable;
 use Wake\Support\Files;
+use Wake\Support\Paths;
 
 /**
  * How Wake sends mail, set in the panel and stored in storage/mail.yml (not
@@ -18,7 +19,7 @@ class MailSettings
 
     public function file(): string
     {
-        return storage_path('mail.yml');
+        return Paths::data('secrets/mail.yml');
     }
 
     /**

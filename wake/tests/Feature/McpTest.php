@@ -25,13 +25,14 @@ use Wake\Mcp\Tools\StatsOverviewTool;
 use Wake\Mcp\Tools\StatsPostTool;
 use Wake\Mcp\Tools\StatsQueryTool;
 use Wake\Mcp\WakeServer;
+use Wake\Support\Paths;
 
 beforeEach(function () {
     $this->account = app(Accounts::class)->create(['name' => 'Dana', 'email' => 'dana@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
 
-    @mkdir(storage_path('stats/raw'), 0775, true);
+    @mkdir(Paths::data('stats/raw'), 0775, true);
     $line = fn (string $v, string $path, string $ref = '') => implode("\t", [strtotime('2026-05-30 10:00'), 'pageview', $v, '', $path, $ref, '', '', '', 'en', 'DE', 'desktop', 'Firefox', 'Linux', '', '', 0, 0, 1]);
-    file_put_contents(storage_path('stats/raw/2026-05-30.log'), implode("\n", [$line('a', '/first', 'mastodon.social'), $line('b', '/first'), $line('a', '/about')])."\n");
+    file_put_contents(Paths::data('stats/raw/2026-05-30.log'), implode("\n", [$line('a', '/first', 'mastodon.social'), $line('b', '/first'), $line('a', '/about')])."\n");
 });
 
 function mcp(array $body, ?string $token = null)
@@ -91,7 +92,7 @@ it('stores only a fingerprint of tokens and can revoke them', function () {
     [$plain, $record] = app(Tokens::class)->create($this->account, 'Laptop', ['stats:read', 'bogus']);
 
     expect($record['scopes'])->toBe(['stats:read'])
-        ->and(file_get_contents(storage_path("accounts/dana/tokens/{$record['id']}.yml")))->not->toContain($plain)
+        ->and(file_get_contents(Paths::data("accounts/dana/tokens/{$record['id']}.yml")))->not->toContain($plain)
         ->and(app(Tokens::class)->find($plain)[0]->id())->toBe('dana');
 
     app(Tokens::class)->revoke($this->account, $record['id']);

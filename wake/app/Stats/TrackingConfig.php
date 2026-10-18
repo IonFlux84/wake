@@ -3,6 +3,7 @@
 namespace Wake\Stats;
 
 use Wake\Support\Files;
+use Wake\Support\Paths;
 
 /**
  * public/hit.php runs without Laravel, so Wake writes the rules it needs
@@ -34,7 +35,7 @@ class TrackingConfig
 
     public function file(): string
     {
-        return storage_path('stats/.config.php');
+        return Paths::data('stats/.config.php');
     }
 
     /**

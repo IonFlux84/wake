@@ -8,8 +8,11 @@ return [
 
     // Where Wake finds the parts that belong to the site owner.
     'paths' => [
-        'site' => env('WAKE_SITE_PATH', dirname(base_path()).'/site'),
         'content' => env('WAKE_CONTENT_PATH', dirname(base_path()).'/content'),
+        'settings' => env('WAKE_SETTINGS_PATH', dirname(base_path()).'/settings'),
+        'themes' => env('WAKE_THEMES_PATH', dirname(base_path()).'/themes'),
+        'plugins' => env('WAKE_PLUGINS_PATH', dirname(base_path()).'/plugins'),
+        'data' => env('WAKE_DATA_PATH', dirname(base_path()).'/data'),
     ],
 
     // Closed site: only signed-in team members see it, everyone else lands on

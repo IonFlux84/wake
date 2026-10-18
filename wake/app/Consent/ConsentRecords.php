@@ -3,6 +3,7 @@
 namespace Wake\Consent;
 
 use Carbon\CarbonImmutable;
+use Wake\Support\Paths;
 
 /**
  * Reads the consent records in storage/consent/{year}-{month}.log.
@@ -50,6 +51,6 @@ class ConsentRecords
 
     public function file(string $month): string
     {
-        return storage_path('consent/'.$month.'.log');
+        return Paths::data('consent/'.$month.'.log');
     }
 }

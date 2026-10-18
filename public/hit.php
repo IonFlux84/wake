@@ -7,15 +7,15 @@ use MaxMind\Db\Reader;
  * signals and events here with navigator.sendBeacon().
  *
  * On purpose this file does not start Laravel: it checks the data, builds a
- * daily, salted visitor hash, appends one line to storage/stats/raw/{day}.log
+ * daily, salted visitor hash, appends one line to data/stats/raw/{day}.log
  * and answers "204 No Content". IP addresses are never written anywhere.
  *
- * The rules come from storage/stats/.config.php, which Wake writes itself.
+ * The rules come from data/stats/.config.php, which Wake writes itself.
  * See docs/concepts/analytics.md.
  */
 
 $root = dirname(__DIR__);
-$config = @include $root.'/storage/stats/.config.php';
+$config = @include $root.'/data/stats/.config.php';
 
 header('Cache-Control: no-store');
 
@@ -65,8 +65,8 @@ if ($type === 'consent') {
         'language' => $clean($data['l'] ?? '', 10),
     ], JSON_UNESCAPED_SLASHES);
 
-    @mkdir($root.'/storage/consent', 0775, true);
-    file_put_contents($root.'/storage/consent/'.gmdate('Y-m').'.log', $line."\n", FILE_APPEND | LOCK_EX);
+    @mkdir($root.'/data/consent', 0775, true);
+    file_put_contents($root.'/data/consent/'.gmdate('Y-m').'.log', $line."\n", FILE_APPEND | LOCK_EX);
     wake_done();
 }
 
@@ -114,7 +114,7 @@ if (($config['level1'] === 'consent' && ($data['c'] ?? 0) < 1) || ($privacySigna
 // The visitor hash changes every day, because the salt does. Yesterday's
 // visitors cannot be recognised today, and the IP address is never stored.
 $day = date('Y-m-d');
-$saltFile = $root.'/storage/stats/salt/'.$day;
+$saltFile = $root.'/data/stats/salt/'.$day;
 
 if (! is_file($saltFile)) {
     @mkdir(dirname($saltFile), 0700, true);
@@ -194,7 +194,7 @@ $fields = [
     $level,
 ];
 
-@mkdir($root.'/storage/stats/raw', 0775, true);
-file_put_contents($root.'/storage/stats/raw/'.$day.'.log', implode("\t", $fields)."\n", FILE_APPEND | LOCK_EX);
+@mkdir($root.'/data/stats/raw', 0775, true);
+file_put_contents($root.'/data/stats/raw/'.$day.'.log', implode("\t", $fields)."\n", FILE_APPEND | LOCK_EX);
 
 wake_done();

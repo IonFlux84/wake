@@ -99,7 +99,7 @@ it('moves the sidecar file to the trash with its file', function () {
     $writer->deleteMedia('posts/2026-01-10-first', 'photo.png');
 
     expect(is_file(Paths::content('posts/2026-01-10-first/photo.png.yml')))->toBeFalse()
-        ->and(glob(storage_path('trash/*photo.png.yml')))->toHaveCount(1);
+        ->and(glob(Paths::data('trash/*photo.png.yml')))->toHaveCount(1);
 });
 
 it('edits file details in the media library', function () {

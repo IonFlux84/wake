@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Cache;
 use Wake\Support\Files;
+use Wake\Support\Paths;
 
 /**
  * Answers questions about visits: the dashboard, the statistics page, the
@@ -92,7 +93,7 @@ class Stats
         $result = ['total' => 0, 'bots' => [], 'pages' => []];
 
         foreach (CarbonPeriod::create(CarbonImmutable::parse($from)->startOfDay(), CarbonImmutable::parse($to)->startOfDay()) as $date) {
-            $handle = @fopen(storage_path('stats/ai/'.$date->toDateString().'.log'), 'r');
+            $handle = @fopen(Paths::data('stats/ai/'.$date->toDateString().'.log'), 'r');
 
             while ($handle && ($line = fgets($handle)) !== false) {
                 [, $bot, $path] = array_pad(explode("\t", rtrim($line, "\n"), 3), 3, '');
@@ -192,13 +193,13 @@ class Stats
             }
         }
 
-        foreach (glob(storage_path('stats/ai/*.log')) ?: [] as $file) {
+        foreach (glob(Paths::data('stats/ai/*.log')) ?: [] as $file) {
             if (basename($file, '.log') < $limit) {
                 @unlink($file);
             }
         }
 
-        foreach (glob(storage_path('stats/salt/*')) ?: [] as $salt) {
+        foreach (glob(Paths::data('stats/salt/*')) ?: [] as $salt) {
             if (basename($salt) < $this->today()) {
                 @unlink($salt);
             }
@@ -207,19 +208,19 @@ class Stats
 
     public function dailyFile(string $day): string
     {
-        return storage_path('stats/daily/'.$day.'.json');
+        return Paths::data('stats/daily/'.$day.'.json');
     }
 
     public function monthlyFile(string $month): string
     {
-        return storage_path('stats/monthly/'.$month.'.json');
+        return Paths::data('stats/monthly/'.$month.'.json');
     }
 
     protected function summariseMonth(string $month): void
     {
         $summary = Aggregator::empty($month);
 
-        foreach (glob(storage_path('stats/daily/'.$month.'-*.json')) ?: [] as $file) {
+        foreach (glob(Paths::data('stats/daily/'.$month.'-*.json')) ?: [] as $file) {
             Aggregator::merge($summary, json_decode((string) file_get_contents($file), true));
         }
 

@@ -4,6 +4,7 @@ namespace Wake\Content;
 
 use Carbon\CarbonImmutable;
 use Wake\Mcp\CurrentToken;
+use Wake\Support\Paths;
 
 /**
  * Who changed what, and how: storage/history/{year}-{month}.log, one JSON
@@ -27,8 +28,8 @@ class History
             'token' => $token->record() !== null ? $token->name() : null,
         ], fn ($v) => $v !== null), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-        @mkdir(storage_path('history'), 0775, true);
-        file_put_contents(storage_path('history/'.CarbonImmutable::now()->format('Y-m').'.log'), $line."\n", FILE_APPEND | LOCK_EX);
+        @mkdir(Paths::data('history'), 0775, true);
+        file_put_contents(Paths::data('history/'.CarbonImmutable::now()->format('Y-m').'.log'), $line."\n", FILE_APPEND | LOCK_EX);
     }
 
     /**
@@ -38,7 +39,7 @@ class History
      */
     public function latest(int $limit = 50, ?string $id = null): array
     {
-        $files = glob(storage_path('history/*.log')) ?: [];
+        $files = glob(Paths::data('history/*.log')) ?: [];
         rsort($files);
         $result = [];
 

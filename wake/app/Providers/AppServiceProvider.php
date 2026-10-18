@@ -147,7 +147,7 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        $file = Paths::site('config.php');
+        $file = Paths::settings('config.php');
         $site = is_file($file) ? (require $file) : [];
         $site = is_array($site) ? $site : [];
 

@@ -6,6 +6,7 @@ use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Livewire\Settings;
 use Wake\Support\Files;
+use Wake\Support\Paths;
 use Wake\Support\Settings as SiteSettings;
 
 beforeEach(function () {
@@ -68,7 +69,7 @@ it('uses German in the panel unless chosen otherwise', function () {
 });
 
 it('stores the setup language as the panel language of the site', function () {
-    Files::deleteDirectory(storage_path('accounts'));
+    Files::deleteDirectory(Paths::data('accounts'));
     app()->forgetInstance(Accounts::class);
     app()->singleton(Accounts::class);
     auth()->logout();

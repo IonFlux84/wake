@@ -9,6 +9,7 @@ use Wake\Content\Models\Post;
 use Wake\Content\Writer;
 use Wake\Livewire\BackupManager;
 use Wake\Support\Files;
+use Wake\Support\Paths;
 
 function zipEntries(string $file): array
 {
@@ -25,17 +26,18 @@ function zipEntries(string $file): array
 
 it('writes content, settings and accounts into a ZIP', function () {
     app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
-    Files::write(storage_path('stats/2026-10.log'), "x\n");
+    Files::write(Paths::data('stats/2026-10.log'), "x\n");
     Files::write(storage_path('cache/junk.txt'), 'cache');
 
     $backups = app(Backups::class);
     $entries = zipEntries($backups->path($backups->create()));
 
     expect($entries)->toContain('wake-backup.json', 'content/posts/2026-01-10-first/index.en.md', 'content/posts/2026-01-10-first/photo.png')
-        ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'site/')))->toBeTrue()
-        ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'storage/accounts/')))->toBeTrue()
-        ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'storage/stats/') || str_starts_with($e, 'storage/cache/')))->toBeFalse()
-        ->and(zipEntries($backups->path($backups->create(withStats: true))))->toContain('storage/stats/2026-10.log')
+        ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'settings/')))->toBeTrue()
+        ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'themes/')))->toBeTrue()
+        ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'data/accounts/')))->toBeTrue()
+        ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'data/stats/') || str_starts_with($e, 'temp/cache/')))->toBeFalse()
+        ->and(zipEntries($backups->path($backups->create(withStats: true))))->toContain('data/stats/2026-10.log')
         ->and($backups->all())->toHaveCount(2);
 });
 
@@ -51,7 +53,7 @@ it('restores a backup and keeps the replaced state', function () {
     expect(Post::find('posts/2026-01-10-first')->title())->toBe('First post')
         ->and(Post::query()->get()->map->title()->all())->not->toContain('Written later')
         ->and($backups->path($safety))->not->toBeNull()
-        ->and(glob(storage_path('trash/*-before-restore/content/posts')))->toHaveCount(1);
+        ->and(glob(Paths::data('trash/*-before-restore/content/posts')))->toHaveCount(1);
 });
 
 it('refuses ZIP files that are not Wake backups or contain unsafe paths', function (array $files) {

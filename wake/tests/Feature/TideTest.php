@@ -5,10 +5,10 @@ use Wake\Theme\Theme;
 // Renders every template of the default theme with the fixture content.
 
 beforeEach(function () {
-    $this->copyDirectory(dirname(base_path()).'/site/themes/tide', $this->sandbox.'/site/themes/tide');
+    $this->copyDirectory(dirname(base_path()).'/themes/tide', $this->sandbox.'/themes/tide');
     config(['wake.theme' => 'tide', 'wake.theme_options.accent' => '#3D5AFE']);
     app(Theme::class)->register();
-    app('view')->getFinder()->replaceNamespace('theme', $this->sandbox.'/site/themes/tide/templates');
+    app('view')->getFinder()->replaceNamespace('theme', $this->sandbox.'/themes/tide/templates');
 });
 
 it('renders every page type', function (string $path, string $text) {

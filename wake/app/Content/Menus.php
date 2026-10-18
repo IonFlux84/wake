@@ -124,7 +124,7 @@ class Menus
 
     public function file(): string
     {
-        return Paths::site('menus.yml');
+        return Paths::settings('menus.yml');
     }
 
     /**

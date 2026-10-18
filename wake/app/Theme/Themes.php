@@ -21,7 +21,7 @@ class Themes
     {
         $themes = [];
 
-        foreach (glob(Paths::site('themes/*'), GLOB_ONLYDIR) ?: [] as $dir) {
+        foreach (glob(Paths::themes('*'), GLOB_ONLYDIR) ?: [] as $dir) {
             if (is_dir($dir.'/templates')) {
                 $file = $dir.'/theme.yml';
                 $themes[basename($dir)] = new ThemeInfo(basename($dir), $dir, is_file($file) ? (Yaml::parseFile($file) ?: []) : []);
@@ -46,9 +46,9 @@ class Themes
         $source = $this->get($folder) ?? throw new InvalidArgumentException('Unknown theme.');
         $target = $this->freeFolder(Str::slug($name) ?: $folder.'-copy');
 
-        $this->copy($source->path, Paths::site('themes/'.$target));
+        $this->copy($source->path, Paths::themes($target));
 
-        $file = Paths::site("themes/{$target}/theme.yml");
+        $file = Paths::themes("{$target}/theme.yml");
         $data = is_file($file) ? (Yaml::parseFile($file) ?: []) : [];
         $data['name'] = $name;
         Files::write($file, Yaml::dump($data, 4, 2));
@@ -94,7 +94,7 @@ class Themes
         $data = is_file($source.'/theme.yml') ? (Yaml::parseFile($source.'/theme.yml') ?: []) : [];
         $folder = $this->freeFolder(Str::slug($data['name'] ?? basename($prefix ?: 'theme')) ?: 'theme');
 
-        $this->copy($source, Paths::site('themes/'.$folder));
+        $this->copy($source, Paths::themes($folder));
         Files::deleteDirectory($temp);
 
         return $this->get($folder);
@@ -109,16 +109,16 @@ class Themes
             throw new InvalidArgumentException(__('The active theme cannot be removed.'));
         }
 
-        $target = storage_path('trash/'.date('Y-m-d-His').'-theme--'.$folder);
+        $target = Paths::data('trash/'.date('Y-m-d-His').'-theme--'.$folder);
         @mkdir(dirname($target), 0775, true);
-        rename(Paths::site('themes/'.$folder), $target);
+        rename(Paths::themes($folder), $target);
     }
 
     protected function freeFolder(string $folder): string
     {
         $candidate = $folder;
 
-        for ($i = 2; is_dir(Paths::site('themes/'.$candidate)); $i++) {
+        for ($i = 2; is_dir(Paths::themes($candidate)); $i++) {
             $candidate = $folder.'-'.$i;
         }
 

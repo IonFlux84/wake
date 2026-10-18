@@ -29,8 +29,8 @@ class Backups
 {
     public const FORMAT = 1;
 
-    /** Folders in storage/ that belong in every backup. */
-    public const STORAGE = ['accounts', 'consent', 'history', 'revisions'];
+    /** Folders in data/ that belong in every backup (statistics are optional). */
+    public const DATA = ['accounts', 'consent', 'history', 'versions', 'secrets'];
 
     public static function available(): bool
     {
@@ -111,8 +111,8 @@ class Backups
     public function delete(string $name): void
     {
         if ($file = $this->path($name)) {
-            @mkdir(storage_path('trash'), 0775, true);
-            rename($file, storage_path('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-'.$name));
+            @mkdir(Paths::data('trash'), 0775, true);
+            rename($file, Paths::data('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-'.$name));
         }
     }
 
@@ -185,9 +185,9 @@ class Backups
         $manifest = $this->inspect($file);
         @set_time_limit(0);
 
-        $safety = $this->create(in_array('storage/stats', $manifest['contains'] ?? [], true), 'before-restore');
+        $safety = $this->create(in_array('data/stats', $manifest['contains'] ?? [], true), 'before-restore');
         $temp = storage_path('updates/restore-'.bin2hex(random_bytes(4)));
-        $trash = storage_path('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-before-restore');
+        $trash = Paths::data('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-before-restore');
 
         $archive = new ZipArchive;
         $archive->open($file);
@@ -219,7 +219,7 @@ class Backups
 
     public function directory(): string
     {
-        return storage_path('backups');
+        return Paths::data('backups');
     }
 
     /**
@@ -229,10 +229,15 @@ class Backups
      */
     protected function areas(bool $withStats): array
     {
-        $areas = ['content' => Paths::content(), 'site' => Paths::site()];
+        $areas = [
+            'content' => Paths::content(),
+            'settings' => Paths::settings(),
+            'themes' => Paths::themes(),
+            'plugins' => Paths::plugins(),
+        ];
 
-        foreach ([...self::STORAGE, ...($withStats ? ['stats'] : [])] as $folder) {
-            $areas['storage/'.$folder] = storage_path($folder);
+        foreach ([...self::DATA, ...($withStats ? ['stats'] : [])] as $folder) {
+            $areas['data/'.$folder] = Paths::data($folder);
         }
 
         return $areas;

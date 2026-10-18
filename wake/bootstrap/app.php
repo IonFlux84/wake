@@ -12,7 +12,8 @@ use Wake\Http\Middleware\RequireTwoFactor;
 use Wake\Plugins\Plugins;
 
 // The Laravel application lives in wake/. Everything a site owner touches
-// (site/, content/, storage/, public/ and .env) sits one level above it,
+// (content/, themes/, plugins/, settings/, data/, temp/, public/ and .env)
+// sits one level above it,
 // so an update only ever replaces this folder.
 $root = dirname(__DIR__, 2);
 
@@ -55,4 +56,4 @@ return Application::configure(basePath: dirname(__DIR__))
     ->create()
     ->useEnvironmentPath($root)
     ->usePublicPath($root.'/public')
-    ->useStoragePath($root.'/storage');
+    ->useStoragePath($root.'/temp');

@@ -45,8 +45,8 @@ it('adds field types for categories', function () {
 });
 
 it('skips a plugin that fails to start and shows why', function () {
-    Files::write(Paths::site('plugins/broken/plugin.php'), "<?php\nreturn function (\$plugin) { throw new RuntimeException('Something is missing'); };\n");
-    Files::write(Paths::site('plugins/syntax/plugin.php'), "<?php\nreturn function ( {\n");
+    Files::write(Paths::plugins('broken/plugin.php'), "<?php\nreturn function (\$plugin) { throw new RuntimeException('Something is missing'); };\n");
+    Files::write(Paths::plugins('syntax/plugin.php'), "<?php\nreturn function ( {\n");
 
     $plugins = new Plugins;
     $plugins->boot();

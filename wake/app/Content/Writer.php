@@ -158,7 +158,7 @@ class Writer
     {
         $row = $this->existing($id);
         $type = $this->types->get($row['type']);
-        $target = storage_path('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-'.str_replace('/', '--', $id));
+        $target = Paths::data('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-'.str_replace('/', '--', $id));
 
         Files::lock('entry-'.md5($id), function () use ($row, $type, $target) {
             @mkdir($target, 0775, true);
@@ -211,7 +211,7 @@ class Writer
             return;
         }
 
-        $target = storage_path('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-'.str_replace('/', '--', $id).'--'.$name);
+        $target = Paths::data('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-'.str_replace('/', '--', $id).'--'.$name);
         @mkdir(dirname($target), 0775, true);
         rename(Paths::content($id.'/'.$name), $target);
 

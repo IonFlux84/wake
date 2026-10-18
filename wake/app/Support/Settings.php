@@ -18,7 +18,7 @@ class Settings
 
     public static function file(): string
     {
-        return Paths::site('settings.yml');
+        return Paths::settings('general.yml');
     }
 
     /**

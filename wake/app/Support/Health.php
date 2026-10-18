@@ -15,7 +15,7 @@ class Health
     {
         $problems = [];
 
-        foreach (['storage' => storage_path(), 'content' => Paths::content(), 'public/media' => public_path('media')] as $name => $path) {
+        foreach (['content' => Paths::content(), 'settings' => Paths::settings(), 'data' => Paths::data(), 'temp' => storage_path(), 'public/media' => public_path('media')] as $name => $path) {
             if (! is_dir($path)) {
                 @mkdir($path, 0775, true);
             }

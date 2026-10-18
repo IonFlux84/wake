@@ -8,6 +8,7 @@ use Wake\Consent\Services;
 use Wake\Content\Index;
 use Wake\Livewire\Consent;
 use Wake\Markdown\Markdown;
+use Wake\Support\Paths;
 
 function consentConfig(string $html): array
 {
@@ -84,8 +85,8 @@ it('offers a link to reopen the settings', function () {
 
 it('shows decisions and saves the banner in the panel', function () {
     $owner = app(Accounts::class)->create(['name' => 'Dana', 'email' => 'dana@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
-    @mkdir(storage_path('consent'), 0775, true);
-    file_put_contents(storage_path('consent/2026-05.log'), json_encode(['time' => '2026-05-30T10:00:00+00:00', 'id' => 'abcdef1234567890', 'categories' => ['necessary', 'media'], 'action' => 'custom', 'version' => 1, 'language' => 'en'])."\n");
+    @mkdir(Paths::data('consent'), 0775, true);
+    file_put_contents(Paths::data('consent/2026-05.log'), json_encode(['time' => '2026-05-30T10:00:00+00:00', 'id' => 'abcdef1234567890', 'categories' => ['necessary', 'media'], 'action' => 'custom', 'version' => 1, 'language' => 'en'])."\n");
 
     $this->actingAs($owner)->get('/wake/consent')->assertOk()->assertSee('No banner needed')->assertSee('External media');
 

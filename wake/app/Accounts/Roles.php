@@ -108,7 +108,7 @@ class Roles
 
     public function file(): string
     {
-        return Paths::site('roles.yml');
+        return Paths::settings('roles.yml');
     }
 
     /**

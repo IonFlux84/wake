@@ -90,7 +90,7 @@ class ContentTypes
     {
         $blueprints = [];
 
-        foreach (glob(Paths::site('blueprints/*.yml')) ?: [] as $file) {
+        foreach (glob(Paths::settings('blueprints/*.yml')) ?: [] as $file) {
             $blueprints[basename($file, '.yml')] = Yaml::parseFile($file) ?? [];
         }
 

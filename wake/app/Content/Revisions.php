@@ -4,6 +4,7 @@ namespace Wake\Content;
 
 use Carbon\CarbonImmutable;
 use Wake\Support\Files;
+use Wake\Support\Paths;
 
 /**
  * Earlier versions of content files in storage/revisions/{file hash}/.
@@ -76,6 +77,6 @@ class Revisions
 
     protected function directory(string $file): string
     {
-        return storage_path('revisions/'.md5($file));
+        return Paths::data('versions/'.md5($file));
     }
 }

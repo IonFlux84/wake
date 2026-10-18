@@ -51,7 +51,7 @@ class Plugins
     {
         $plugins = [];
 
-        foreach (glob(Paths::site('plugins/*/plugin.php')) ?: [] as $file) {
+        foreach (glob(Paths::plugins('*/plugin.php')) ?: [] as $file) {
             $path = dirname($file);
             $folder = basename($path);
 

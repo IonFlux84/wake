@@ -131,5 +131,8 @@ You rarely need these. They exist for tests and unusual hosting setups.
 
 | Setting | Default | Description |
 |---|---|---|
-| `paths.site` | `site/` next to `wake/` | Folder with configuration, blueprints and themes. Environment variable `WAKE_SITE_PATH`. |
-| `paths.content` | `content/` next to `wake/` | Folder with all content. Environment variable `WAKE_CONTENT_PATH`. |
+| `paths.content` | `content/` next to `wake/` | Pages, posts, categories, tags and media. Environment variable `WAKE_CONTENT_PATH`. |
+| `paths.settings` | `settings/` next to `wake/` | Settings written by the panel and by people: `general.yml`, `config.php`, menus, redirects, roles, consent. Environment variable `WAKE_SETTINGS_PATH`. |
+| `paths.themes` | `themes/` next to `wake/` | Installed themes. Environment variable `WAKE_THEMES_PATH`. |
+| `paths.plugins` | `plugins/` next to `wake/` | Installed plugins. Environment variable `WAKE_PLUGINS_PATH`. |
+| `paths.data` | `data/` next to `wake/` | Data of the site: accounts, statistics, versions, trash, backups. Back it up, never delete it. Environment variable `WAKE_DATA_PATH`. Caches and logs live in `temp/`, which may be deleted at any time. |

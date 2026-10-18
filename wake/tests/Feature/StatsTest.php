@@ -4,6 +4,7 @@ use Illuminate\Support\Carbon;
 use Wake\Maintenance\Maintenance;
 use Wake\Stats\Stats;
 use Wake\Stats\TrackingConfig;
+use Wake\Support\Paths;
 
 /**
  * Write raw hits the way public/hit.php does.
@@ -20,8 +21,8 @@ function rawHits(string $day, array $hits): void
         return implode("\t", $h);
     }, $hits);
 
-    @mkdir(storage_path('stats/raw'), 0775, true);
-    file_put_contents(storage_path("stats/raw/{$day}.log"), implode("\n", $lines)."\n", FILE_APPEND);
+    @mkdir(Paths::data('stats/raw'), 0775, true);
+    file_put_contents(Paths::data("stats/raw/{$day}.log"), implode("\n", $lines)."\n", FILE_APPEND);
 }
 
 it('summarises a day', function () {
@@ -87,24 +88,24 @@ it('summarises finished days in maintenance and prunes old data', function () {
     rawHits('2026-04-01', [['visitor' => 'a']]);
     rawHits('2026-05-31', [['visitor' => 'a']]);
     rawHits('2026-06-01', [['visitor' => 'a']]);
-    @mkdir(storage_path('stats/salt'), 0700, true);
-    touch(storage_path('stats/salt/2026-05-31'));
+    @mkdir(Paths::data('stats/salt'), 0700, true);
+    touch(Paths::data('stats/salt/2026-05-31'));
 
     app(Maintenance::class)->run();
 
-    expect(is_file(storage_path('stats/daily/2026-05-31.json')))->toBeTrue()
-        ->and(is_file(storage_path('stats/daily/2026-06-01.json')))->toBeFalse()
-        ->and(is_file(storage_path('stats/monthly/2026-05.json')))->toBeTrue()
-        ->and(is_file(storage_path('stats/raw/2026-04-01.log')))->toBeFalse()
-        ->and(is_file(storage_path('stats/raw/2026-05-31.log')))->toBeTrue()
-        ->and(is_file(storage_path('stats/salt/2026-05-31')))->toBeFalse()
+    expect(is_file(Paths::data('stats/daily/2026-05-31.json')))->toBeTrue()
+        ->and(is_file(Paths::data('stats/daily/2026-06-01.json')))->toBeFalse()
+        ->and(is_file(Paths::data('stats/monthly/2026-05.json')))->toBeTrue()
+        ->and(is_file(Paths::data('stats/raw/2026-04-01.log')))->toBeFalse()
+        ->and(is_file(Paths::data('stats/raw/2026-05-31.log')))->toBeTrue()
+        ->and(is_file(Paths::data('stats/salt/2026-05-31')))->toBeFalse()
         ->and(app(Stats::class)->day('2026-04-01')['totals']['pageviews'])->toBe(1);
 });
 
 it('includes the tracking script and writes the rules for hit.php', function () {
     $this->get('/first')->assertSee('data-endpoint="'.url('hit.php').'"', false);
 
-    expect(require storage_path('stats/.config.php'))->toMatchArray(['enabled' => true, 'level1' => 'always']);
+    expect(require Paths::data('stats/.config.php'))->toMatchArray(['enabled' => true, 'level1' => 'always']);
 });
 
 it('leaves the script out when tracking is off', function () {
@@ -141,7 +142,7 @@ describe('public/hit.php', function () {
     it('appends a line without the IP address', function () {
         expect(beacon($this->port, ['t' => 'pageview', 'p' => '/first?utm_source=news', 'r' => 'https://www.example.org/x', 'l' => 'en']))->toBe(204);
 
-        $line = file_get_contents($this->sandbox.'/storage/stats/raw/'.date('Y-m-d').'.log');
+        $line = file_get_contents($this->sandbox.'/data/stats/raw/'.date('Y-m-d').'.log');
 
         expect($line)->toContain("pageview\t")->toContain("/first\texample.org\tnews")->toContain("desktop\tFirefox\tmacOS")
             ->not->toContain('127.0.0.1');
@@ -152,7 +153,7 @@ describe('public/hit.php', function () {
         beacon($this->port, ['t' => 'pageview', 'p' => '/'], ['Cookie: wake_session=abc']);
 
         expect(beacon($this->port, ['t' => 'nonsense']))->toBe(400)
-            ->and(is_file($this->sandbox.'/storage/stats/raw/'.date('Y-m-d').'.log'))->toBeFalse();
+            ->and(is_file($this->sandbox.'/data/stats/raw/'.date('Y-m-d').'.log'))->toBeFalse();
     });
 
     it('stores consent proofs even with statistics switched off', function () {
@@ -162,14 +163,14 @@ describe('public/hit.php', function () {
         beacon($this->port, ['t' => 'pageview', 'p' => '/']);
         beacon($this->port, ['t' => 'consent', 'id' => str_repeat('b2', 10), 'c' => ['necessary'], 'a' => 'decline']);
 
-        expect(is_file($this->sandbox.'/storage/stats/raw/'.date('Y-m-d').'.log'))->toBeFalse()
-            ->and(file_get_contents($this->sandbox.'/storage/consent/'.gmdate('Y-m').'.log'))->toContain('"decline"');
+        expect(is_file($this->sandbox.'/data/stats/raw/'.date('Y-m-d').'.log'))->toBeFalse()
+            ->and(file_get_contents($this->sandbox.'/data/consent/'.gmdate('Y-m').'.log'))->toContain('"decline"');
     });
 
     it('stores consent decisions as proof', function () {
         beacon($this->port, ['t' => 'consent', 'id' => str_repeat('a1', 10), 'c' => ['necessary', 'statistics', 'evil'], 'a' => 'custom', 'v' => 3, 'l' => 'de']);
 
-        $proof = json_decode(trim(file_get_contents($this->sandbox.'/storage/consent/'.gmdate('Y-m').'.log')), true);
+        $proof = json_decode(trim(file_get_contents($this->sandbox.'/data/consent/'.gmdate('Y-m').'.log')), true);
 
         expect($proof)->toMatchArray(['categories' => ['necessary', 'statistics'], 'version' => 3, 'action' => 'custom', 'language' => 'de']);
     });

@@ -4,6 +4,7 @@ use Wake\Accounts\Account;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Accounts\Roles;
+use Wake\Support\Paths;
 
 function owner(array $attributes = []): Account
 {
@@ -28,7 +29,7 @@ it('creates the owner during setup and signs them in', function () {
     expect($account->role()->key)->toBe(Role::Owner)
         ->and($account->id())->toBe('dana-owner')
         ->and($account->language())->toBe('de')
-        ->and(file_get_contents(storage_path('accounts/dana-owner/account.yml')))->not->toContain('a long password');
+        ->and(file_get_contents(Paths::data('accounts/dana-owner/account.yml')))->not->toContain('a long password');
 
     $this->assertAuthenticatedAs($account);
 });

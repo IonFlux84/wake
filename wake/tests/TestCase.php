@@ -21,22 +21,26 @@ abstract class TestCase extends BaseTestCase
     {
         $this->sandbox = sys_get_temp_dir().'/wake-tests/'.bin2hex(random_bytes(6));
 
-        $this->copyDirectory(__DIR__.'/Fixtures/content', $this->sandbox.'/content');
-        $this->copyDirectory(__DIR__.'/Fixtures/site', $this->sandbox.'/site');
-        mkdir($this->sandbox.'/storage/framework/views', 0775, true);
+        foreach (['content', 'settings', 'themes', 'plugins'] as $folder) {
+            $this->copyDirectory(__DIR__.'/Fixtures/'.$folder, $this->sandbox.'/'.$folder);
+        }
+        mkdir($this->sandbox.'/temp/framework/views', 0775, true);
+        mkdir($this->sandbox.'/data', 0775, true);
         mkdir($this->sandbox.'/public', 0775, true);
 
-        foreach (['WAKE_SITE_PATH' => $this->sandbox.'/site', 'WAKE_CONTENT_PATH' => $this->sandbox.'/content', 'WAKE_PAGE_CACHE' => 'true'] as $key => $value) {
+        $env = ['WAKE_CONTENT_PATH' => 'content', 'WAKE_SETTINGS_PATH' => 'settings', 'WAKE_THEMES_PATH' => 'themes', 'WAKE_PLUGINS_PATH' => 'plugins', 'WAKE_DATA_PATH' => 'data'];
+
+        foreach ([...array_map(fn ($folder) => $this->sandbox.'/'.$folder, $env), 'WAKE_PAGE_CACHE' => 'true'] as $key => $value) {
             putenv("{$key}={$value}");
             $_ENV[$key] = $_SERVER[$key] = $value;
         }
 
         $app = require __DIR__.'/../bootstrap/app.php';
-        $app->useStoragePath($this->sandbox.'/storage');
+        $app->useStoragePath($this->sandbox.'/temp');
         $app->usePublicPath($this->sandbox.'/public');
         $app->make(Kernel::class)->bootstrap();
 
-        $app['config']->set('view.compiled', $this->sandbox.'/storage/framework/views');
+        $app['config']->set('view.compiled', $this->sandbox.'/temp/framework/views');
 
         return $app;
     }

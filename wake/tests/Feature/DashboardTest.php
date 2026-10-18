@@ -6,13 +6,14 @@ use Wake\Accounts\Role;
 use Wake\Livewire\Dashboard;
 use Wake\Stats\Insights;
 use Wake\Stats\Stats;
+use Wake\Support\Paths;
 
 beforeEach(function () {
     $this->account = app(Accounts::class)->create(['name' => 'Dana Owner', 'email' => 'dana@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
 
-    @mkdir(storage_path('stats/raw'), 0775, true);
+    @mkdir(Paths::data('stats/raw'), 0775, true);
     $line = fn (string $visitor, string $path, string $referrer = '') => implode("\t", [strtotime('2026-05-30 10:00'), 'pageview', $visitor, '', $path, $referrer, '', '', '', 'en', 'DE', 'desktop', 'Firefox', 'Linux', '', '', 0, 0, 1]);
-    file_put_contents(storage_path('stats/raw/2026-05-30.log'), implode("\n", [$line('a', '/first', 'mastodon.social'), $line('b', '/first'), $line('c', '/about')])."\n");
+    file_put_contents(Paths::data('stats/raw/2026-05-30.log'), implode("\n", [$line('a', '/first', 'mastodon.social'), $line('b', '/first'), $line('c', '/about')])."\n");
 });
 
 it('requires signing in', function () {
@@ -52,7 +53,7 @@ it('shows the statistics page', function () {
 });
 
 it('shows where readers of a page came from and went next', function () {
-    file_put_contents(storage_path('stats/raw/2026-05-30.log'), implode("\t", [strtotime('2026-05-30 10:05'), 'pageview', 'a', '', '/about', '', '', '', '', 'en', 'DE', 'desktop', 'Firefox', 'Linux', '', '', 0, 0, 1])."\n", FILE_APPEND);
+    file_put_contents(Paths::data('stats/raw/2026-05-30.log'), implode("\t", [strtotime('2026-05-30 10:05'), 'pageview', 'a', '', '/about', '', '', '', '', 'en', 'DE', 'desktop', 'Firefox', 'Linux', '', '', 0, 0, 1])."\n", FILE_APPEND);
 
     $this->actingAs($this->account)->get('/wake/stats/journey?path=/first&period=12m')
         ->assertOk()
@@ -62,8 +63,8 @@ it('shows where readers of a page came from and went next', function () {
 });
 
 it('counts AI crawlers', function () {
-    @mkdir(storage_path('stats/ai'), 0775, true);
-    file_put_contents(storage_path('stats/ai/2026-05-30.log'), "1\tGPTBot\t/first\n1\tClaudeBot\t/first\n1\tGPTBot\t/\n");
+    @mkdir(Paths::data('stats/ai'), 0775, true);
+    file_put_contents(Paths::data('stats/ai/2026-05-30.log'), "1\tGPTBot\t/first\n1\tClaudeBot\t/first\n1\tGPTBot\t/\n");
 
     $ai = app(Stats::class)->aiCrawlers('2026-05-01', '2026-06-01');
 

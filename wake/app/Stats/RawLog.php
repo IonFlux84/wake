@@ -3,6 +3,7 @@
 namespace Wake\Stats;
 
 use Generator;
+use Wake\Support\Paths;
 
 /**
  * The raw statistics files in storage/stats/raw, one per day.
@@ -11,7 +12,7 @@ class RawLog
 {
     public function directory(): string
     {
-        return storage_path('stats/raw');
+        return Paths::data('stats/raw');
     }
 
     public function file(string $day): string
