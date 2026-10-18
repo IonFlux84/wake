@@ -1,6 +1,6 @@
 # Wake
 
-**Write it. Watch it travel.**
+**Every post leaves a wake.**
 
 Wake is a free flat-file CMS built on Laravel. Every post is a Markdown file
 you can open in any text editor, and there is no database. Analytics and consent

@@ -181,6 +181,10 @@ All notable changes to Wake are documented here. The format follows
   Images in Markdown without alt text take it from the details; cropped images
   keep the focus point in view.
 
+### Changed
+
+- New claim: “Every post leaves a wake.” (README, sign-in page, demo start page).
+
 ### Fixed
 
 - Tokens for AI assistants could read statistics without the owner's
