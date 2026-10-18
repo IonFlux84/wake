@@ -5,11 +5,16 @@
 # Wake shows a warning in the panel until you do.
 #
 # When the document root already is public/, Apache may still read this file
-# (it lies in a parent folder). The rules below then do nothing.
+# (it lies in a parent folder). The rules below then change nothing.
 
 <IfModule mod_dir.c>
     # wake/ is a real folder here, but /wake is the panel: no automatic slash.
     DirectorySlash Off
+</IfModule>
+
+<IfModule mod_negotiation.c>
+    # "/changelog" must reach Wake, not a file such as CHANGELOG.md.
+    Options -MultiViews -Indexes
 </IfModule>
 
 <IfModule mod_rewrite.c>
@@ -18,8 +23,10 @@
     # Hidden files such as .env are never served.
     RewriteRule (^|/)\.(?!well-known/) - [F,L]
 
-    # Only act when this folder is the document root.
-    RewriteCond %{DOCUMENT_ROOT}/public/index.php -f
-    RewriteCond %{REQUEST_URI} !^/public/
+    # Everything goes into public/. The paths here are relative to this
+    # folder, so it works without knowing the document root (some hosts
+    # report one that does not match): when the document root already is
+    # public/, the path seen here starts with public/ and nothing changes.
+    RewriteRule ^public/ - [L]
     RewriteRule ^(.*)$ public/$1 [L,E=WAKE_ROOT_REWRITE:1]
 </IfModule>
