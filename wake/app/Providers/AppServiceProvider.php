@@ -27,6 +27,7 @@ use Wake\Livewire\EntryEditor;
 use Wake\Livewire\Journey;
 use Wake\Livewire\LiveVisitors;
 use Wake\Livewire\Statistics;
+use Wake\Livewire\Team;
 use Wake\Localization\Languages;
 use Wake\Maintenance\Maintenance;
 use Wake\Markdown\Markdown;
@@ -47,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
         'assistants' => Assistants::class,
         'entries' => Entries::class,
         'entry-editor' => EntryEditor::class,
+        'team' => Team::class,
     ];
 
     public function register(): void

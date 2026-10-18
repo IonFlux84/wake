@@ -4,12 +4,15 @@ namespace Wake\Accounts;
 
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Support\Facades\Mail;
+use Wake\Mail\PasswordResetMail;
 
 /**
  * A member of the team, stored in storage/accounts/{id}/account.yml.
  */
-class Account implements Authenticatable, AuthorizableContract
+class Account implements Authenticatable, AuthorizableContract, CanResetPassword
 {
     use Authorizable;
 
@@ -71,6 +74,26 @@ class Account implements Authenticatable, AuthorizableContract
     public function toArray(): array
     {
         return $this->attributes;
+    }
+
+    /**
+     * Invited, but has not chosen a password yet.
+     */
+    public function isPending(): bool
+    {
+        return $this->getAuthPassword() === '';
+    }
+
+    // Password reset -------------------------------------------------------
+
+    public function getEmailForPasswordReset(): string
+    {
+        return $this->email();
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        Mail::to($this->email())->locale($this->language())->send(new PasswordResetMail($this, $token));
     }
 
     // Authenticatable ------------------------------------------------------

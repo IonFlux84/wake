@@ -74,3 +74,6 @@ All notable changes to Wake are documented here. The format follows
   translate, publish, unpublish and upload images, with the role of the
   token's owner, an optional approval mode (`mcp.approval`) and a history of
   every change in `storage/history/`.
+- Team page for owners and administrators: invitations by mail (with the link
+  shown in the panel as a fallback), roles, removing members; forgotten
+  passwords by mail with tokens in the file cache.

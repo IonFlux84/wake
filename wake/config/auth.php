@@ -23,7 +23,10 @@ return [
     ],
 
     'passwords' => [
+        // Reset tokens live in the file cache, so no database is needed.
         'accounts' => [
+            'driver' => 'cache',
+            'store' => 'file',
             'provider' => 'accounts',
             'expire' => 60,
             'throttle' => 60,

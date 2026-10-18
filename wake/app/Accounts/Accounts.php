@@ -105,6 +105,17 @@ class Accounts
         $this->cache = null;
     }
 
+    /**
+     * Move an account with its tokens to storage/trash, like content.
+     */
+    public function trash(Account $account): void
+    {
+        $target = storage_path('trash/'.now()->format('Y-m-d-His').'-account--'.$account->id());
+        @mkdir(dirname($target), 0775, true);
+        rename($this->folder($account->id()), $target);
+        $this->cache = null;
+    }
+
     public function directory(): string
     {
         return storage_path('accounts');

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Wake\Http\Controllers\Panel\ContentController;
 use Wake\Http\Controllers\Panel\DashboardController;
 use Wake\Http\Controllers\Panel\LoginController;
+use Wake\Http\Controllers\Panel\PasswordController;
 use Wake\Http\Controllers\Panel\SetupController;
 
 // The panel lives under /wake. These routes use sessions and CSRF protection.
@@ -15,6 +16,12 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
     Route::middleware('guest')->group(function () {
         Route::get('login', [LoginController::class, 'show'])->name('login');
         Route::post('login', [LoginController::class, 'store']);
+        Route::get('password', [PasswordController::class, 'request'])->name('password.request');
+        Route::post('password', [PasswordController::class, 'email'])->middleware('throttle:5,1')->name('password.email');
+        Route::get('password/{token}', [PasswordController::class, 'reset'])->name('password.reset');
+        Route::post('password/reset', [PasswordController::class, 'update'])->middleware('throttle:10,1')->name('password.update');
+        Route::get('invitation/{id}/{token}', [PasswordController::class, 'invitation'])->name('invitation');
+        Route::post('invitation/{id}/{token}', [PasswordController::class, 'accept'])->middleware('throttle:10,1');
     });
 
     Route::middleware('auth')->group(function () {
@@ -24,6 +31,7 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::view('stats/journey', 'wake::panel.journey')->name('stats.journey');
         Route::view('consent', 'wake::panel.consent')->name('consent');
         Route::view('assistants', 'wake::panel.assistants')->name('assistants');
+        Route::view('team', 'wake::panel.team')->name('team');
 
         Route::get('posts', [ContentController::class, 'index'])->defaults('type', 'post')->name('posts');
         Route::get('pages', [ContentController::class, 'index'])->defaults('type', 'page')->name('pages');
