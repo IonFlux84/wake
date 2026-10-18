@@ -245,6 +245,7 @@ class Index
         return [
             'languages' => $this->languages->codes(),
             'types' => array_map(fn (ContentType $type) => [$type->folder, $type->url], $this->types->all()),
+            'categories' => app(Categories::class)->fingerprint(),
         ];
     }
 

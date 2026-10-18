@@ -43,7 +43,22 @@
     <meta property="og:image" content="{{ $image->url(1280) }}">
     <meta name="twitter:card" content="summary_large_image">
 @endif
-@if ($entry?->type() === 'post')
+@if ($entry?->type() === 'post' && $entry->get('start'))
+    <script type="application/ld+json">{!! json_encode(array_filter([
+        '@@context' => 'https://schema.org',
+        '@type' => 'Event',
+        'name' => $entry->title(),
+        'description' => $entry->excerpt(30),
+        'startDate' => \Carbon\CarbonImmutable::parse($entry->get('start'), config('app.timezone'))->toIso8601String(),
+        'endDate' => $entry->get('end') ? \Carbon\CarbonImmutable::parse($entry->get('end'), config('app.timezone'))->toIso8601String() : null,
+        'eventStatus' => ['cancelled' => 'https://schema.org/EventCancelled', 'postponed' => 'https://schema.org/EventPostponed'][$entry->get('event_status')] ?? 'https://schema.org/EventScheduled',
+        'eventAttendanceMode' => $entry->get('online_url') && ! $entry->get('location') ? 'https://schema.org/OnlineEventAttendanceMode' : 'https://schema.org/OfflineEventAttendanceMode',
+        'location' => $entry->get('location') || $entry->get('address') ? array_filter(['@type' => 'Place', 'name' => $entry->get('location'), 'address' => $entry->get('address')]) : null,
+        'organizer' => $entry->get('organizer') ? ['@type' => 'Organization', 'name' => $entry->get('organizer')] : null,
+        'image' => $image?->isImage() ? $image->url(1280) : null,
+        'url' => $entry->url(),
+    ]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+@elseif ($entry?->type() === 'post')
     <script type="application/ld+json">{!! json_encode(array_filter([
         '@@context' => 'https://schema.org',
         '@type' => 'BlogPosting',

@@ -303,6 +303,11 @@ class Entry implements JsonSerializable
             ->values();
     }
 
+    public function category(): ?Category
+    {
+        return app(Categories::class)->get($this->get('category'));
+    }
+
     public function parent(): ?Entry
     {
         $row = $this->row['parent'] ? app(Index::class)->find($this->row['parent']) : null;

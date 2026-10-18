@@ -137,6 +137,54 @@ Any other name becomes `<div class="card card-{name}">`, and a theme can give it
 its own look with a template in `templates/cards/{name}.blade.php`
 (see [templates](templates.md#cards)).
 
+## Categories
+
+A post can have one category, given by its key:
+
+```markdown
+---
+title: Summer fest
+category: termine
+start: 2026-07-04 15:00
+location: Park
+---
+```
+
+Categories are defined in `site/categories/{key}.yml` (or in the panel under
+*Categories*):
+
+```yaml
+title: { de: Termine, en: Events }       # name per language
+slug: { de: termine, en: events }        # address of the category page
+description: { de: Was wann und wo stattfindet., en: What happens when and where. }
+icon: calendar
+template: event                          # post-event and category-event templates
+url: '{category}/{slug}'                 # optional: addresses below the category
+list: upcoming                           # newest (default) or upcoming
+date_field: start                        # for "upcoming"
+fields:
+  start:
+    type: datetime                       # text, textarea, number, toggle, date, datetime, select, url, email
+    label: { de: Beginn, en: Start }
+    required: true                       # needed before publishing
+    translate: false                     # one value for all languages
+  event_status:
+    type: select
+    options:
+      scheduled: { de: Findet statt, en: Takes place }
+      cancelled: { de: Abgesagt, en: Cancelled }
+```
+
+Values are stored in the post's front matter: dates as `2026-07-04 15:00`,
+yes/no fields as `true`. Fields with `translate: false` are written in the
+default language only; translations read them from there.
+
+`url` accepts `{category}` (the category's address in the entry's language),
+`{slug}`, `{year}`, `{month}` and `{day}`. Without it, posts use `post_url`.
+
+The category page lives at the category's address, e.g. `/termine`. Pages and
+posts with the same address win.
+
 ## Tags
 
 A tag exists as soon as a published post uses it, and gets a page at

@@ -31,3 +31,11 @@ it('shows related posts and the 404 page', function () {
 it('speaks German on German pages', function () {
     $this->get('/de/erster-beitrag')->assertSee('Zum Inhalt springen')->assertSee('Minute Lesezeit');
 });
+
+it('renders events, the event list and the next events on the start page', function () {
+    $this->writeContent('posts/2026-05-20-summer-fest/index.en.md', "---\ntitle: Summer fest\nslug: summer-fest\npublished: 2026-05-20 10:00\ncategory: termine\nstart: 2026-07-04 15:00\nlocation: Park\naddress: Main Street 1\nregistration_url: https://example.org/join\n---\n\nMusic.\n");
+
+    $this->get('/events/summer-fest')->assertOk()->assertSee('Summer fest')->assertSee('Show on the map')->assertSee('Register')->assertSee('summer-fest.ics');
+    $this->get('/events')->assertOk()->assertSee('July 2026');
+    $this->get('/')->assertOk()->assertSee('Next Events');
+});

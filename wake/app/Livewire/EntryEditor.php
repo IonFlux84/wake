@@ -4,6 +4,7 @@ namespace Wake\Livewire;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Url;
@@ -11,6 +12,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Wake\Accounts\Account;
 use Wake\Accounts\Permissions;
+use Wake\Content\Categories;
 use Wake\Content\ContentTypes;
 use Wake\Content\Entry;
 use Wake\Content\History;
@@ -63,6 +65,9 @@ class EntryEditor extends Component
     public string $thumbnail = '';
 
     public string $template = '';
+
+    /** Key of the post category, e.g. "termine". */
+    public string $category = '';
 
     public string $seoTitle = '';
 
@@ -124,9 +129,15 @@ class EntryEditor extends Component
         $this->cover = (string) ($fields['cover'] ?? $entry->get('cover', ''));
         $this->thumbnail = (string) ($fields['thumbnail'] ?? $entry->get('thumbnail', ''));
         $this->template = (string) ($fields['template'] ?? '');
+        $this->category = (string) ($fields['category'] ?? $entry->get('category', ''));
         $this->seoTitle = (string) data_get($fields, 'seo.title', '');
         $this->seoDescription = (string) data_get($fields, 'seo.description', '');
-        $this->custom = Arr::except($translated ? $fields : $entry->fields(), self::BASE_FIELDS);
+        // Custom fields: the translation's own values over the default
+        // language's (dates and places are often only written once).
+        $this->custom = $this->toInputs(Arr::except(
+            array_replace($entry->row()['languages'][app(Languages::class)->default()]['fields'] ?? [], $translated ? $fields : []),
+            self::BASE_FIELDS,
+        ));
     }
 
     public function switchLanguage(string $language): void
@@ -182,6 +193,17 @@ class EntryEditor extends Component
     public function publish(): void
     {
         $this->authorizePublishing();
+
+        foreach ($this->fieldDefinitions() as $key => $definition) {
+            if (! empty($definition['required']) && ($this->custom[$key] ?? '') === '' && ($this->language === app(Languages::class)->default() || ($definition['translate'] ?? true) !== false)) {
+                $this->addError('custom.'.$key, __('Please fill in “:field” before publishing.', ['field' => $this->fieldLabel($key, $definition)]));
+            }
+        }
+
+        if ($this->getErrorBag()->isNotEmpty()) {
+            return;
+        }
+
         $this->save();
 
         if ($this->getErrorBag()->isEmpty()) {
@@ -333,6 +355,8 @@ class EntryEditor extends Component
             'media' => $entry ? $entry->media()->values() : collect(),
             'mediaMap' => $this->mediaMap($entry),
             'blueprint' => app(ContentTypes::class)->get($this->type)->blueprint['fields'] ?? [],
+            'categories' => $this->type === 'post' ? app(Categories::class)->all() : [],
+            'categoryFields' => $this->type === 'post' ? (app(Categories::class)->get($this->category)?->fields() ?? []) : [],
             'mayPublish' => $this->mayPublish(),
             'otherEditor' => $this->otherEditor(),
             'stats' => $this->tab === 'stats' && $entry ? $this->stats($entry) : null,
@@ -386,16 +410,103 @@ class EntryEditor extends Component
             'cover' => $this->cover !== '' ? $this->cover : null,
             'thumbnail' => $this->thumbnail !== '' ? $this->thumbnail : null,
             'template' => $this->template !== '' ? $this->template : null,
+            'category' => $this->category !== '' && $this->type === 'post' ? $this->category : null,
             'seo' => array_filter(['title' => $this->seoTitle, 'description' => $this->seoDescription]) ?: null,
         ];
 
+        $definitions = $this->fieldDefinitions();
+        $isTranslation = $this->id !== null && $this->language !== app(Languages::class)->default();
+
         foreach ($this->custom as $key => $value) {
-            if (! in_array($key, self::BASE_FIELDS, true)) {
-                $fields[$key] = $value === '' ? null : $value;
+            if (in_array($key, self::BASE_FIELDS, true)) {
+                continue;
             }
+
+            $definition = $definitions[$key] ?? [];
+
+            // Fields marked "translate: false" live in the default language only.
+            if ($isTranslation && ($definition['translate'] ?? true) === false) {
+                continue;
+            }
+
+            $fields[$key] = $this->fromInput($value, $definition['type'] ?? 'text');
         }
 
         return $fields;
+    }
+
+    public function updatedCategory(): void
+    {
+        foreach (array_keys($this->fieldDefinitions()) as $key) {
+            $this->custom[$key] ??= '';
+        }
+    }
+
+    /**
+     * Field definitions of the content type's blueprint and of the chosen
+     * category.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected function fieldDefinitions(): array
+    {
+        $blueprint = app(ContentTypes::class)->get($this->type)->blueprint['fields'] ?? [];
+        $category = $this->type === 'post' ? app(Categories::class)->get($this->category) : null;
+
+        return array_replace($blueprint, $category?->fields() ?? []);
+    }
+
+    /**
+     * Stored values as form values: datetime fields need "Y-m-d\TH:i".
+     *
+     * @param  array<string, mixed>  $values
+     * @return array<string, mixed>
+     */
+    protected function toInputs(array $values): array
+    {
+        foreach ($this->fieldDefinitions() as $key => $definition) {
+            $value = $values[$key] ?? '';
+
+            if (($definition['type'] ?? '') === 'datetime' && is_string($value) && $value !== '') {
+                $value = str_replace(' ', 'T', substr($value, 0, 16));
+            }
+
+            if (($definition['type'] ?? '') === 'toggle') {
+                $value = (bool) $value;
+            }
+
+            $values[$key] = $value;
+        }
+
+        return $values;
+    }
+
+    protected function fromInput(mixed $value, string $type): mixed
+    {
+        if ($value === '' || $value === null) {
+            return null;
+        }
+
+        return match ($type) {
+            'datetime' => str_replace('T', ' ', substr((string) $value, 0, 16)),
+            'toggle' => (bool) $value ?: null,
+            'number' => is_numeric($value) ? $value + 0 : null,
+            default => $value,
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $definition
+     */
+    public function fieldLabel(string $key, array $definition): string
+    {
+        $label = $definition['label'] ?? null;
+
+        if (is_array($label)) {
+            $label = $label[app()->getLocale()] ?? $label['en'] ?? reset($label);
+        }
+
+        return (string) ($label ?: Str::headline($key));
     }
 
     protected function account(): Account

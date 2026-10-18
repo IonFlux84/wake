@@ -7,6 +7,7 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
+use Wake\Content\Categories;
 use Wake\Content\ContentTypes;
 use Wake\Content\Index;
 use Wake\Content\Site;
@@ -44,6 +45,17 @@ class SiteInfoTool extends WakeTool
             'content_types' => collect(app(ContentTypes::class)->all())->map(fn ($type) => [
                 'folder' => $type->folder,
                 'count' => count($index->ofType($type->name)),
+            ])->all(),
+            'categories' => collect(app(Categories::class)->all())->map(fn ($c) => [
+                'title' => $c->title(),
+                'fields' => collect($c->fields())->map(fn ($f, $key) => array_filter([
+                    'type' => $f['type'] ?? 'text',
+                    'label' => $c->label($key),
+                    'required' => $f['required'] ?? null,
+                    'same_in_all_languages' => ($f['translate'] ?? true) === false ?: null,
+                    'options' => isset($f['options']) ? array_keys($f['options']) : null,
+                ]))->all(),
+                'note' => 'Set fields.category to the key and fill these fields in content_create. Dates as YYYY-MM-DD HH:MM.',
             ])->all(),
             'you' => auth()->user() ? ['name' => auth()->user()->name(), 'role' => auth()->user()->role()->value] : null,
             'token_scopes' => $token->record()['scopes'] ?? null,

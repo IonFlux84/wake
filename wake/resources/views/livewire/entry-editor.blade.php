@@ -169,6 +169,14 @@
                     <h2 class="h2">{{ __('Details') }}</h2>
                     <div class="field"><label for="slug">{{ __('Address') }}</label><input id="slug" class="input mono" wire:model.blur="slug" placeholder="{{ \Illuminate\Support\Str::slug($title ?: 'my-post') }}">
                         @error('slug')<span class="error">{{ __('Only letters, numbers and dashes.') }}</span>@enderror</div>
+                    @if ($type === 'post' && $categories)
+                        <div class="field"><label for="category">{{ __('Category') }}</label>
+                            <select id="category" class="select" wire:model.live="category">
+                                <option value="">{{ __('No category') }}</option>
+                                @foreach ($categories as $key => $cat)<option value="{{ $key }}">{{ $cat->title(app()->getLocale()) }}</option>@endforeach
+                            </select>
+                            <span class="hint">{{ __('A category brings its own fields and its own look on the website.') }}</span></div>
+                    @endif
                     @if ($type === 'post')
                         <div class="field"><label for="tags">{{ __('Tags') }}</label><input id="tags" class="input" wire:model.blur="tags" placeholder="{{ __('travel, ruhr') }}"></div>
                     @endif
@@ -179,22 +187,19 @@
                     <div class="field"><label for="excerpt">{{ __('Excerpt') }}</label><textarea id="excerpt" class="textarea" style="min-height:80px" wire:model.blur="excerpt" placeholder="{{ __('Short summary for lists and search engines') }}"></textarea></div>
                     @foreach ($blueprint as $key => $field)
                         @continue(in_array($key, \Wake\Livewire\EntryEditor::BASE_FIELDS, true))
-                        @php($fieldType = $field['type'] ?? 'text')
-                        <div class="field">
-                            <label for="f-{{ $key }}">{{ $field['label'] ?? \Illuminate\Support\Str::headline($key) }}</label>
-                            @if ($fieldType === 'textarea' || $fieldType === 'markdown')
-                                <textarea id="f-{{ $key }}" class="textarea" wire:model.blur="custom.{{ $key }}"></textarea>
-                            @elseif ($fieldType === 'toggle')
-                                <label class="check"><input id="f-{{ $key }}" type="checkbox" wire:model="custom.{{ $key }}"> {{ __('Yes') }}</label>
-                            @elseif ($fieldType === 'select')
-                                <select id="f-{{ $key }}" class="select" wire:model="custom.{{ $key }}"><option value=""></option>@foreach ((array) ($field['options'] ?? []) as $value => $text)<option value="{{ is_int($value) ? $text : $value }}">{{ $text }}</option>@endforeach</select>
-                            @else
-                                <input id="f-{{ $key }}" class="input" wire:model.blur="custom.{{ $key }}"
-                                       type="{{ ['number' => 'number', 'date' => 'date', 'datetime' => 'datetime-local', 'url' => 'url'][$fieldType] ?? 'text' }}">
-                            @endif
-                        </div>
+                        @include('wake::livewire.partials.field', ['key' => $key, 'field' => $field])
                     @endforeach
                 </div>
+
+                @if ($categoryFields)
+                    @php($currentCategory = $categories[$category])
+                    <div class="card" style="gap:14px;border-color:var(--ink)">
+                        <div class="card-head"><h2 class="h2">{{ $currentCategory->title(app()->getLocale()) }}</h2><x-wake::icon :name="$currentCategory->icon()" size="18" /></div>
+                        @foreach ($categoryFields as $key => $field)
+                            @include('wake::livewire.partials.field', ['key' => $key, 'field' => $field])
+                        @endforeach
+                    </div>
+                @endif
 
                 @if ($type !== 'tag')
                     @foreach (['cover' => [__('Header image'), __('Shown large at the top of the post.')], 'thumbnail' => [__('Preview image'), __('Used in lists and when the post is shared. Without it, Wake uses the header image.')]] as $slot => [$label, $hint])

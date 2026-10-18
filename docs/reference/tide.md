@@ -17,6 +17,8 @@ English and German.
 | a post | tags, title, excerpt, date and reading time, cover, text, older and newer post, up to three related posts with the same first tag, and a reading progress line |
 | a page | title, cover, text and cards for its child pages |
 | `/tag/{slug}` | the tag's title and text, and its posts |
+| an event | date and time, place with map link, admission, organizer, registration button, *Add to calendar* and more events |
+| a category page | posts of the category; for events upcoming ones by month and past ones folded away |
 | `/search` | a search form and results ([search](templates.md#search)) |
 | 404 | a friendly message with a search form |
 

@@ -142,6 +142,53 @@ class Query implements Countable, IteratorAggregate
         ), true));
     }
 
+    public function category(string $category): static
+    {
+        return $this->where(fn (array $fields) => ($fields['category'] ?? null) === $category);
+    }
+
+    /**
+     * Entries whose date field (or end, if set) lies today or later, the
+     * next one first. For events.
+     */
+    public function upcoming(string $field = 'start'): static
+    {
+        $today = CarbonImmutable::now()->startOfDay();
+
+        $this->filters[] = function (array $fields) use ($field, $today) {
+            $value = ($fields['end'] ?? '') !== '' ? $fields['end'] : ($fields[$field] ?? null);
+
+            return $value !== null && $value !== '' && (static::parseDate($value)?->gte($today) ?? false);
+        };
+
+        return $this->orderBy($field, 'asc');
+    }
+
+    /**
+     * Entries whose date field lies in the past, the latest first.
+     */
+    public function past(string $field = 'start'): static
+    {
+        $today = CarbonImmutable::now()->startOfDay();
+
+        $this->filters[] = function (array $fields) use ($field, $today) {
+            $value = ($fields['end'] ?? '') !== '' ? $fields['end'] : ($fields[$field] ?? null);
+
+            return $value !== null && $value !== '' && (static::parseDate($value)?->lt($today) ?? false);
+        };
+
+        return $this->orderBy($field, 'desc');
+    }
+
+    protected static function parseDate(mixed $value): ?CarbonImmutable
+    {
+        try {
+            return CarbonImmutable::parse((string) $value, config('app.timezone'));
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
     public function author(string $author): static
     {
         return $this->where('author', $author);
@@ -333,7 +380,9 @@ class Query implements Countable, IteratorAggregate
                 continue;
             }
 
-            $fields = $translation['fields'];
+            // Fields the translation leaves out (dates, places) come from the
+            // default language, as in Entry::get().
+            $fields = array_replace($row['languages'][$default]['fields'] ?? [], $translation['fields']);
 
             if ($this->status === 'visible' && ! static::isVisible($fields)) {
                 continue;
@@ -372,7 +421,7 @@ class Query implements Countable, IteratorAggregate
             return match ($field) {
                 'date' => Addresses::date($row, $language, $default)?->getTimestamp() ?? 0,
                 'num' => $row['num'] ?? PHP_INT_MAX,
-                default => data_get(($row['languages'][$language] ?? $row['languages'][$default] ?? [])['fields'] ?? [], $field)
+                default => data_get(array_replace($row['languages'][$default]['fields'] ?? [], $row['languages'][$language]['fields'] ?? []), $field)
                     ?? ($field === 'title' ? $row['name'] : null),
             };
         };

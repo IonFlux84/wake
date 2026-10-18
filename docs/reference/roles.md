@@ -16,6 +16,7 @@ Roles follow Ghost. Every account has exactly one.
 | Delete entries | ✓ | ✓ | ✓ | own drafts | own drafts |
 | See statistics | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Edit the consent banner | ✓ | ✓ | | | |
+| Manage categories | ✓ | ✓ | | | |
 | Manage the team and settings | ✓ | ✓ | | | |
 | Tokens for assistants | ✓ | ✓ | ✓ | ✓ | without publishing |
 

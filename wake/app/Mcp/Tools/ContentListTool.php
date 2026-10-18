@@ -24,6 +24,7 @@ class ContentListTool extends WakeTool
             'type' => $schema->string()->description('Content type: post (default), page, tag or a custom type from site_info.'),
             'status' => $schema->string()->enum(['any', 'published', 'draft', 'scheduled'])->description('Default any.'),
             'tag' => $schema->string()->description('Only entries with this tag.'),
+            'category' => $schema->string()->description('Only posts of this category key, e.g. "termine" (see site_info).'),
             'search' => $schema->string()->description('Words in the title.'),
             'language' => $schema->string()->description('Language code, default is the site\'s default language.'),
             'limit' => $schema->integer()->description('Default 20, at most 100.'),
@@ -47,6 +48,10 @@ class ContentListTool extends WakeTool
             default => null,
         };
 
+        if ($category = $request->get('category')) {
+            $query->category($category);
+        }
+
         if ($tag = $request->get('tag')) {
             $query->tag($tag);
         }
@@ -67,6 +72,8 @@ class ContentListTool extends WakeTool
                 'url' => $e->url(),
                 'languages' => $e->translations(),
                 'tags' => (array) $e->get('tags', []),
+                'category' => $e->get('category'),
+                'start' => $e->get('start'),
                 'created_by_assistant' => $e->get('via') === 'mcp',
             ])->values(),
         ]);

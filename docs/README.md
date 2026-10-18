@@ -28,6 +28,7 @@ The documentation is split by what you want to do, following the
 - [Add a second language](guides/second-language.md)
 - [Connect an AI assistant](guides/connect-an-assistant.md)
 - [Write and publish](guides/write-and-publish.md)
+- [Categories and events](guides/categories-and-events.md)
 - [Invite your team](guides/invite-your-team.md)
 - [Move from Ghost](guides/move-from-ghost.md)
 

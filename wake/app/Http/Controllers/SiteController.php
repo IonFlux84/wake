@@ -4,6 +4,8 @@ namespace Wake\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Wake\Content\Categories;
+use Wake\Content\Category;
 use Wake\Content\Entry;
 use Wake\Content\Models\Page;
 use Wake\Content\Models\Tag;
@@ -41,6 +43,10 @@ class SiteController
             return $this->search($language);
         }
 
+        if (str_ends_with($rest, '.ics')) {
+            return $this->calendar($language, substr($rest, 0, -4));
+        }
+
         $entry = $this->resolver->resolve($language, $rest);
 
         if ($rest === '' && $entry === null) {
@@ -49,13 +55,22 @@ class SiteController
 
         $entry ??= $this->tag($language, $rest);
 
+        if ($entry === null && $category = app(Categories::class)->forSlug($rest, $language)) {
+            return $this->category($category);
+        }
+
         if ($entry === null) {
             return $this->redirect($language, $rest) ?? $this->notFound();
         }
 
         $templates = $entry instanceof Page && $entry->isHome()
             ? [$entry->get('template', ''), 'home', 'page', 'default']
-            : [$entry->template(), $entry->type(), 'default'];
+            : array_filter([
+                $entry->get('template'),
+                $entry->category() ? 'post-'.$entry->category()->template() : null,
+                $entry->type(),
+                'default',
+            ]);
 
         return $this->render($templates, $entry);
     }
@@ -95,6 +110,31 @@ class SiteController
         $tag = Tag::findOrVirtual($slug, $language);
 
         return $tag->slug() === $slug && $tag->posts()->exists() ? $tag : null;
+    }
+
+    /**
+     * The page of a category: category-{template}, else category.
+     */
+    protected function category(Category $category): Response
+    {
+        $view = $this->theme->template('category-'.$category->template(), 'category') ?? 'wake::category';
+
+        return response()->view($view, ['site' => $this->site, 'entry' => null, 'category' => $category]);
+    }
+
+    /**
+     * {address}.ics: a calendar file for a post with a start date.
+     */
+    protected function calendar(string $language, string $path): Response
+    {
+        $entry = $this->resolver->resolve($language, $path);
+        $start = $entry?->get('start');
+
+        abort_if($entry === null || ! $start, 404);
+
+        return response(view('wake::calendar', ['entry' => $entry])->render())
+            ->header('Content-Type', 'text/calendar; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="'.$entry->slug().'.ics"');
     }
 
     /**

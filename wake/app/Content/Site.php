@@ -99,6 +99,19 @@ class Site
     }
 
     /**
+     * @return array<string, Category>
+     */
+    public function categories(): array
+    {
+        return app(Categories::class)->all();
+    }
+
+    public function category(string $key): ?Category
+    {
+        return app(Categories::class)->get($key);
+    }
+
+    /**
      * Entries of any type, e.g. $site->entries('event')->published().
      */
     public function entries(string $type): Query

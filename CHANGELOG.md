@@ -114,6 +114,19 @@ All notable changes to Wake are documented here. The format follows
 - An *Image* button in the editor toolbar inserts uploaded or existing images
   with a description.
 
+- Post categories with their own fields, templates, addresses and order,
+  managed in the panel under *Categories* and stored in `site/categories/`.
+  The category *Termine* (events) comes with start, end, all day, venue,
+  address, online link, organizer, admission, registration, contact and status.
+- Events on the website: an event template in Tide with map link,
+  registration and *Add to calendar*, a calendar file at `{address}.ics`,
+  schema.org `Event` data, upcoming and past events on the category page and
+  the next events on the start page.
+- Category filter in the post list, the API (`category=`) and the MCP tools;
+  `site_info` describes the categories and their fields.
+- Queries: `category()`, `upcoming()` and `past()`. Fields a translation leaves
+  out are taken from the default language in queries as well.
+
 ### Fixed
 
 - Images uploaded to a new post without a title were lost. Wake now saves the

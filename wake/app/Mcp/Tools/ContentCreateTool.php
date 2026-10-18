@@ -23,7 +23,7 @@ class ContentCreateTool extends WakeTool
             'title' => $schema->string()->required(),
             'body' => $schema->string()->description('Markdown body.'),
             'language' => $schema->string()->description('Language code, default is the site\'s default language.'),
-            'fields' => $schema->object()->description('More front matter, e.g. {"tags": ["news"], "excerpt": "…", "slug": "…"}. status and author are set by Wake.'),
+            'fields' => $schema->object()->description('More front matter, e.g. {"tags": ["news"], "excerpt": "…", "slug": "…"}. For a category, add "category" and its fields (site_info lists them), e.g. {"category": "termine", "start": "2026-11-11 17:30", "location": "Town hall"}. status and author are set by Wake.'),
             'parent' => $schema->string()->description('For pages: id of the parent page.'),
         ];
     }

@@ -21,5 +21,18 @@
     "More about :tag": "Mehr zu :tag",
     ":count post|:count posts": ":count Beitrag|:count Beiträge",
     "What are you looking for?": "Wonach suchen Sie?",
-    ":count result for “:query”|:count results for “:query”": ":count Treffer für „:query“|:count Treffer für „:query“"
+    ":count result for “:query”|:count results for “:query”": ":count Treffer für „:query“|:count Treffer für „:query“",
+    "This event is over.": "Dieser Termin ist vorbei.",
+    "When": "Wann",
+    "Where": "Wo",
+    "Show on the map": "Auf der Karte zeigen",
+    "Register": "Anmelden",
+    "Add to calendar": "In den Kalender",
+    "More events": "Weitere Termine",
+    "Category": "Kategorie",
+    "No upcoming events at the moment.": "Zurzeit stehen keine Termine an.",
+    "Past events": "Vergangene Termine",
+    "Next :category": "Nächste :category",
+    "All": "Alle",
+    "Details": "Details"
 }

@@ -37,14 +37,14 @@ Requests are limited to 60 per minute.
 
 | Tool | Scope | What it does |
 |---|---|---|
-| `site_info` | none | title, address, languages, content types with counts, the current person and the token's scopes |
+| `site_info` | none | title, address, languages, content types with counts, categories with their fields, the current person and the token's scopes |
 | `stats_overview` | `stats:read` | visitors, page views, reading time and consent share for `today`, `yesterday`, `7d`, `30d`, `90d`, `12m` or `month`, with change against the previous period, top pages and top sources |
 | `stats_query` | `stats:read` | any date range (`from`, `to`, at most 400 days) broken down by `days`, `hours`, `pages`, `referrers`, `campaigns`, `countries`, `languages`, `devices`, `browsers`, `os` or `events` |
 | `stats_post` | `stats:read` | one entry (by `id`) or path: visitors, reading time, scroll depth, read-through rate, where readers came from, where they went next, visitors per day, per language |
 | `stats_realtime` | `stats:read` | visitors of the last five minutes and their pages |
 | `stats_ai_crawlers` | `stats:read` | visits of AI crawlers by crawler and page |
 | `consent_overview` | `stats:read` | consent decisions, agreement per category, whether a banner is needed, embedded services |
-| `content_list` | `content:read` | entries of a type with id, title, status, date, URL, languages and tags; filter by status, tag or title |
+| `content_list` | `content:read` | entries of a type with id, title, status, date, URL, languages, tags, category and start; filter by status, tag, category or title |
 | `content_read` | `content:read` | one entry in one language: all fields, the Markdown body, files and translations |
 | `content_create` | `content:write` | a new entry, always as a draft, marked with `via: mcp` |
 | `content_update` | `content:write` | change title, body or fields of a translation, or add a translation |

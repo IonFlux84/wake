@@ -27,6 +27,7 @@ Title, description, address, languages and content types.
 | `type` | `post` | content type: `post`, `page`, `tag` or a custom type |
 | `language` | default language | language code |
 | `tag` | | only entries with this tag |
+| `category` | | only posts of this category; for date categories only upcoming ones, next first |
 | `status` | `published` | `draft`, `scheduled` or `any` need the scope `content:read` |
 | `limit` | `10` | entries per page, at most 100 |
 | `page` | `1` | page |

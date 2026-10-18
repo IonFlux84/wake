@@ -2,8 +2,10 @@
 
 @section('content')
     @php
-        $posts = $site->posts()->paginate();
-        $featured = $posts->currentPage() === 1 ? ($site->posts()->where('featured', true)->first() ?? $posts->first()) : null;
+        // Events have their own block below, so they don't appear twice.
+        $eventKeys = collect($site->categories())->filter(fn ($c) => $c->dateField())->keys()->all();
+        $posts = $site->posts()->where(fn ($fields) => ! in_array($fields['category'] ?? null, $eventKeys, true))->paginate();
+        $featured = $posts->currentPage() === 1 ? ($site->posts()->where('featured', true)->where(fn ($fields) => ! in_array($fields['category'] ?? null, $eventKeys, true))->first() ?? $posts->first()) : null;
     @endphp
 
     <section class="wrap intro">
@@ -14,6 +16,17 @@
             <p class="lead">{{ $site->description() }}</p>
         @endif
     </section>
+
+    @foreach ($site->categories() as $eventCategory)
+        @continue(! $eventCategory->dateField())
+        @php($nextEvents = $eventCategory->posts()->limit(3)->get())
+        @if ($nextEvents->isNotEmpty() && $posts->currentPage() === 1)
+            <section class="wrap next-events">
+                <div class="section-head"><h2 class="section-title">{{ __('Next :category', ['category' => $eventCategory->title()]) }}</h2><a href="{{ $eventCategory->url() }}">{{ __('All') }} →</a></div>
+                <div class="event-list event-list-row">@foreach ($nextEvents as $post)@include('theme::snippets.event-row', ['post' => $post])@endforeach</div>
+            </section>
+        @endif
+    @endforeach
 
     @if ($featured)
         <section class="wrap featured">@include('theme::snippets.post-card', ['post' => $featured, 'large' => true])</section>

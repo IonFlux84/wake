@@ -7,6 +7,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Wake\Accounts\Role;
+use Wake\Content\Categories;
 use Wake\Content\ContentTypes;
 use Wake\Content\Entry;
 use Wake\Content\Query;
@@ -27,6 +28,9 @@ class Entries extends Component
 
     #[Url]
     public string $search = '';
+
+    #[Url]
+    public string $category = '';
 
     public function mount(string $type = 'post'): void
     {
@@ -81,6 +85,10 @@ class Entries extends Component
             default => null,
         };
 
+        if ($this->category !== '') {
+            $query->category($this->category);
+        }
+
         if (trim($this->search) !== '') {
             $needle = mb_strtolower(trim($this->search));
             $query->where(fn (array $fields, array $row) => str_contains(mb_strtolower((string) ($fields['title'] ?? $row['name'])), $needle));
@@ -105,6 +113,7 @@ class Entries extends Component
             ],
             'contentType' => app(ContentTypes::class)->get($this->type),
             'languages' => app(Languages::class),
+            'categories' => $this->type === 'post' ? app(Categories::class)->all() : [],
         ]);
     }
 }

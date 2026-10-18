@@ -26,6 +26,12 @@
     <section class="card">
         <div class="card-head">
             <input type="search" class="input" style="max-width:360px" wire:model.live.debounce.300ms="search" placeholder="{{ __('Search by title') }}" aria-label="{{ __('Search by title') }}">
+            @if ($categories)
+                <select class="select" style="max-width:220px" wire:model.live="category" aria-label="{{ __('Category') }}">
+                    <option value="">{{ __('All categories') }}</option>
+                    @foreach ($categories as $key => $cat)<option value="{{ $key }}">{{ $cat->title(app()->getLocale()) }}</option>@endforeach
+                </select>
+            @endif
         </div>
         <div class="table-wrap">
             <table class="table">
@@ -38,6 +44,7 @@
                             @if ($entry->get('via') === 'mcp')<span class="badge mcp" title="{{ __('Created by an AI assistant') }}">MCP</span>@endif
                             @if ($entry->get('review'))<span class="badge" style="background:var(--accent);color:var(--on-accent)">{{ __('Waiting for approval') }}</span>@endif
                             <br><span class="muted mono" style="font-size:12px">/{{ $entry->path() }}</span>
+                            @if ($entry->category())<span class="badge" style="margin-left:6px">{{ $entry->category()->title(app()->getLocale()) }}@if ($entry->get('start')) · {{ \Carbon\CarbonImmutable::parse($entry->get('start'))->locale(app()->getLocale())->isoFormat('D. MMM') }}@endif</span>@endif
                         </td>
                         <td><span class="status {{ $entry->isScheduled() ? 'scheduled' : ($entry->isPublished() ? 'published' : 'draft') }}">{{ $entry->isScheduled() ? __('Scheduled') : ($entry->isPublished() ? __('Published') : __('Draft')) }}</span></td>
                         @if ($languages->isMultilingual())

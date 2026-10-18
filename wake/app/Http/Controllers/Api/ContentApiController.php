@@ -4,6 +4,7 @@ namespace Wake\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Wake\Content\Categories;
 use Wake\Content\ContentTypes;
 use Wake\Content\Entry;
 use Wake\Content\Query;
@@ -36,6 +37,7 @@ class ContentApiController
             'type' => 'nullable|string',
             'language' => 'nullable|string|max:10',
             'tag' => 'nullable|string|max:100',
+            'category' => 'nullable|string|max:60',
             'status' => 'nullable|in:published,draft,scheduled,any',
             'limit' => 'nullable|integer|min:1|max:100',
             'page' => 'nullable|integer|min:1',
@@ -58,6 +60,15 @@ class ContentApiController
             'scheduled' => $query->scheduled(),
             default => null,
         };
+
+        if (! empty($data['category'])) {
+            $category = app(Categories::class)->get($data['category']);
+            $query->category($data['category']);
+
+            if ($category?->dateField() && ($data['status'] ?? 'published') === 'published') {
+                $query->upcoming($category->dateField());
+            }
+        }
 
         if (! empty($data['tag'])) {
             $query->tag($data['tag']);
@@ -109,6 +120,7 @@ class ContentApiController
             'date' => $entry->date()?->toIso8601String(),
             'modified' => $entry->modifiedAt()->toIso8601String(),
             'excerpt' => $entry->excerpt(),
+            'category' => $entry->category() ? ['key' => $entry->category()->key, 'title' => $entry->category()->title($entry->language()), 'url' => $entry->category()->url($entry->language())] : null,
             'tags' => $entry->tags()->map(fn ($t) => ['slug' => $t->slug(), 'title' => $t->title()])->values()->all(),
             'cover' => $image?->isImage() ? ['url' => $image->url(), 'srcset' => $image->srcset(), 'width' => $image->width(), 'height' => $image->height()] : null,
             'thumbnail' => ($thumb = $entry->thumbnail()) ? ['url' => $thumb->url(), 'srcset' => $thumb->srcset(), 'width' => $thumb->width(), 'height' => $thumb->height()] : null,

@@ -144,6 +144,31 @@ JSON-LD for posts.
 </head>
 ```
 
+## Categories
+
+| Address | Templates, first match wins |
+|---|---|
+| a post with a category | its `template` field → `post-{template of the category}` → `post` → `default` |
+| the category page | `category-{template}` → `category` → Wake's built-in list |
+
+The category page receives `$category`:
+
+| Method | Returns |
+|---|---|
+| `title()`, `description()`, `slug()`, `url()` | in the current language |
+| `posts()` | published posts: upcoming first for date categories, else newest first |
+| `past()` | posts whose date has passed (date categories) |
+| `fields()`, `label('start')` | field definitions and labels |
+| `template()`, `dateField()`, `icon()` | settings |
+
+On posts, `$post->category()` returns the category, and the category's fields
+are available like any other field: `$post->start`, `$post->get('location')`.
+In queries: `$site->posts()->category('termine')->upcoming('start')`, or
+`->past('start')`. `$site->categories()` lists all categories.
+
+Every post with a `start` field also has a calendar file at `{address}.ics`,
+and `@wakeHead` adds schema.org `Event` data for it.
+
 ## Search
 
 `/search?q=…` (and `/de/search?q=…` per language) renders the theme's

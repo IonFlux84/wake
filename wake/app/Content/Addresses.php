@@ -36,8 +36,16 @@ class Addresses
         }
 
         $date = static::date($row, $language, $default);
+        $pattern = $type->url;
+        $category = null;
 
-        return trim(strtr($type->url, [
+        if ($type->name === 'post' && ($key = static::fields($row, $language, $default)['category'] ?? null)) {
+            $category = app(Categories::class)->get((string) $key);
+            $pattern = $category?->urlPattern() ?? $pattern;
+        }
+
+        return trim(strtr($pattern, [
+            '{category}' => $category?->slug($language) ?? '',
             '{slug}' => $slug,
             '{year}' => $date?->format('Y') ?? '',
             '{month}' => $date?->format('m') ?? '',

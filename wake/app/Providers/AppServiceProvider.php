@@ -13,6 +13,7 @@ use Wake\Accounts\Accounts;
 use Wake\Accounts\AccountUserProvider;
 use Wake\Cache\PageCache;
 use Wake\Consent\ConsentSettings;
+use Wake\Content\Categories;
 use Wake\Content\ContentChanged;
 use Wake\Content\ContentTypes;
 use Wake\Content\Index;
@@ -20,6 +21,7 @@ use Wake\Content\Redirects;
 use Wake\Content\Site;
 use Wake\Content\Writer;
 use Wake\Livewire\Assistants;
+use Wake\Livewire\CategoryManager;
 use Wake\Livewire\Consent;
 use Wake\Livewire\Dashboard;
 use Wake\Livewire\Entries;
@@ -51,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
         'entries' => Entries::class,
         'entry-editor' => EntryEditor::class,
         'team' => Team::class,
+        'category-manager' => CategoryManager::class,
         'media-library' => MediaLibrary::class,
         'settings' => \Wake\Livewire\Settings::class,
     ];
@@ -60,7 +63,7 @@ class AppServiceProvider extends ServiceProvider
         $this->mergeSiteConfig();
 
         foreach ([Languages::class, ContentTypes::class, Index::class, Site::class, Markdown::class,
-            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class, Writer::class, Redirects::class, CurrentToken::class] as $service) {
+            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class, Writer::class, Redirects::class, CurrentToken::class, Categories::class] as $service) {
             $this->app->singleton($service);
         }
     }
