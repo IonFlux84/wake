@@ -24,6 +24,7 @@ The documentation is split by what you want to do, following the
 ## Guides
 
 - [Add a second language](guides/second-language.md)
+- [Connect an AI assistant](guides/connect-an-assistant.md)
 
 ## Reference
 
@@ -31,6 +32,7 @@ The documentation is split by what you want to do, following the
 - [Content format](reference/content-format.md): folders, files and front matter
 - [Templates](reference/templates.md): what a theme can use
 - [Command line](reference/cli.md): Artisan commands
+- [MCP server](reference/mcp.md): tools for AI assistants
 
 ## Concepts
 

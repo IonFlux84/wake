@@ -54,3 +54,22 @@ scheduler every minute instead:
 ```bash
 * * * * * php /path/to/site/wake/artisan schedule:run
 ```
+
+## `wake:mcp`
+
+Starts Wake's MCP server over standard input and output, for an AI assistant
+running on the same machine. It needs a personal token from the panel
+(*Assistants*), given as option or environment variable:
+
+```bash
+php wake/artisan wake:mcp --token=wake_…
+WAKE_TOKEN=wake_… php wake/artisan wake:mcp
+```
+
+To connect Claude Code locally:
+
+```bash
+claude mcp add wake -- php /path/to/site/wake/artisan wake:mcp --token=wake_…
+```
+
+See [MCP server](mcp.md) for the tools.

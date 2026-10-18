@@ -19,7 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         // The website comes last, because it answers every remaining address.
-        then: fn () => Route::group([], __DIR__.'/../routes/site.php'),
+        then: function () {
+            Route::group([], __DIR__.'/../routes/mcp.php');
+            Route::group([], __DIR__.'/../routes/site.php');
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([

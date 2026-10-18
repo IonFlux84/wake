@@ -9,3 +9,4 @@ description: Exact descriptions of settings, files, templates and commands.
 - [Content format](content-format.md)
 - [Templates](templates.md)
 - [Command line](cli.md)
+- [MCP server](mcp.md)

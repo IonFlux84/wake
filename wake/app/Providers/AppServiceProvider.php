@@ -17,6 +17,7 @@ use Wake\Content\ContentChanged;
 use Wake\Content\ContentTypes;
 use Wake\Content\Index;
 use Wake\Content\Site;
+use Wake\Livewire\Assistants;
 use Wake\Livewire\Consent;
 use Wake\Livewire\Dashboard;
 use Wake\Livewire\Journey;
@@ -25,6 +26,7 @@ use Wake\Livewire\Statistics;
 use Wake\Localization\Languages;
 use Wake\Maintenance\Maintenance;
 use Wake\Markdown\Markdown;
+use Wake\Mcp\CurrentToken;
 use Wake\Panel\Panel;
 use Wake\Support\Paths;
 use Wake\Theme\Theme;
@@ -38,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         'statistics' => Statistics::class,
         'journey' => Journey::class,
         'consent' => Consent::class,
+        'assistants' => Assistants::class,
     ];
 
     public function register(): void
@@ -45,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
         $this->mergeSiteConfig();
 
         foreach ([Languages::class, ContentTypes::class, Index::class, Site::class, Markdown::class,
-            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class] as $service) {
+            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class, CurrentToken::class] as $service) {
             $this->app->singleton($service);
         }
     }

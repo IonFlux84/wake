@@ -57,3 +57,7 @@ All notable changes to Wake are documented here. The format follows
 - Consent page in the panel: decisions of the last 30 days, agreement per
   category, latest records, embedded services and a banner editor with live
   preview per language (administrators only).
+- MCP server at `/wake/mcp` and over stdio (`wake:mcp`) with personal tokens
+  and scopes, tools for statistics, AI crawlers, consent and site facts, the
+  resources `wake://site` and `wake://stats/today` and a weekly review prompt.
+  Tokens are managed under *Assistants* in the panel.

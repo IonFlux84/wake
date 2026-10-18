@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use Wake\Content\FrontMatter;
+use Wake\Mcp\WakeServer;
 
 // Documentation is part of every change (see CONTRIBUTING.md). These tests
 // make that rule hard to forget.
@@ -116,4 +117,23 @@ it('lists every decision record in the overview', function () {
         ->all();
 
     expect($missing)->toBe([], 'Decision records missing from docs/decisions/README.md');
+});
+
+it('documents every MCP tool, resource and prompt', function () {
+    $reference = file_get_contents(repository('docs/reference/mcp.md'));
+    $server = new ReflectionClass(WakeServer::class);
+    $missing = [];
+
+    foreach (['tools', 'resources', 'prompts'] as $kind) {
+        foreach ($server->getProperty($kind)->getDefaultValue() as $class) {
+            $primitive = app($class);
+            $name = $kind === 'resources' ? $primitive->uri() : $primitive->name();
+
+            if (! str_contains($reference, "`{$name}`")) {
+                $missing[] = $name;
+            }
+        }
+    }
+
+    expect($missing)->toBe([], 'MCP primitives missing from docs/reference/mcp.md');
 });

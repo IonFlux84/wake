@@ -1,0 +1,66 @@
+<?php
+
+namespace Wake\Livewire;
+
+use Illuminate\View\View;
+use Livewire\Component;
+use Wake\Accounts\Role;
+use Wake\Accounts\Tokens;
+
+/**
+ * Personal tokens for AI assistants, and how to connect them.
+ */
+class Assistants extends Component
+{
+    public string $name = '';
+
+    /** @var list<string> */
+    public array $scopes = ['stats:read', 'content:read'];
+
+    /** Shown once after creating a token. */
+    public ?string $plain = null;
+
+    public function create(Tokens $tokens): void
+    {
+        $this->validate([
+            'name' => 'required|string|max:60',
+            'scopes' => 'required|array|min:1',
+            'scopes.*' => 'in:'.implode(',', $this->allowedScopes()),
+        ]);
+
+        [$this->plain] = $tokens->create(auth()->user(), $this->name, $this->scopes);
+        $this->name = '';
+    }
+
+    public function revoke(Tokens $tokens, string $id): void
+    {
+        $tokens->revoke(auth()->user(), $id);
+        $this->plain = null;
+    }
+
+    /**
+     * Nobody can give an assistant more rights than they have themselves.
+     *
+     * @return list<string>
+     */
+    public function allowedScopes(): array
+    {
+        $role = auth()->user()->role();
+
+        return array_values(array_filter([
+            'stats:read',
+            'content:read',
+            'content:write',
+            $role->atLeast(Role::Author) ? 'content:publish' : null,
+        ]));
+    }
+
+    public function render(Tokens $tokens): View
+    {
+        return view('wake::livewire.assistants', [
+            'tokens' => $tokens->of(auth()->user()),
+            'allowed' => $this->allowedScopes(),
+            'endpoint' => route('wake.mcp'),
+        ]);
+    }
+}
