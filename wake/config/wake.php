@@ -68,6 +68,11 @@ return [
         'ttl' => 300,
     ],
 
+    'panel' => [
+        // The one neon colour of the panel. Text on it turns black or white by itself.
+        'accent' => '#C6FF3D',
+    ],
+
     'maintenance' => [
         // "requests" runs maintenance after normal page views (no cron needed),
         // "cron" leaves it to `php wake/artisan schedule:run`.

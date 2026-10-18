@@ -31,3 +31,8 @@ All notable changes to Wake are documented here. The format follows
 - RSS feed per language, `sitemap.xml`, `robots.txt`, Open Graph and JSON-LD.
 - Scheduled publishing and maintenance without cron.
 - Artisan commands `wake:index`, `wake:clear` and `wake:maintenance`.
+- Team accounts as files in `storage/accounts/` with Ghost's roles (owner,
+  administrator, editor, author, contributor), a setup on the first visit to
+  `/wake`, sign-in with rate limiting and "stay signed in".
+- Panel layout in the "Neon clean" design with self-hosted fonts and a
+  configurable accent colour (`panel.accent`), in English and German.

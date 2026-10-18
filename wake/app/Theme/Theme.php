@@ -3,8 +3,8 @@
 namespace Wake\Theme;
 
 use Illuminate\Support\Facades\View;
-use Wake\Support\Files;
 use Wake\Support\Paths;
+use Wake\Support\PublicAssets;
 
 /**
  * The active theme in site/themes/{name}:
@@ -59,20 +59,7 @@ class Theme
     public function asset(string $path): string
     {
         $path = ltrim($path, '/');
-        $source = $this->path('assets/'.$path);
 
-        if (! is_file($source) || str_contains($path, '..')) {
-            return url('assets/themes/'.$this->name().'/'.$path);
-        }
-
-        $target = public_path('assets/themes/'.$this->name().'/'.$path);
-        $mtime = filemtime($source);
-
-        if (! is_file($target) || filemtime($target) < $mtime) {
-            Files::write($target, (string) file_get_contents($source));
-            @touch($target, $mtime);
-        }
-
-        return url('assets/themes/'.$this->name().'/'.$path).'?v='.base_convert((string) $mtime, 10, 36);
+        return PublicAssets::url($this->path('assets/'.$path), 'assets/themes/'.$this->name().'/'.$path);
     }
 }

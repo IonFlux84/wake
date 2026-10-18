@@ -1,0 +1,14 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "vite": "^7.0.0"
+    },
+    "dependencies": {
+        "@fontsource-variable/archivo": "^5.0.0",
+        "@fontsource-variable/jetbrains-mono": "^5.0.0"
+    }
+}

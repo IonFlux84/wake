@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Wake\Http\Middleware\CachePages;
+use Wake\Http\Middleware\PanelLocale;
 
 // The Laravel application lives in wake/. Everything a site owner touches
 // (site/, content/, storage/, public/ and .env) sits one level above it,
@@ -24,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'wake.cache' => CachePages::class,
         ]);
+        $middleware->appendToGroup('wake.panel', [PanelLocale::class]);
+        $middleware->redirectGuestsTo(fn () => route('wake.login'));
+        $middleware->redirectUsersTo(fn () => route('wake.dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

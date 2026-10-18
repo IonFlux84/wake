@@ -69,6 +69,12 @@ and custom content types use the `url` of their [blueprint](content-format.md#cu
 | `page_cache.enabled` | `true` | Serve finished pages from `storage/cache/pages` without starting Laravel. Also settable as `WAKE_PAGE_CACHE` in `.env`. |
 | `page_cache.ttl` | `300` | Seconds a cached page is served before Wake looks again. Changes made via FTP and posts that become due show up after at most this long. |
 
+## Panel
+
+| Setting | Default | Description |
+|---|---|---|
+| `panel.accent` | `'#C6FF3D'` | The one neon colour of the panel. Text on it turns black or white by itself, so any colour stays readable. The design suggests lime, blue `#3D5AFE`, pink `#FF2D87` and orange `#FF6A1A`. |
+
 ## Maintenance
 
 Wake keeps itself tidy without cron. See

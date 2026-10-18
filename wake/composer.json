@@ -15,7 +15,9 @@
     "require": {
         "php": "^8.4",
         "laravel/framework": "^13.17",
+        "laravel/mcp": "^1.0",
         "laravel/tinker": "^3.0",
+        "livewire/livewire": "^4.4",
         "symfony/yaml": "^8.1"
     },
     "require-dev": {

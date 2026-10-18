@@ -50,6 +50,10 @@ composer -V
 
 5. Open <http://localhost:8000>. You see the demo site from `content/`.
 
+6. **Create your account.** Open <http://localhost:8000/wake>. On the first
+   visit Wake asks for your name, email address and a password, and makes you
+   the owner of the site. Accounts are stored as files in `storage/accounts/`.
+
 ## What is where
 
 | Folder | Contents |
