@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Mcp\Facades\Mcp;
 use Wake\Http\Controllers\Api\ContentApiController;
+use Wake\Http\Controllers\OAuthController;
 use Wake\Http\Middleware\AuthenticateToken;
 use Wake\Http\Middleware\OptionalToken;
 use Wake\Mcp\WakeServer;
@@ -15,6 +16,16 @@ Mcp::web('wake/mcp', WakeServer::class)
     ->name('wake.mcp');
 
 Mcp::local('wake', WakeServer::class);
+
+// OAuth for the MCP server (see OAuthController). The consent page is in the
+// panel (routes/web.php); these endpoints run without a session.
+Route::get('.well-known/oauth-protected-resource', [OAuthController::class, 'protectedResource']);
+// laravel/mcp points 401 answers at this route by its name.
+Route::get('.well-known/oauth-protected-resource/{path}', [OAuthController::class, 'protectedResource'])
+    ->where('path', 'wake/mcp')->name('mcp.oauth.protected-resource.nested');
+Route::get('.well-known/oauth-authorization-server', [OAuthController::class, 'authorizationServer']);
+Route::post('wake/oauth/register', [OAuthController::class, 'register'])->middleware('throttle:10,1')->name('wake.oauth.register');
+Route::post('wake/oauth/token', [OAuthController::class, 'token'])->middleware('throttle:30,1')->name('wake.oauth.token');
 
 // Read-only JSON API for headless use. Published content is public.
 Route::prefix('wake/api/v1')->middleware([OptionalToken::class, 'throttle:120,1'])->name('wake.api.')->group(function () {

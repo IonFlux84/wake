@@ -196,6 +196,11 @@ All notable changes to Wake are documented here. The format follows
   `track.js` sends nothing until the visitor agrees; the page view is counted
   as soon as they do. Before, any decision, even "Decline", counted as consent.
 - `wake:clear` also clears the compiled templates.
+- OAuth for the MCP server, so claude.ai connectors connect with just the
+  address: resource and authorization server metadata, dynamic client
+  registration, authorization code with PKCE, refresh tokens, and a consent
+  page in the panel. Everything is file-based in `data/oauth/`; the access
+  token is a normal token under *Assistants*.
 - Public forms on cached pages: `@wakeForm('name')` and the route middleware
   `wake.form:name` check a signed stamp and a honeypot and limit submissions.
 - Plugins load their classes through `autoload` in `plugin.yml` (PSR-4) and a

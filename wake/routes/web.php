@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Wake\Backup\Backups;
+use Wake\Http\Controllers\OAuthController;
 use Wake\Http\Controllers\Panel\ContentController;
 use Wake\Http\Controllers\Panel\DashboardController;
 use Wake\Http\Controllers\Panel\LoginController;
@@ -38,6 +39,8 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::view('stats/journey', 'wake::panel.journey')->middleware('can:stats.view')->name('stats.journey');
         Route::view('consent', 'wake::panel.consent')->middleware('can:consent.manage')->name('consent');
         Route::view('assistants', 'wake::panel.assistants')->middleware('can:assistants.use')->name('assistants');
+        Route::get('oauth/authorize', [OAuthController::class, 'authorize'])->middleware('can:assistants.use')->name('oauth.authorize');
+        Route::post('oauth/authorize', [OAuthController::class, 'approve'])->middleware(['can:assistants.use', 'throttle:20,1']);
         Route::view('team', 'wake::panel.team')->middleware('can:team.manage')->name('team');
         Route::view('settings', 'wake::panel.settings')->name('settings');
         Route::view('media', 'wake::panel.media')->name('media.index');

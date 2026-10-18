@@ -32,7 +32,7 @@ Wake uses no database at all.
 - Writes must be atomic (temporary file, then `rename()`) and locked with `flock()`.
 - There is no queue worker, so long tasks run in small slices after responses.
 - Laravel packages that need a database (Passport, database notifications)
-  cannot be used. OAuth for the MCP server waits for a file-based solution.
+  cannot be used. OAuth for the MCP server is therefore file-based.
 - Very large sites (well above a million page views a month) are not the target.
 
 ## Alternatives considered

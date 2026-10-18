@@ -26,7 +26,9 @@ creates their own tokens with scopes (`stats:read`, `content:read`,
   every change made through MCP is marked as such.
 - Content returned to an assistant is marked as data, as protection against
   prompt injection.
-- OAuth is postponed, because Laravel Passport needs a database (see 0002).
+- OAuth was postponed, because Laravel Passport needs a database (see 0002).
+  Since 18 October 2026 Wake has its own file-based OAuth for MCP
+  ([reference](../reference/mcp.md#oauth)).
 
 ## Alternatives considered
 

@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\Yaml\Yaml;
+use Wake\Mcp\CurrentToken;
 use Wake\Support\Files;
 
 /**
@@ -27,9 +28,10 @@ class Tokens
     /**
      * @param  list<string>  $scopes
      * @param  int|null  $days  valid for this many days; null for a token that never expires
+     * @param  array<string, mixed>  $extra  more fields for the record, e.g. the OAuth client
      * @return array{0: string, 1: array<string, mixed>} the plain token and its record
      */
-    public function create(Account $account, string $name, array $scopes, ?int $days = self::DEFAULT_DAYS): array
+    public function create(Account $account, string $name, array $scopes, ?int $days = self::DEFAULT_DAYS, array $extra = []): array
     {
         $scopes = array_values(array_intersect(self::SCOPES, $scopes));
 
@@ -48,7 +50,7 @@ class Tokens
             'created_at' => now()->toIso8601String(),
             'expires_at' => $days !== null ? now()->addDays(max(1, $days))->toIso8601String() : null,
             'last_used_at' => null,
-        ];
+        ] + $extra;
 
         Files::write($this->path($account->id(), $record['id']), Yaml::dump($record));
 
@@ -95,6 +97,25 @@ class Tokens
         }
 
         return null;
+    }
+
+    /**
+     * The scopes an account may give a token: nobody can give an assistant
+     * more rights than they have themselves.
+     *
+     * @return list<string>
+     */
+    public static function allowedScopes(Account $account): array
+    {
+        return array_values(array_filter(
+            array_keys(CurrentToken::CAPABILITIES),
+            fn (string $scope) => collect(CurrentToken::CAPABILITIES[$scope])->contains(fn (string $capability) => $account->can($capability)),
+        ));
+    }
+
+    public function exists(Account $account, string $id): bool
+    {
+        return is_file($this->path($account->id(), preg_replace('/[^a-f0-9]/', '', $id)));
     }
 
     /**

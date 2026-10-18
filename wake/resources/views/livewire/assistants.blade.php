@@ -58,6 +58,7 @@
             <h2 class="h2">{{ __('Connect') }}</h2>
             <p style="margin:0">{{ __('Address of the MCP server:') }}</p>
             <code class="codebox">{{ $endpoint }}</code>
+            <p style="margin:0">{{ __('In claude.ai (Settings → Connectors → Add custom connector), enter only this address. You then confirm the connection here in the panel; no token needed.') }}</p>
             <p style="margin:0">{{ __('For Claude Code, run in a terminal:') }}</p>
             <div class="term"><div class="term-bar">terminal</div><pre class="term-body" style="color:#fff">claude mcp add --transport http wake {{ $endpoint }} \
   --header "Authorization: Bearer wake_…"</pre></div>

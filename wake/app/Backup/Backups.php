@@ -30,7 +30,7 @@ class Backups
     public const FORMAT = 1;
 
     /** Folders in data/ that belong in every backup (statistics are optional). */
-    public const DATA = ['accounts', 'consent', 'history', 'versions', 'secrets'];
+    public const DATA = ['accounts', 'consent', 'history', 'versions', 'secrets', 'oauth'];
 
     public static function available(): bool
     {

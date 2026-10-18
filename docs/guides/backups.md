@@ -16,6 +16,7 @@ panel (owners, administrators and anyone with `settings.manage`).
 | `settings/` | settings, menus, redirects, roles, consent settings |
 | `themes/`, `plugins/` | themes and plugins |
 | `data/secrets/` | the mail settings, password encrypted with the application key |
+| `data/oauth/` | assistants connected with OAuth (clients and refresh tokens) |
 | `data/accounts/` | accounts and tokens for AI assistants |
 | `data/consent/` | anonymous consent records |
 | `data/versions/`, `data/history/` | versions and the history of changes |

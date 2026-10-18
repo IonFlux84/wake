@@ -30,9 +30,10 @@ tokens are small files in the owner's account folder. Only a SHA-256 hash is
 stored: someone who reads the storage folder cannot use the tokens in it. The
 plain token is shown once, when it is created.
 
-OAuth, which browser-based connectors need, is not built in yet. A full OAuth
-server would bring a lot of moving parts for the first version; personal
-tokens work with every desktop and command-line client today.
+Connectors that sign in themselves, like those in claude.ai, use OAuth: the
+person confirms the connection on a consent page in the panel, and Wake issues
+an ordinary token for the client. Clients, codes and refresh tokens are files
+as well ([MCP reference](../reference/mcp.md#oauth)).
 
 ## Drafts first, nothing deleted
 

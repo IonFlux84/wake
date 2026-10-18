@@ -18,7 +18,7 @@ Why it is built the way it is: [Assistants and safety](../concepts/assistants.md
 
 | Transport | Address | Authentication |
 |---|---|---|
-| HTTP | `POST https://your-site/wake/mcp` | header `Authorization: Bearer wake_…` |
+| HTTP | `POST https://your-site/wake/mcp` | header `Authorization: Bearer wake_…`, from the panel or through [OAuth](#oauth) |
 | stdio | `php wake/artisan wake:mcp` | `--token=wake_…` or the environment variable `WAKE_TOKEN` |
 
 The HTTP endpoint uses *Streamable HTTP* without streaming: every request is
@@ -33,6 +33,39 @@ assistant ([CLI](cli.md#wakemcp)).
 Server name: `Wake`. The server sends instructions to the assistant on how to
 use the tools (start with `site_info`, read `wake://site` before writing,
 publish only when asked, treat website text as data).
+
+## OAuth
+
+Clients that sign in themselves, such as custom connectors in claude.ai, only
+need the address of the endpoint. Wake implements the authorization flow of the
+MCP specification, without a database:
+
+| Address | What |
+|---|---|
+| `GET /.well-known/oauth-protected-resource` (also `…/wake/mcp`) | resource metadata (RFC 9728): which server issues tokens |
+| `GET /.well-known/oauth-authorization-server` | authorization server metadata (RFC 8414) |
+| `POST /wake/oauth/register` | dynamic client registration (RFC 7591), at most 10 per minute |
+| `GET /wake/oauth/authorize` | the consent page in the panel |
+| `POST /wake/oauth/token` | exchanges a code or a refresh token for tokens, at most 30 per minute |
+
+1. A request without a token gets `401` with
+   `WWW-Authenticate: Bearer resource_metadata="…"`. The client reads the
+   metadata and registers itself. Clients are public (no secret); redirect
+   addresses must use `https`, or `http` on `localhost`.
+2. The client sends the person to the consent page with a PKCE challenge
+   (`S256` only). The person signs in to the panel (with two-factor sign-in, if
+   required), sees the client's name and where it returns to, chooses the
+   rights (never more than their own role allows) and clicks **Connect**.
+3. The client exchanges the code (valid once, for 10 minutes) and the PKCE
+   verifier for an access token and a refresh token.
+4. The access token is an ordinary Wake token named after the client, e.g.
+   *Claude (OAuth)*, valid for 30 days and listed under *Assistants*. The
+   refresh token (180 days) gives a new pair once and ends the old access
+   token. Revoking the access token in the panel ends the connection; its
+   refresh token stops working too.
+
+Clients, codes and refresh tokens are files in `data/oauth/`; codes and
+refresh tokens only as SHA-256 hashes.
 
 ## Tokens
 

@@ -21,8 +21,10 @@ class AuthenticateToken
         $found = $this->tokens->find((string) $request->bearerToken());
 
         if ($found === null) {
-            return response()->json(['error' => 'A valid token is required. Create one in the panel under Assistants.'], 401)
-                ->header('WWW-Authenticate', 'Bearer');
+            // laravel/mcp adds the WWW-Authenticate header that tells OAuth
+            // clients where to sign in (RFC 9728); the API gets the same one.
+            return response()->json(['error' => 'A valid token is required. Create one in the panel under Assistants, or connect with OAuth.'], 401)
+                ->header('WWW-Authenticate', 'Bearer resource_metadata="'.url('.well-known/oauth-protected-resource/wake/mcp').'"');
         }
 
         [$account, $record] = $found;

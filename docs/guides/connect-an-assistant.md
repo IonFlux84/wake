@@ -77,9 +77,16 @@ Restart Claude Desktop; Wake's tools appear in the tools menu.
 
 ### claude.ai and other web connectors
 
-Custom connectors in claude.ai sign in with OAuth and cannot send a fixed
-`Authorization` header. Wake does not offer OAuth yet, so connect through
-Claude Code, Claude Desktop or another client that supports headers.
+Custom connectors in claude.ai sign in with OAuth, so you need no token:
+
+1. In claude.ai, open *Settings → Connectors → Add custom connector*.
+2. Enter a name and the address `https://your-site/wake/mcp`. The site must be
+   reachable from the internet over HTTPS.
+3. Click *Connect*. claude.ai sends you to your site's panel. Sign in if
+   needed, choose what the assistant may do and click **Connect**.
+
+The connection appears under *Assistants* as *Claude (OAuth)*. Revoke it
+there to disconnect.
 
 ### Wake on the same computer (stdio)
 
@@ -165,7 +172,8 @@ If a token may have leaked, revoke it and create a new one.
 | **429** Too Many Requests | More than 60 requests per minute. Wait a minute; ask the assistant to fetch less at once. |
 | Connection fails or certificate errors | The address must be reachable from the assistant's computer, normally over HTTPS with a valid certificate. `http://localhost` only works for an assistant on the same machine; use the stdio server there. |
 | Redirect to the sign-in page | The address is wrong (for example missing `/wake/mcp`), or a proxy strips the `Authorization` header. On Apache, Wake's `.htaccess` passes it on; check custom server configurations. |
-| Works in Claude Code but not in a browser tool | Browser-based clients would need CORS and OAuth, which Wake does not offer yet. Use a desktop or command-line client. |
+| Works in Claude Code but not in a browser tool | Clients that run in the browser itself need CORS, which Wake does not send. claude.ai connectors work, because claude.ai connects from its servers. |
+| claude.ai says it cannot connect | The site must be public and use HTTPS, and `/.well-known/` must reach Wake (Wake's `.htaccess` allows it). Check `https://your-site/.well-known/oauth-authorization-server` in a browser. |
 | The site is closed | The [closed site](../reference/configuration.md#site) setting does not affect MCP; tokens keep working. |
 
 All tools, parameters and limits are listed in the

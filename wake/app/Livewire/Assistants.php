@@ -5,7 +5,6 @@ namespace Wake\Livewire;
 use Illuminate\View\View;
 use Livewire\Component;
 use Wake\Accounts\Tokens;
-use Wake\Mcp\CurrentToken;
 
 /**
  * Personal tokens for AI assistants, and how to connect them.
@@ -49,11 +48,7 @@ class Assistants extends Component
      */
     public function allowedScopes(): array
     {
-
-        return array_values(array_filter(
-            array_keys(CurrentToken::CAPABILITIES),
-            fn (string $scope) => collect(CurrentToken::CAPABILITIES[$scope])->contains(fn (string $capability) => auth()->user()->can($capability)),
-        ));
+        return Tokens::allowedScopes(auth()->user());
     }
 
     public function render(Tokens $tokens): View
