@@ -10,6 +10,7 @@ use Wake\Http\Middleware\ClosedSite;
 use Wake\Http\Middleware\PanelLocale;
 use Wake\Http\Middleware\RequireTwoFactor;
 use Wake\Plugins\Plugins;
+use Wake\Support\EnvFile;
 
 // The Laravel application lives in wake/. Everything a site owner touches
 // (content/, themes/, plugins/, settings/, data/, temp/, public/ and .env)
@@ -17,14 +18,9 @@ use Wake\Plugins\Plugins;
 // so an update only ever replaces this folder.
 $root = dirname(__DIR__, 2);
 
-// Installed by uploading a ZIP, there is no shell to run key:generate. On the
-// very first request Wake writes .env with a fresh application key itself.
-if (! is_file($root.'/.env') && is_file($root.'/.env.example') && is_writable($root)) {
-    $env = (string) file_get_contents($root.'/.env.example');
-    $env = preg_replace('/^APP_KEY=.*$/m', 'APP_KEY=base64:'.base64_encode(random_bytes(32)), $env);
-    @file_put_contents($root.'/.env', $env, LOCK_EX);
-    @chmod($root.'/.env', 0640);
-}
+// On the very first request Wake writes .env with a fresh key and the
+// site's address (there is no shell to run key:generate on a ZIP install).
+EnvFile::create($root, $_SERVER);
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(

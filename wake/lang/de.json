@@ -552,6 +552,7 @@
     "Test mail sent to :email. Check your inbox and the spam folder.": "Testmail an :email verschickt. Schau in dein Postfach und in den Spam-Ordner.",
     "Text": "Text",
     "The active theme cannot be removed.": "Das aktive Theme lässt sich nicht entfernen.",
+    "The address in .env (APP_URL) is :configured, but the site was opened at :current. Set APP_URL to the address of the website, so links in mails and statistics are right.": "Die Adresse in .env (APP_URL) ist :configured, die Website wurde aber unter :current aufgerufen. Trage bei APP_URL die Adresse der Website ein, damit Links in Mails und die Statistik stimmen.",
     "The address needs {slug}.": "Die Adresse braucht {slug}.",
     "The banner is shown to new visitors.": "Neue Besucher sehen den Banner.",
     "The card description :file cannot be read, so the editor shows no form for this card:": "Die Kartenbeschreibung :file lässt sich nicht lesen, deshalb zeigt der Editor für diese Karte kein Formular:",

@@ -31,11 +31,14 @@ SSH nor Composer, and no database.
    `settings/`, `data/`, `temp/` and `public/`. Most hosts allow this already; otherwise set the folders to
    `775`.
 
-5. **Open `/wake`** on your domain. On the first visit Wake creates the file
-   `.env` with a secret application key, and asks you to create the owner
-   account.
+5. **Open `/wake`** on your domain, with the address the site will have
+   (`https://…`). On the first visit Wake creates the file `.env` with a
+   secret application key and that address as `APP_URL`, and asks you to
+   create the owner account.
 
-6. **Set your address** in `.env`: `APP_URL=https://your-domain`.
+6. **Check your address.** If you opened the site under another address
+   first (say, a test domain), *Settings* shows a warning; then correct
+   `APP_URL` in `.env`.
 
 7. **Set up mail** in the panel under *Settings* → **Sending mail**, and send
    yourself a test mail (see [Invite your team](../guides/invite-your-team.md)).

@@ -89,7 +89,8 @@ gives you a ready-made section for your privacy policy.
 - [ ] Write a [backup](../guides/backups.md) and download it.
 - [ ] Still building? Switch on **Closed site** under *Settings*: visitors are
       sent to the sign-in page and search engines stay out.
-- [ ] Set `APP_URL` in `.env` to your real address.
+- [ ] Moved to your real domain? Correct `APP_URL` in `.env`; *Settings* warns
+      while it differs from the address you use.
 
 ## Next steps
 

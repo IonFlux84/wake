@@ -13,7 +13,7 @@ beforeEach(function () {
     $this->owner = app(Accounts::class)->create(['name' => 'Dana', 'email' => 'dana@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
 });
 
-it('saves site settings to site/settings.yml and the site files', function () {
+it('saves site settings to settings/general.yml and the site files', function () {
     Livewire::actingAs($this->owner)->test(Settings::class)
         ->set('site.en.title', 'New Title')
         ->set('postUrl', '{year}/{slug}')
@@ -78,4 +78,12 @@ it('stores the setup language as the panel language of the site', function () {
 
     expect(SiteSettings::read()['panel']['language'])->toBe('de')
         ->and(app(Accounts::class)->find('eve')->chosenLanguage())->toBeNull();
+});
+
+it('warns when APP_URL is not the address the site is opened at', function () {
+    $this->actingAs($this->owner)->get('/wake/settings')->assertOk()->assertDontSee('APP_URL');
+
+    config(['app.url' => 'https://verein.example.org']);
+
+    $this->actingAs($this->owner)->get('/wake/settings')->assertOk()->assertSee('APP_URL')->assertSee('verein.example.org');
 });

@@ -196,6 +196,8 @@ All notable changes to Wake are documented here. The format follows
   `track.js` sends nothing until the visitor agrees; the page view is counted
   as soon as they do. Before, any decision, even "Decline", counted as consent.
 - `wake:clear` also clears the compiled templates.
+- On the first visit Wake writes the site's address to `APP_URL` in the new
+  `.env`; *Settings* warns when `APP_URL` differs from the address in use.
 - Files of the media library that only drafts or scheduled entries use stay
   private: only team members who may read such an entry see them, and no
   public copy is made. Public copies are removed when the last published entry

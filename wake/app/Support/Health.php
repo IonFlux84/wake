@@ -32,6 +32,13 @@ class Health
             $problems[] = __('The web server serves the folder :root. Point the document root to the public folder, otherwise your content and statistics may be reachable from outside.', ['root' => $documentRoot]);
         }
 
+        $configured = strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST));
+        $current = request()->getHost();
+
+        if ($configured !== '' && $current !== '' && $configured !== strtolower($current)) {
+            $problems[] = __('The address in .env (APP_URL) is :configured, but the site was opened at :current. Set APP_URL to the address of the website, so links in mails and statistics are right.', ['configured' => (string) config('app.url'), 'current' => $current]);
+        }
+
         return $problems;
     }
 }
