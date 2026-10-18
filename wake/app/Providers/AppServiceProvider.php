@@ -34,6 +34,7 @@ use Wake\Markdown\Markdown;
 use Wake\Mcp\CurrentToken;
 use Wake\Panel\Panel;
 use Wake\Support\Paths;
+use Wake\Support\Settings;
 use Wake\Theme\Theme;
 
 class AppServiceProvider extends ServiceProvider
@@ -49,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         'entries' => Entries::class,
         'entry-editor' => EntryEditor::class,
         'team' => Team::class,
+        'settings' => \Wake\Livewire\Settings::class,
     ];
 
     public function register(): void
@@ -108,10 +110,11 @@ class AppServiceProvider extends ServiceProvider
 
         $file = Paths::site('config.php');
         $site = is_file($file) ? (require $file) : [];
+        $site = is_array($site) ? $site : [];
 
-        if (! is_array($site)) {
-            return;
-        }
+        // Settings changed in the panel live in site/settings.yml and win
+        // over site/config.php, so the panel always shows what is in effect.
+        $site = array_replace_recursive($site, Settings::read());
 
         $config = $this->app['config'];
         $merged = array_replace_recursive($config->get('wake', []), $site);

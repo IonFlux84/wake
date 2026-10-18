@@ -24,6 +24,15 @@ Nested settings are written as nested arrays:
 'page_cache' => ['ttl' => 600],
 ```
 
+## Settings changed in the panel
+
+Owners and administrators can change some settings under *Settings* in the
+panel. Wake stores them in `site/settings.yml`, which overrides
+`site/config.php`, so the panel always shows what is in effect. These are
+`timezone`, `post_url`, `missing_translation`, `prefix_default_language`, the
+`tracking.*` settings, `mcp.approval` and `panel.accent`. Everything else is
+only set in `site/config.php`.
+
 Secrets such as the application key and mail passwords belong in `.env`, not
 here, so `site/` can be committed to Git safely.
 

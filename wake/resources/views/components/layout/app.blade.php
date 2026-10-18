@@ -35,7 +35,7 @@
             @foreach ($nav as [$label, $items])
                 @if ($label && collect($items)->contains(fn ($item) => Route::has($item[1])))<div class="nav-label">{{ $label }}</div>@endif
                 @foreach ($items as [$key, $route, $text, $icon])
-                    @if (Route::has($route) && (! in_array($key, ['team', 'settings'], true) || $account->role()->atLeast(\Wake\Accounts\Role::Admin)))
+                    @if (Route::has($route) && ($key !== 'team' || $account->role()->atLeast(\Wake\Accounts\Role::Admin)))
                         <a href="{{ route($route) }}" @class(['on' => $active === $key]) @if ($active === $key) aria-current="page" @endif>
                             <x-wake::icon :name="$icon" />{{ $text }}
                         </a>

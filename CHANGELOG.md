@@ -77,3 +77,7 @@ All notable changes to Wake are documented here. The format follows
 - Team page for owners and administrators: invitations by mail (with the link
   shown in the panel as a fallback), roles, removing members; forgotten
   passwords by mail with tokens in the file cache.
+- Settings page: site title and description per language, time zone, post
+  addresses, missing translations, statistics, approval for assistants and the
+  accent colour (stored in `site/settings.yml`), your own account and
+  password, notes on content problems and the latest changes.
