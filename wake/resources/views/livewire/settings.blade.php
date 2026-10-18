@@ -28,11 +28,11 @@
 
     @if ($isAdmin)
         <form wire:submit="saveSite" style="display:flex;flex-direction:column;gap:16px">
-            <section class="card" style="flex-direction:row;align-items:center;gap:16px;{{ $closed ? 'background:var(--night);color:#fff;border-color:var(--night)' : '' }}">
+            <section @class(['card', 'is-ink' => $closed]) style="flex-direction:row;align-items:center;gap:16px">
                 <x-wake::icon name="key" size="22" />
                 <div style="flex:1">
-                    <h2 class="h2" style="{{ $closed ? 'color:#fff' : '' }}">{{ __('Closed site') }}</h2>
-                    <p style="margin:4px 0 0;font-size:14px;{{ $closed ? 'color:#bdbdbd' : '' }}" class="{{ $closed ? '' : 'muted' }}">{{ __('Only signed-in team members see the website. Everyone else lands on the sign-in page, and search engines are kept out. Good while building a site.') }}</p>
+                    <h2 class="h2">{{ __('Closed site') }}</h2>
+                    <p class="muted" style="margin:4px 0 0;font-size:14px">{{ __('Only signed-in team members see the website. Everyone else lands on the sign-in page, and search engines are kept out. Good while building a site.') }}</p>
                 </div>
                 <label class="check" style="white-space:nowrap"><input type="checkbox" wire:model.live="closed"> {{ $closed ? __('Closed') : __('Open') }}</label>
             </section>

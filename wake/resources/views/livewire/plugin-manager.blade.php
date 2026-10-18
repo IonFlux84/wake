@@ -18,7 +18,7 @@
         <section class="card" wire:key="plugin-{{ $folder }}">
             <div class="card-head">
                 <div>
-                    <h2 class="h2">{{ $info->name() }} @if ($info->version())<span class="muted mono" style="font-size:13px;font-family:var(--sans)">{{ $info->version() }}</span>@endif</h2>
+                    <h2 class="h2">{{ $info->name() }} @if ($info->version())<span class="muted mono" style="font-size:13px">v{{ $info->version() }}</span>@endif</h2>
                     <div class="muted" style="font-size:13px">
                         <span class="mono">site/plugins/{{ $folder }}</span>
                         @if ($info->author()) · {{ $info->author() }}@endif

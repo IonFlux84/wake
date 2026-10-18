@@ -50,8 +50,8 @@
             <p style="margin:0">{{ __('Address of the MCP server:') }}</p>
             <code class="codebox">{{ $endpoint }}</code>
             <p style="margin:0">{{ __('For Claude Code, run in a terminal:') }}</p>
-            <pre style="margin:0;font:500 12px/1.6 var(--mono);background:var(--night);color:#fff;padding:12px 14px;border-radius:6px;overflow-x:auto">claude mcp add --transport http wake {{ $endpoint }} \
-  --header "Authorization: Bearer wake_…"</pre>
+            <div class="term"><div class="term-bar">terminal</div><pre class="term-body" style="color:#fff">claude mcp add --transport http wake {{ $endpoint }} \
+  --header "Authorization: Bearer wake_…"</pre></div>
             <p class="muted" style="margin:0;font-size:13px">{{ __('Other assistants need the same two things: the address and the token as a Bearer header.') }}</p>
         </div>
     </section>

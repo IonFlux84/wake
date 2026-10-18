@@ -198,6 +198,10 @@ All notable changes to Wake are documented here. The format follows
   password, and a busy state while signing in.
 - Editor: messages appear right away, unsaved text is protected by a warning,
   and taking an entry offline or removing a redirect asks first.
+- Accessibility pass on the new design: focus rings stay visible in toolbars
+  and on dark surfaces, chart bars and placeholders reach the contrast
+  minimum, blinking stops after a few seconds, a chosen accent colour is
+  adjusted where it would vanish, and the mobile menu returns focus.
 - New claim: “Every post leaves a wake.” (README, sign-in page, demo start page).
 
 ### Fixed

@@ -26,12 +26,12 @@
             </div>
         </div>
         <form class="form" wire:submit="confirm">
-            <div class="field"><label for="tf-code">{{ __('Code from the app') }}</label><input id="tf-code" class="input mono" wire:model="code" inputmode="numeric" autocomplete="one-time-code" style="max-width:200px">@error('code')<span class="error">{{ $message }}</span>@enderror</div>
+            <div class="field"><label for="tf-code">{{ __('Code from the app') }}</label><input id="tf-code" class="input mono" wire:model="code" inputmode="numeric" autocomplete="one-time-code" style="max-width:200px" @error('code') aria-invalid="true" aria-describedby="tf-code-error" @enderror>@error('code')<span class="error" id="tf-code-error">{{ $message }}</span>@enderror</div>
             <div class="actions"><button type="submit" class="btn btn-primary">{{ __('Turn on') }}</button><button type="button" class="btn" wire:click="cancel">{{ __('Cancel') }}</button></div>
         </form>
     @elseif ($enabled)
         <p class="muted" style="margin:0;font-size:14px">{{ trans_choice('After your password, Wake asks for a code from your app. :count recovery code left.|After your password, Wake asks for a code from your app. :count recovery codes left.', $remaining) }}</p>
-        <div class="field"><label for="tf-pw">{{ __('Password, to make changes') }}</label><input id="tf-pw" type="password" class="input" wire:model="password" autocomplete="current-password">@error('password')<span class="error">{{ $message }}</span>@enderror</div>
+        <div class="field"><label for="tf-pw">{{ __('Password, to make changes') }}</label><input id="tf-pw" type="password" class="input" wire:model="password" autocomplete="current-password" @error('password') aria-invalid="true" aria-describedby="tf-pw-error" @enderror>@error('password')<span class="error" id="tf-pw-error">{{ $message }}</span>@enderror</div>
         <div class="actions">
             <button type="button" class="btn" wire:click="newRecoveryCodes">{{ __('New recovery codes') }}</button>
             @unless ($siteRequires)

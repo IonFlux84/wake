@@ -74,7 +74,7 @@
             @foreach (['statistics' => __('Statistics'), 'media' => __('External media'), 'marketing' => __('Marketing')] as $key => $label)
                 <div style="display:grid;gap:6px">
                     <div style="display:flex;justify-content:space-between;font-size:14px"><span>{{ $label }}</span><span class="mono">{{ $rate($key) }} %</span></div>
-                    <div style="height:6px;border-radius:3px;background:var(--hover);overflow:hidden"><div style="height:100%;width:{{ $rate($key) }}%;background:var(--night);border-radius:3px"></div></div>
+                    <div class="bar"><i style="width:{{ $rate($key) }}%"></i></div>
                 </div>
             @endforeach
             <h2 class="h2" style="margin-top:8px">{{ __('Embedded services') }}</h2>

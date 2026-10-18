@@ -8,7 +8,7 @@
         @csrf
         <div class="field">
             <label for="code">{{ __('Code') }}</label>
-            <input class="input auth-code" id="code" name="code" required autofocus autocomplete="one-time-code" inputmode="numeric" maxlength="20" autocapitalize="none" spellcheck="false"
+            <input class="input auth-code" id="code" name="code" required autofocus autocomplete="one-time-code" inputmode="text" autocorrect="off" maxlength="20" autocapitalize="none" spellcheck="false"
                    @error('code') aria-invalid="true" aria-describedby="code-error" @enderror>
             @error('code')<span class="error" id="code-error">{{ $message }}</span>@enderror
         </div>

@@ -10,8 +10,8 @@
     $duration = fn (int $s) => $s >= 60 ? intdiv($s, 60).' min '.str_pad((string) ($s % 60), 2, '0', STR_PAD_LEFT).' s' : $s.' s';
 @endphp
 <div style="display:flex;flex-direction:column;gap:20px" @if ($id) wire:poll.30s="keepalive" @endif
-     x-data="{ saved: '', dirty: false }" x-on:wake-saved.window="saved = $event.detail.at; dirty = false" x-init="addEventListener('beforeunload', e => { if (dirty) e.preventDefault() })"
-     @keydown.window.prevent.cmd.s="$wire.save()" @keydown.window.prevent.ctrl.s="$wire.save()">
+     x-data="{ saved: '', dirty: false, rev: 0, rev0: 0, flush() { this.$dispatch('wake-flush'); this.rev0 = this.rev } }" x-on:wake-saved.window="saved = $event.detail.at; dirty = rev !== rev0" x-on:wake-editor-load.window="dirty = false" x-init="addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = '' } })"
+     @keydown.window.prevent.cmd.s="flush(); $wire.save()" @keydown.window.prevent.ctrl.s="flush(); $wire.save()">
 
     <header class="page-head" style="align-items:center">
         <div>
@@ -34,10 +34,10 @@
             @if ($entry?->hasTranslation($language) && $entry->isPublished())
                 <a class="btn" href="{{ $entry->translation($language)->url() }}" target="_blank" rel="noopener"><x-wake::icon name="eye" />{{ __('View') }}</a>
             @endif
-            <button type="button" class="btn" wire:click="preview" x-on:wake-open.window="window.open($event.detail.url, '_blank')" title="{{ __('Save and see it on the website') }}"><x-wake::icon name="eye" />{{ __('Preview') }}</button>
-            <button type="button" class="btn" wire:click="save" wire:loading.attr="disabled">{{ $isPublished ? __('Update') : __('Save draft') }}</button>
+            <button type="button" class="btn" @click="flush(); $wire.preview()" x-on:wake-open.window="window.open($event.detail.url, '_blank')" title="{{ __('Save and see it on the website') }}"><x-wake::icon name="eye" />{{ __('Preview') }}</button>
+            <button type="button" class="btn" @click="flush(); $wire.save()" wire:loading.attr="disabled">{{ $isPublished ? __('Update') : __('Save draft') }}</button>
             @if ($mayPublish && ! $isPublished)
-                <button type="button" class="btn btn-primary" wire:click="publish">{{ $scheduleAt ? __('Schedule') : __('Publish') }}</button>
+                <button type="button" class="btn btn-primary" @click="flush(); $wire.publish()">{{ $scheduleAt ? __('Schedule') : __('Publish') }}</button>
             @endif
         </div>
     </header>
@@ -70,7 +70,7 @@
                 x-init="$el.style.height = $el.scrollHeight + 'px'" @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"></textarea>
             @error('title')<p class="error" style="color:var(--danger);margin:-10px 0 16px">{{ $message }}</p>@enderror
 
-            <div wire:ignore
+            <div x-on:wake-flush.window="api && $wire.set('body', api.getMarkdown(), false)" wire:ignore
                  x-data="{
                     api: null,
                     init() {
@@ -80,7 +80,7 @@
                                 media: @js($mediaMap),
                                 labels: @js($labels),
                                 placeholder: @js(__('Start writing, or type / for blocks …')),
-                                onChange: (push => md => { this.dirty = true; push(md) })(Alpine.debounce(md => $wire.set('body', md, false), 400)),
+                                onChange: (push => md => { this.dirty = true; this.rev++; push(md) })(Alpine.debounce(md => $wire.set('body', md, false), 400)),
                                 onUpload: file => new Promise(resolve => $wire.upload('upload', file, () => $wire.storeUpload().then(resolve), () => resolve(null))),
                             })
                         }
@@ -155,15 +155,18 @@
                     @endforelse
                 </div>
             @elseif ($tab === 'stats' && $stats)
-                <div class="grid grid-2" style="gap:10px">
-                    <div class="card" style="padding:16px;gap:6px"><div class="kpi-label">{{ __('Visitors') }}</div><div class="kpi-value" style="font-size:26px">{{ $stats['page']['visitors'] }}</div></div>
-                    <div class="card" style="padding:16px;gap:6px"><div class="kpi-label">{{ __('Page views') }}</div><div class="kpi-value" style="font-size:26px">{{ $stats['page']['pageviews'] }}</div></div>
-                    <div class="card" style="padding:16px;gap:6px"><div class="kpi-label">{{ __('Reading time') }}</div><div class="kpi-value" style="font-size:22px">{{ $duration($stats['page']['duration']) }}</div></div>
-                    <div class="card" style="padding:16px;gap:6px"><div class="kpi-label">{{ __('Read to the end') }}</div><div class="kpi-value" style="font-size:26px">{{ $stats['page']['read_rate'] === null ? '–' : round($stats['page']['read_rate'] * 100).' %' }}</div></div>
+                <div class="kpis kpis-compact" aria-label="{{ __('Key figures') }}">
+                    <div class="kpi"><div class="kpi-label">{{ __('Visitors') }}</div><div class="kpi-value">{{ $stats['page']['visitors'] }}</div></div>
+                    <div class="kpi"><div class="kpi-label">{{ __('Page views') }}</div><div class="kpi-value">{{ $stats['page']['pageviews'] }}</div></div>
+                    <div class="kpi"><div class="kpi-label">{{ __('Reading time') }}</div><div class="kpi-value">{{ $duration($stats['page']['duration']) }}</div></div>
+                    <div class="kpi"><div class="kpi-label">{{ __('Read to the end') }}</div><div class="kpi-value">{{ $stats['page']['read_rate'] === null ? '–' : round($stats['page']['read_rate'] * 100).' %' }}</div></div>
                 </div>
-                <div class="night" style="padding:18px">
-                    <h2 class="h2" style="margin-bottom:12px">{{ __('Visitors per day') }}</h2>
-                    <x-wake::chart.bars :series="$stats['series']" :height="110" />
+                <div class="night window" aria-label="{{ __('Visitors per day') }}">
+                    <div class="window-bar"><span>stats/{{ $type }}</span></div>
+                    <div class="window-body tight">
+                        <h2 class="h2">{{ __('Visitors per day') }}</h2>
+                        <x-wake::chart.bars :series="$stats['series']" :height="110" :label="__('Visitors per day')" />
+                    </div>
                 </div>
                 <div class="card"><h2 class="h2">{{ __('Sources') }}</h2><x-wake::top-list :items="array_slice($stats['page']['sources'], 0, 5, true)" /></div>
                 <a class="btn" href="{{ route('wake.stats.journey', ['path' => $stats['path']]) }}"><x-wake::icon name="wake" />{{ __('See the wake') }}</a>
@@ -289,7 +292,7 @@
                         @if ($isPublished && $mayPublish)
                             <button type="button" class="btn btn-small" wire:click="unpublish" wire:confirm="{{ __('Take this entry off the website? It becomes a draft again.') }}">{{ __('Unpublish') }}</button>
                         @endif
-                        <button type="button" class="btn btn-small btn-danger" style="margin-left:auto" wire:click="trash" wire:confirm="{{ __('Move this entry with all languages and files to the trash?') }}"><x-wake::icon name="trash" />{{ __('Delete') }}</button>
+                        <button type="button" class="btn btn-small btn-danger" style="margin-left:auto" x-on:click="if (confirm(@js(__('Move this entry with all languages and files to the trash?')))) { dirty = false; $wire.trash() }"><x-wake::icon name="trash" />{{ __('Delete') }}</button>
                     </div>
                 @endif
             @endif

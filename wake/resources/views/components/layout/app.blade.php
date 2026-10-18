@@ -31,7 +31,7 @@
 <x-wake::layout.base :title="$title">
 <a class="skip" href="#main">{{ __('Skip to content') }}</a>
 <div class="shell">
-    <aside class="sidebar" x-data="{ open: false }" :class="{ 'is-open': open }" @keydown.escape="open = false">
+    <aside class="sidebar" x-data="{ open: false }" :class="{ 'is-open': open }" @keydown.escape="if (open) { open = false; $nextTick(() => $refs.toggle.focus()) }">
         <div class="sidebar-top">
             <a class="brand" href="{{ route('wake.dashboard') }}">
                 <x-wake::logo :size="28" :tile="true" id="nav" />
@@ -40,7 +40,7 @@
                     <span class="brand-url">{{ parse_url(url('/'), PHP_URL_HOST) }} ↗</span>
                 </span>
             </a>
-            <button type="button" class="btn btn-small btn-icon menu-toggle" @click="open = !open" :aria-expanded="open.toString()" aria-controls="panel-nav" aria-label="{{ __('Open menu') }}" title="{{ __('Open menu') }}"><x-wake::icon name="menu" /></button>
+            <button type="button" class="btn btn-small btn-icon menu-toggle" x-ref="toggle" @click="open = !open" :aria-expanded="open.toString()" aria-controls="panel-nav" aria-label="{{ __('Open menu') }}" title="{{ __('Open menu') }}" :aria-label="open ? @js(__('Close menu')) : @js(__('Open menu'))" :title="open ? @js(__('Close menu')) : @js(__('Open menu'))"><x-wake::icon name="menu" /></button>
         </div>
 
         <div class="sidebar-body" id="panel-nav">

@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $title ? $title.' · ' : '' }}Wake</title>
     <link rel="stylesheet" href="{{ app(\Wake\Panel\Panel::class)->asset('panel.css') }}">
-    <link rel="preload" href="{{ app(\Wake\Panel\Panel::class)->asset('fonts/geist-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ url('assets/wake/fonts/geist-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
     {{ app(\Wake\Panel\Panel::class)->accentStyles() }}
     @livewireStyles
     @stack('head')

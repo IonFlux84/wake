@@ -1,4 +1,4 @@
-@props(['series', 'height' => 250, 'primary' => 'visitors', 'secondary' => 'pageviews', 'label' => ''])
+@props(['series', 'height' => 250, 'primary' => 'visitors', 'secondary' => 'pageviews', 'label' => null])
 @php
     // Server-rendered SVG line chart. Values are scaled into a 1000 × height box.
     $points = array_values($series);
@@ -12,10 +12,10 @@
     $last = $points ? end($points) : [$primary => 0];
 @endphp
 <div class="chart" style="position:relative;height:{{ $height }}px" x-data="{ tip: null }">
-    <svg viewBox="0 0 1000 {{ $height }}" preserveAspectRatio="none" width="100%" height="{{ $height }}" role="img" aria-label="{{ $label }}" style="display:block;overflow:visible;animation:reveal 1.8s ease-out both">
-        <path d="M0 {{ round($height * .25) }}H1000M0 {{ round($height * .5) }}H1000M0 {{ round($height * .75) }}H1000" stroke="#262626" stroke-dasharray="2 6" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <svg viewBox="0 0 1000 {{ $height }}" preserveAspectRatio="none" width="100%" height="{{ $height }}" role="img" aria-label="{{ $label ?? __('Visitors per day') }}" style="display:block;overflow:visible;animation:reveal 1.8s ease-out both">
+        <path d="M0 {{ round($height * .25) }}H1000M0 {{ round($height * .5) }}H1000M0 {{ round($height * .75) }}H1000" style="stroke:var(--night-line)" stroke-dasharray="2 6" stroke-width="1" vector-effect="non-scaling-stroke"/>
         <path d="{{ $area }}" fill="#fff" fill-opacity=".04" style="animation:fade 1.6s ease-out both"/>
-        <path d="{{ $line($secondary) }}" fill="none" stroke="#6e6e6e" stroke-width="1.25" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+        <path d="{{ $line($secondary) }}" fill="none" style="stroke:var(--night-dim)" stroke-width="1.25" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
         <path d="{{ $line($primary) }}" fill="none" stroke="var(--accent-ink)" stroke-width="1.75" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
     </svg>
     <span aria-hidden="true" style="position:absolute;left:calc({{ $x($count - 1) / 10 }}% - 4px);top:{{ $y($last[$primary] ?? 0) - 4 }}px;width:8px;height:8px;border-radius:50%;background:var(--accent-ink)"></span>

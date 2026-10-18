@@ -97,7 +97,7 @@
             @forelse ($sources as $source => $count)
                 <div style="display:grid;gap:6px">
                     <div style="display:flex;justify-content:space-between;font-size:14px"><span>{{ $source === '' ? __('Direct') : $source }}</span><span class="mono">{{ $number($count) }}</span></div>
-                    <div style="height:4px;background:var(--sunken);overflow:hidden"><div style="height:100%;width:{{ round($count / $maxSource * 100) }}%;background:var(--text);transform-origin:left;animation:grow .9s ease-out both"></div></div>
+                    <div class="bar"><i style="width:{{ round($count / $maxSource * 100) }}%"></i></div>
                 </div>
             @empty
                 <p class="muted" style="margin:0">{{ __('No visits yet in this period.') }}</p>

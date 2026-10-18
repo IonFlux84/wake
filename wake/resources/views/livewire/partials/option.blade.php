@@ -4,7 +4,7 @@
     <label for="o-{{ $model }}">{{ $pick($option['label'] ?? $key) }}</label>
     @if ($type === 'color')
         <div style="display:flex;gap:8px;align-items:center">
-            <input type="color" wire:model.live="{{ $model }}" style="width:44px;height:44px;border:1px solid var(--line);border-radius:4px;padding:2px;background:var(--paper)" aria-label="{{ $pick($option['label'] ?? $key) }}">
+            <input type="color" wire:model.live="{{ $model }}" aria-label="{{ $pick($option['label'] ?? $key) }}">
             <input id="o-{{ $model }}" class="input mono" style="width:140px" wire:model.live.debounce.400ms="{{ $model }}">
         </div>
     @elseif ($type === 'toggle')

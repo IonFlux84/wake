@@ -29,7 +29,7 @@
                         @if ($folder === $active)<span class="badge on">{{ __('Active') }}</span>@endif
                     </div>
                     <p class="muted" style="margin:0;font-size:14px">{{ $theme->description() ?: '—' }}</p>
-                    <p class="muted" style="margin:0;font-size:12px">{{ collect([$theme->version() ? 'v'.$theme->version() : null, $theme->author(), 'site/themes/'.$folder])->filter()->implode(' · ') }}</p>
+                    <p class="muted mono" style="margin:0;font-size:12px">{{ collect([$theme->version() ? 'v'.$theme->version() : null, $theme->author(), 'site/themes/'.$folder])->filter()->implode(' · ') }}</p>
                     <div class="actions" style="margin-top:auto">
                         @if ($folder !== $active)
                             <button type="button" class="btn btn-small btn-primary" wire:click="activate('{{ $folder }}')">{{ __('Activate') }}</button>

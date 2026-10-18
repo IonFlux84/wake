@@ -112,6 +112,7 @@ class Settings extends Component
         SiteSettings::save(['closed' => $this->closed]);
         app(PageCache::class)->flush();
         session()->flash('status', $this->closed ? __('The website is closed now.') : __('The website is open now.'));
+        $this->redirectRoute('wake.settings');
     }
 
     public function updatedRequireTwoFactor(): void

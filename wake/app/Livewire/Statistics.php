@@ -30,7 +30,6 @@ class Statistics extends Component
         return view('wake::livewire.statistics', [
             'report' => $report,
             'ai' => $stats->aiCrawlers($report->from, $report->to),
-            'live' => $stats->realtime(),
         ]);
     }
 }
