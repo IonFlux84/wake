@@ -10,3 +10,4 @@ description: Exact descriptions of settings, files, templates and commands.
 - [Templates](templates.md)
 - [Command line](cli.md)
 - [MCP server](mcp.md)
+- [Roles](roles.md)

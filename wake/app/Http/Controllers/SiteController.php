@@ -7,6 +7,8 @@ use Illuminate\Http\Response;
 use Wake\Content\Entry;
 use Wake\Content\Models\Page;
 use Wake\Content\Models\Tag;
+use Wake\Content\Query;
+use Wake\Content\Redirects;
 use Wake\Content\Site;
 use Wake\Localization\Languages;
 use Wake\Routing\Resolver;
@@ -43,7 +45,7 @@ class SiteController
         $entry ??= $this->tag($language, $rest);
 
         if ($entry === null) {
-            return $this->notFound();
+            return $this->redirect($language, $rest) ?? $this->notFound();
         }
 
         $templates = $entry instanceof Page && $entry->isHome()
@@ -51,6 +53,26 @@ class SiteController
             : [$entry->template(), $entry->type(), 'default'];
 
         return $this->render($templates, $entry);
+    }
+
+    /**
+     * An old address of an entry (site/redirects.yml) gets a permanent redirect.
+     */
+    protected function redirect(string $language, string $path): ?RedirectResponse
+    {
+        $target = app(Redirects::class)->target($language, $path);
+
+        if ($target === null) {
+            return null;
+        }
+
+        if (preg_match('#^https?://#', $target)) {
+            return redirect()->away($target, 301);
+        }
+
+        $entry = (new Query)->in($language)->find($target);
+
+        return $entry?->isPublished() ? redirect()->to($entry->url(), 301) : null;
     }
 
     /**

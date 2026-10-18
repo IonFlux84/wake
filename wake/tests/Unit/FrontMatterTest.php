@@ -36,3 +36,16 @@ it('writes files it can read back', function () {
     expect($source)->toStartWith("---\ntitle: Hello\n")
         ->and(FrontMatter::parse($source))->toBe([['title' => 'Hello', 'tags' => ['a']], "Body text\n"]);
 });
+
+it('writes values without needless quotes and reads them back', function () {
+    $fields = ['title' => 'Hello, Wake!', 'published' => '2026-10-17 09:00', 'tags' => ['news', 'Ruhr Area'],
+        'seo' => ['title' => 'Colon: inside'], 'count' => '123', 'flag' => true, 'quote' => "It's", 'text' => "Line one\nLine two"];
+
+    $source = FrontMatter::dump($fields, '');
+
+    expect($source)->toContain("title: Hello, Wake!\n")
+        ->toContain("tags: [news, Ruhr Area]\n")
+        ->toContain("  title: 'Colon: inside'\n")
+        ->toContain("count: '123'\n")
+        ->and(FrontMatter::parse($source)[0])->toBe($fields);
+});

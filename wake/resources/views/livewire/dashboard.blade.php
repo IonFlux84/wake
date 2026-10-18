@@ -30,8 +30,8 @@
                     <button type="button" wire:click="setPeriod('{{ $key }}')" @class(['on' => $period === $key])>{{ $label }}</button>
                 @endforeach
             </div>
-            @if (Route::has('wake.posts.create'))
-                <a class="btn btn-primary" href="{{ route('wake.posts.create') }}"><x-wake::icon name="plus" />{{ __('New post') }}</a>
+            @if (true)
+                <a class="btn btn-primary" href="{{ route('wake.entries.create', ['type' => 'post']) }}"><x-wake::icon name="plus" />{{ __('New post') }}</a>
             @endif
         </div>
     </header>
@@ -117,8 +117,8 @@
                 <div class="card-head"><h2 class="h2">{{ $heading }}</h2><span class="status {{ $status }}"></span></div>
                 @forelse ($posts as $post)
                     <div style="display:flex;justify-content:space-between;gap:12px;font-size:14px">
-                        @if (Route::has('wake.posts.edit'))
-                            <a href="{{ route('wake.posts.edit', ['id' => $post->id()]) }}" style="text-decoration:none;font-weight:600">{{ $post->title() }}</a>
+                        @if (true)
+                            <a href="{{ route('wake.entries.edit', ['type' => 'post', 'id' => $post->id()]) }}" style="text-decoration:none;font-weight:600">{{ $post->title() }}</a>
                         @else
                             <span style="font-weight:600">{{ $post->title() }}</span>
                         @endif

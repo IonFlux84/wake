@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Wake\Http\Controllers\Panel\ContentController;
 use Wake\Http\Controllers\Panel\DashboardController;
 use Wake\Http\Controllers\Panel\LoginController;
 use Wake\Http\Controllers\Panel\SetupController;
@@ -23,5 +24,11 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::view('stats/journey', 'wake::panel.journey')->name('stats.journey');
         Route::view('consent', 'wake::panel.consent')->name('consent');
         Route::view('assistants', 'wake::panel.assistants')->name('assistants');
+
+        Route::get('posts', [ContentController::class, 'index'])->defaults('type', 'post')->name('posts');
+        Route::get('pages', [ContentController::class, 'index'])->defaults('type', 'page')->name('pages');
+        Route::get('content/{type}', [ContentController::class, 'index'])->name('entries');
+        Route::get('content/{type}/new', [ContentController::class, 'edit'])->name('entries.create');
+        Route::get('content/{type}/edit', [ContentController::class, 'edit'])->name('entries.edit');
     });
 });

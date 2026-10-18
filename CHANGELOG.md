@@ -61,3 +61,12 @@ All notable changes to Wake are documented here. The format follows
   and scopes, tools for statistics, AI crawlers, consent and site facts, the
   resources `wake://site` and `wake://stats/today` and a weekly review prompt.
   Tokens are managed under *Assistants* in the panel.
+- Writing in the panel: lists of posts, pages and custom types with status
+  filters, search and translation state; an editor based on Tiptap that reads
+  and writes Markdown, with cards, a slash menu, image upload, cover image,
+  blueprint fields, translations, publishing now or later and statistics of
+  the entry.
+- Every change keeps a revision, changed addresses of published entries get
+  redirects (`site/redirects.yml`), deleted entries go to `storage/trash/`, and
+  the editor shows who else is editing.
+- Front matter is written without needless quotes and with inline lists.

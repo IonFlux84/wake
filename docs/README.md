@@ -25,6 +25,7 @@ The documentation is split by what you want to do, following the
 
 - [Add a second language](guides/second-language.md)
 - [Connect an AI assistant](guides/connect-an-assistant.md)
+- [Write and publish](guides/write-and-publish.md)
 
 ## Reference
 
@@ -33,12 +34,14 @@ The documentation is split by what you want to do, following the
 - [Templates](reference/templates.md): what a theme can use
 - [Command line](reference/cli.md): Artisan commands
 - [MCP server](reference/mcp.md): tools for AI assistants
+- [Roles](reference/roles.md): who may do what
 
 ## Concepts
 
 - [Architecture](concepts/architecture.md)
 - [Analytics](concepts/analytics.md)
 - [Consent](concepts/consent.md)
+- [Editing](concepts/editing.md)
 
 ## Project
 
