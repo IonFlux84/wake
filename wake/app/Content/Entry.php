@@ -237,7 +237,9 @@ class Entry implements JsonSerializable
             return $excerpt;
         }
 
-        $text = trim(preg_replace('/\s+/', ' ', strip_tags((string) $this->content())));
+        // Paragraphs only: tables, code and cards make poor excerpts.
+        preg_match_all('#<p>(.*?)</p>#s', (string) $this->content(), $paragraphs);
+        $text = trim(preg_replace('/\s+/', ' ', strip_tags(implode(' ', $paragraphs[1]))));
 
         return Str::words($text, $words, ' …');
     }

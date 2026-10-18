@@ -7,5 +7,19 @@
     ":count min read|:count min read": ":count Minute Lesezeit|:count Minuten Lesezeit",
     "Tag": "Schlagwort",
     "This page does not exist (anymore).": "Diese Seite gibt es nicht (mehr).",
-    "Back to the start page": "Zurück zur Startseite"
+    "Back to the start page": "Zurück zur Startseite",
+    "Skip to content": "Zum Inhalt springen",
+    "Menu": "Menü",
+    "Search": "Suche",
+    "Footer": "Fußbereich",
+    "Made with": "Gemacht mit",
+    "Pages": "Seiten",
+    "Tags": "Schlagwörter",
+    "Older": "Älter",
+    "Newer": "Neuer",
+    "More posts": "Weitere Beiträge",
+    "More about :tag": "Mehr zu :tag",
+    ":count post|:count posts": ":count Beitrag|:count Beiträge",
+    "What are you looking for?": "Wonach suchen Sie?",
+    ":count result for “:query”|:count results for “:query”": ":count Treffer für „:query“|:count Treffer für „:query“"
 }

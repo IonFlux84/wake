@@ -1,10 +1,11 @@
-<article class="post-card">
+<article class="card {{ ($large ?? false) ? 'card-large' : '' }}">
     @if ($post->image()?->isImage())
-        <a href="{{ $post->url() }}" class="post-card-image">{{ $post->image()->picture($post->title(), '(min-width: 720px) 33vw, 100vw') }}</a>
+        <a href="{{ $post->url() }}" class="card-image" tabindex="-1" aria-hidden="true">{{ $post->image()->picture('', ($large ?? false) ? '(min-width: 960px) 60vw, 100vw' : '(min-width: 960px) 33vw, (min-width: 640px) 50vw, 100vw') }}</a>
     @endif
-    <p class="meta">
-        @if ($post->date())<time datetime="{{ $post->date()->toDateString() }}">{{ $post->date()->locale($post->language())->isoFormat('LL') }}</time>@endif
-    </p>
-    <h2><a href="{{ $post->url() }}">{{ $post->title() }}</a></h2>
-    <p>{{ $post->excerpt(28) }}</p>
+    <div class="card-body">
+        @if ($post->tags()->isNotEmpty())<a class="kicker" href="{{ $post->tags()->first()->url() }}">{{ $post->tags()->first()->title() }}</a>@endif
+        <h2 class="card-title"><a href="{{ $post->url() }}">{{ $post->title() }}</a></h2>
+        <p class="card-excerpt">{{ $post->excerpt(($large ?? false) ? 40 : 24) }}</p>
+        @include('theme::snippets.meta', ['post' => $post])
+    </div>
 </article>

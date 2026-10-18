@@ -45,6 +45,7 @@ here, so `site/` can be committed to Git safely.
 | `missing_translation` | `'hide'` | What happens when an entry has no translation in the requested language. `'hide'` answers with 404. `'fallback'` shows the default language with a notice and `noindex`, under the default language's slug. |
 | `timezone` | `'UTC'` | Time zone for dates in your content and for scheduled publishing, e.g. `'Europe/Berlin'`. Also settable as `WAKE_TIMEZONE` in `.env`. |
 | `theme` | `'tide'` | Folder in `site/themes/` that renders the website. |
+| `theme_options` | `[]` | Options for the active theme. Tide knows `accent`, e.g. `['accent' => '#3D5AFE']`. See [Tide](tide.md). |
 
 ## Addresses
 

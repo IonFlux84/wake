@@ -30,6 +30,9 @@ return [
     // Name of the folder in site/themes/ that renders the website.
     'theme' => 'tide',
 
+    // Options for the active theme, e.g. ['accent' => '#3D5AFE'] for Tide.
+    'theme_options' => [],
+
     // URL pattern for posts. Placeholders: {slug}, {year}, {month}, {day}.
     'post_url' => '{slug}',
 

@@ -9,6 +9,7 @@ use Wake\Content\Models\Page;
 use Wake\Content\Models\Tag;
 use Wake\Content\Query;
 use Wake\Content\Redirects;
+use Wake\Content\Search;
 use Wake\Content\Site;
 use Wake\Localization\Languages;
 use Wake\Routing\Resolver;
@@ -34,6 +35,10 @@ class SiteController
 
         if (config('wake.prefix_default_language') && $this->languages->prefix($language) !== explode('/', trim($path, '/'))[0]) {
             return redirect()->to($this->languages->url($rest, $language), 301);
+        }
+
+        if ($rest === 'search') {
+            return $this->search($language);
         }
 
         $entry = $this->resolver->resolve($language, $rest);
@@ -90,6 +95,19 @@ class SiteController
         $tag = Tag::findOrVirtual($slug, $language);
 
         return $tag->slug() === $slug && $tag->posts()->exists() ? $tag : null;
+    }
+
+    /**
+     * /search?q=… with the theme's search template.
+     */
+    protected function search(string $language): Response
+    {
+        $query = trim((string) request()->query('q', ''));
+        $results = app(Search::class)->query($query, $language);
+        $view = $this->theme->template('search') ?? 'wake::search';
+
+        return response()->view($view, ['site' => $this->site, 'entry' => null, 'query' => $query, 'results' => $results])
+            ->header('X-Robots-Tag', 'noindex');
     }
 
     public function notFound(): Response

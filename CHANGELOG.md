@@ -88,3 +88,10 @@ All notable changes to Wake are documented here. The format follows
   published content is public with CORS, drafts and statistics need a token.
 - Import from Ghost (panel and `wake:import:ghost`): posts, pages, tags,
   feature images and images in posts, with Ghost cards turned into Wake cards.
+- Full-text search per language at `/search` with a small inverted index in
+  `storage/cache/`, without a database.
+- Tide, the default theme, complete: featured post, grid with pagination, tags,
+  related posts, older/newer navigation, reading progress, search and 404
+  pages, a mobile menu, dark mode, bundled Archivo and an accent colour option
+  (`theme_options.accent`).
+- Automatic excerpts use paragraphs only.

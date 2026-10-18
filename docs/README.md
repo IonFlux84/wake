@@ -34,6 +34,7 @@ The documentation is split by what you want to do, following the
 - [Configuration](reference/configuration.md): every setting in `site/config.php`
 - [Content format](reference/content-format.md): folders, files and front matter
 - [Templates](reference/templates.md): what a theme can use
+- [Tide](reference/tide.md): the default theme
 - [Command line](reference/cli.md): Artisan commands
 - [MCP server](reference/mcp.md): tools for AI assistants
 - [Roles](reference/roles.md): who may do what

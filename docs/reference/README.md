@@ -12,3 +12,4 @@ description: Exact descriptions of settings, files, templates and commands.
 - [MCP server](mcp.md)
 - [Roles](roles.md)
 - [Content API](api.md)
+- [Tide](tide.md)

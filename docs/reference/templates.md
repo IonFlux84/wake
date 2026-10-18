@@ -19,6 +19,7 @@ site/themes/tide/
     tag.blade.php        a tag with its posts
     event.blade.php      an entry of the custom type "event"
     default.blade.php    anything without its own template
+    search.blade.php     search results
     404.blade.php        page not found
     cards/               optional looks for cards
     snippets/            your own partials
@@ -141,6 +142,16 @@ JSON-LD for posts.
     <link rel="stylesheet" href="{{ theme_asset('tide.css') }}">
 </head>
 ```
+
+## Search
+
+`/search?q=…` (and `/de/search?q=…` per language) renders the theme's
+`search.blade.php` with `$query` and `$results`, a list of published entries
+that contain every word of the query, best matches first. Wake keeps a small
+search index per language in `storage/cache/search-{lang}.php` and rebuilds it
+when content changes. Search pages are never cached and carry `noindex`.
+The address `search` is therefore reserved; a page with the slug `search` is
+not reachable.
 
 ## Consent and privacy
 
