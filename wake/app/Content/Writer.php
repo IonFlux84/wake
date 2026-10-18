@@ -253,6 +253,124 @@ class Writer
     }
 
     /**
+     * Moves a page in the page tree: under another parent ($parent, null for
+     * the top level) and into the menu order ($position, counted from 0
+     * among the listed pages), or out of the menu order ($position null).
+     *
+     * Folders are renamed on disk (pages/1_about → pages/2_about), so ids
+     * change. Wake takes care of everything that refers to them: versions,
+     * redirects, menus, and redirects from the old addresses of published
+     * pages whose address changes.
+     *
+     * @return string the new id of the page
+     */
+    public function movePage(string $id, ?string $parent, ?int $position): string
+    {
+        return Files::lock('page-tree', function () use ($id, $parent, $position) {
+            $row = $this->existing($id);
+            $type = $this->types->get($row['type']);
+
+            if ($type->layout !== ContentType::TREE) {
+                throw new InvalidArgumentException('Only pages can be moved in the page tree.');
+            }
+
+            if ($row['parent'] === null && $row['name'] === 'home') {
+                throw new InvalidArgumentException('The home page stays where it is.');
+            }
+
+            if ($parent !== null && ($parent === $id || str_starts_with($parent.'/', $id.'/') || $this->existing($parent)['type'] !== $row['type'])) {
+                throw new InvalidArgumentException('A page cannot be moved into itself.');
+            }
+
+            $entries = $this->index->entries();
+            $base = $parent ?? $type->folder;
+
+            // A page with the same name under the new parent gets a number.
+            $name = $row['name'];
+            $names = collect($entries)->filter(fn (array $r) => $r['type'] === $row['type'] && $r['parent'] === $parent && $r['id'] !== $id)->pluck('name')->all();
+            for ($i = 2; in_array($name, $names, true); $i++) {
+                $name = $row['name'].'-'.$i;
+            }
+            $entries[$id]['name'] = $name;
+
+            // The listed pages under the new parent, in order, with the moved page in its new place.
+            $listed = collect($entries)
+                ->filter(fn (array $r) => $r['type'] === $row['type'] && $r['parent'] === $parent && $r['num'] !== null && $r['id'] !== $id)
+                ->sortBy([['num', 'asc'], ['name', 'asc']])
+                ->keys()->values()->all();
+
+            if ($position !== null) {
+                array_splice($listed, max(0, min($position, count($listed))), 0, [$id]);
+            }
+
+            // The moved page first: it may live inside a sibling that is renamed, too.
+            $renames = [$id => $base.'/'.$name];
+            foreach ($listed as $i => $sibling) {
+                $renames[$sibling] = $base.'/'.($i + 1).'_'.$entries[$sibling]['name'];
+            }
+
+            $renames = array_filter($renames, fn (string $to, string $from) => $to !== $from, ARRAY_FILTER_USE_BOTH);
+
+            if ($renames === []) {
+                return $id;
+            }
+
+            // The most specific renamed folder an id lives in.
+            $sources = array_keys($renames);
+            usort($sources, fn ($a, $b) => strlen($b) <=> strlen($a));
+            $affected = fn (string $candidate) => collect($sources)->first(fn ($from) => $candidate === $from || str_starts_with($candidate, $from.'/'));
+
+            // Old addresses and files of every page that moves along.
+            $before = [];
+            foreach ($entries as $entryId => $entryRow) {
+                if ($affected($entryId) !== null) {
+                    foreach (array_keys($entryRow['languages']) as $language) {
+                        $entry = Entry::make($this->index->find($entryId), $language);
+                        $before[$entryId][$language] = ['path' => $entry->isPublished() ? $entry->path() : null, 'file' => $entryRow['languages'][$language]['file']];
+                    }
+                }
+            }
+
+            // Two steps through hidden folders next to the targets, so that
+            // swapping 1_a and 2_b never collides.
+            $temporary = [];
+            foreach (array_keys($renames) as $i => $from) {
+                $temporary[$from] = $base.'/.moving-'.$i;
+                rename(Paths::content($from), Paths::content($temporary[$from]));
+            }
+            foreach ($renames as $from => $to) {
+                rename(Paths::content($temporary[$from]), Paths::content($to));
+            }
+
+            $newId = fn (string $old) => ($from = $affected($old)) !== null ? $renames[$from].substr($old, strlen($from)) : $old;
+
+            foreach ($before as $oldId => $translations) {
+                foreach ($translations as $translation) {
+                    $this->revisions->move($translation['file'], $newId($oldId).substr($translation['file'], strlen($oldId)));
+                }
+            }
+
+            $this->redirects->renameTargets($newId);
+            app(Menus::class)->renameTargets($newId);
+            $this->index->refresh();
+
+            foreach ($before as $oldId => $translations) {
+                $row = $this->index->find($newId($oldId));
+
+                foreach ($translations as $language => $translation) {
+                    if ($row && $translation['path'] !== null && ($path = Entry::make($row, $language)->path()) !== $translation['path']) {
+                        $this->redirects->add($language, $translation['path'], $row['id']);
+                    }
+                }
+            }
+
+            $this->history->record('move', $newId($id));
+
+            return $newId($id);
+        });
+    }
+
+    /**
      * The file a translation lives in (it may not exist yet).
      *
      * @param  array<string, mixed>  $row

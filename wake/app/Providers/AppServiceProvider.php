@@ -33,6 +33,8 @@ use Wake\Livewire\EntryEditor;
 use Wake\Livewire\Journey;
 use Wake\Livewire\LiveVisitors;
 use Wake\Livewire\MediaLibrary;
+use Wake\Livewire\MenuEditor;
+use Wake\Livewire\PageTree;
 use Wake\Livewire\RedirectManager;
 use Wake\Livewire\RoleManager;
 use Wake\Livewire\Statistics;
@@ -66,6 +68,8 @@ class AppServiceProvider extends ServiceProvider
         'role-manager' => RoleManager::class,
         'category-manager' => CategoryManager::class,
         'media-library' => MediaLibrary::class,
+        'page-tree' => PageTree::class,
+        'menu-editor' => MenuEditor::class,
         'settings' => \Wake\Livewire\Settings::class,
     ];
 

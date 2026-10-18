@@ -84,10 +84,31 @@ of the theme with the `theme::` prefix:
 | `$site->languages()` | all languages, code → name |
 | `$site->posts()` | published posts, newest first (a [query](#queries)) |
 | `$site->pages()` | published top-level pages |
-| `$site->menu()` | listed top-level pages in order |
+| `$site->menu($name = 'main')` | a [menu](#menus): `main` or `footer` |
 | `$site->tags()` | all tags used by published posts, most used first |
 | `$site->entries('event')` | a query for any content type |
 | `$site->find('posts/2026-10-17-hello')` | one entry by its folder |
+
+## Menus
+
+`$site->menu()` returns the main menu, `$site->menu('footer')` the footer
+menu, as a collection of menu items. Without a hand-made main menu, the main
+menu shows the listed top-level pages with their listed sub-pages.
+
+| Method | Returns |
+|---|---|
+| `title()` | the label, or the page title |
+| `url()` | the address |
+| `page()` | the page entry, `null` for links |
+| `children()` | the sub-items (one level) |
+| `isActive()` | whether the current address is this page or below it |
+| `isExternal()` | whether the link leads to another site |
+
+```blade
+@foreach ($site->menu('footer')->whenEmpty(fn () => $site->menu()) as $item)
+    <a href="{{ $item->url() }}">{{ $item->title() }}</a>
+@endforeach
+```
 
 ## Entries
 

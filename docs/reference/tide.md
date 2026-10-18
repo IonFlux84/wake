@@ -22,9 +22,10 @@ English and German.
 | `/search` | a search form and results ([search](templates.md#search)) |
 | 404 | a friendly message with a search form |
 
-The header shows the listed top-level pages (`$site->menu()`), a search link and
-the language switcher; on small screens they fold into a menu button. The footer
-repeats the menu and adds the RSS feed and the cookie settings link.
+The header shows the main menu (`$site->menu()`) with sub-items in a small
+drop-down, a search link and the language switcher; on small screens they fold
+into a menu button. The footer shows the footer menu, or the main menu when the
+footer menu is empty, and adds the RSS feed and the cookie settings link.
 
 ## Options
 

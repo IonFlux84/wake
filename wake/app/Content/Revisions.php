@@ -64,6 +64,16 @@ class Revisions
         }
     }
 
+    /**
+     * Keeps the versions of a file that was moved to another place.
+     */
+    public function move(string $from, string $to): void
+    {
+        if ($from !== $to && is_dir($old = $this->directory($from)) && ! is_dir($new = $this->directory($to))) {
+            rename($old, $new);
+        }
+    }
+
     protected function directory(string $file): string
     {
         return storage_path('revisions/'.md5($file));

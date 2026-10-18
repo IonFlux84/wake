@@ -20,7 +20,16 @@
                 onclick="const open = document.body.classList.toggle('menu-open'); this.setAttribute('aria-expanded', open)"><span></span><span></span></button>
                 <nav class="site-nav" id="site-nav" aria-label="{{ __('Main menu') }}">
                     @foreach ($site->menu() as $item)
-                        <a href="{{ $item->url() }}" @if ($entry && ($entry->id() === $item->id() || str_starts_with($entry->id(), $item->id().'/'))) aria-current="page" @endif>{{ $item->title() }}</a>
+                        @if ($item->children()->isEmpty())
+                            <a href="{{ $item->url() }}" @if ($item->isActive()) aria-current="page" @endif>{{ $item->title() }}</a>
+                        @else
+                            <div class="nav-group">
+                                <a href="{{ $item->url() }}" @if ($item->isActive()) aria-current="page" @endif>{{ $item->title() }}</a>
+                                <div class="nav-sub">
+                                    @foreach ($item->children() as $child)<a href="{{ $child->url() }}" @if ($child->isActive()) aria-current="page" @endif>{{ $child->title() }}</a>@endforeach
+                                </div>
+                            </div>
+                        @endif
                     @endforeach
                     <a class="search-link" href="{{ $languages->url('search') }}" aria-label="{{ __('Search') }}">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -46,7 +55,7 @@
                 @if ($site->description())<p class="muted">{{ $site->description() }}</p>@endif
             </div>
             <nav class="footer-nav" aria-label="{{ __('Footer') }}">
-                @foreach ($site->menu() as $item)<a href="{{ $item->url() }}">{{ $item->title() }}</a>@endforeach
+                @foreach ($site->menu('footer')->whenEmpty(fn () => $site->menu()) as $item)<a href="{{ $item->url() }}">{{ $item->title() }}</a>@endforeach
                 <a href="{{ $languages->url('feed.xml') }}">RSS</a>
                 @wakeConsentLink
             </nav>

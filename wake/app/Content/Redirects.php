@@ -60,6 +60,31 @@ class Redirects
         $this->map = $map;
     }
 
+    /**
+     * Updates targets after entries were moved; $rename maps an old id to the new one.
+     *
+     * @param  callable(string): string  $rename
+     */
+    public function renameTargets(callable $rename): void
+    {
+        $map = $this->all();
+        $changed = false;
+
+        foreach ($map as $language => $paths) {
+            foreach ($paths as $path => $target) {
+                if (! str_contains($target, '://') && ($new = $rename($target)) !== $target) {
+                    $map[$language][$path] = $new;
+                    $changed = true;
+                }
+            }
+        }
+
+        if ($changed) {
+            Files::write($this->file(), Yaml::dump($map, 3, 2));
+            $this->map = $map;
+        }
+    }
+
     public function file(): string
     {
         return Paths::site('redirects.yml');

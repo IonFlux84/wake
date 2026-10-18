@@ -73,11 +73,38 @@ Any other field is available in templates as well: `location: Town hall` is
 | Type | Folder name | Meaning |
 |---|---|---|
 | Posts | `2026-10-17-hello-world` | Date (optional) and name. The date is used when `published` is missing. |
-| Pages | `1_about` | Number (optional) and name. Pages with a number are *listed*. Listed top-level pages make up `$site->menu()`, in that order. |
+| Pages | `1_about` | Number (optional) and name. Pages with a number are *listed*, in that order. Unless `site/menus.yml` has a main menu, listed top-level pages and their listed sub-pages make up `$site->menu()`. |
 | Pages | `home` | The start page, shown at `/`. |
 
 Only folders with an `index.*.md` file count as entries. Other folders, such as
 an `images/` folder inside a post, are ignored.
+
+## Menus
+
+`site/menus.yml` holds menus arranged in the panel (*Menus*). Wake knows
+`main` and `footer`. Without `main`, the main menu follows the page tree.
+
+```yaml
+main:
+  - page: pages/1_about
+    children:
+      - page: pages/1_about/1_team
+  - page: pages/contact
+    label: { en: Write to us, de: Schreib uns }
+  - label: Shop
+    url: https://shop.example.org
+footer:
+  - page: pages/imprint
+```
+
+- `page` is the folder of a page below `content/`. Wake updates it when the
+  page moves in the page tree.
+- `label` is optional for pages (their title is used) and required for links;
+  it is a text or one text per language.
+- `children` holds one level of sub-items.
+- Pages that are not published are left out.
+
+See [Arrange pages and menus](../guides/pages-and-menus.md).
 
 ## Languages
 

@@ -31,6 +31,10 @@ class Entries extends Component
     #[Url]
     public string $category = '';
 
+    /** Pages: "tree" or "list". */
+    #[Url]
+    public string $view = 'tree';
+
     public function mount(string $type = 'post'): void
     {
         abort_unless(app(ContentTypes::class)->get($type), 404);
@@ -40,11 +44,13 @@ class Entries extends Component
     public function setStatus(string $status): void
     {
         $this->status = in_array($status, ['all', 'published', 'draft', 'scheduled'], true) ? $status : 'all';
+        $this->view = $status === 'all' ? $this->view : 'list';
         $this->resetPage();
     }
 
     public function updatedSearch(): void
     {
+        $this->view = trim($this->search) === '' ? $this->view : 'list';
         $this->resetPage();
     }
 
@@ -113,6 +119,8 @@ class Entries extends Component
             'contentType' => app(ContentTypes::class)->get($this->type),
             'languages' => app(Languages::class),
             'categories' => $this->type === 'post' ? app(Categories::class)->all() : [],
+            'canTree' => $canTree = auth()->user()->can('content.edit_all'),
+            'showTree' => $canTree && $this->type === 'page' && $this->view === 'tree' && $this->status === 'all' && trim($this->search) === '',
         ]);
     }
 }

@@ -74,11 +74,15 @@ class Site
     }
 
     /**
-     * Top-level pages with a number prefix, in order. Handy for the main menu.
+     * A menu from site/menus.yml ("main" or "footer"). Without a stored main
+     * menu, the main menu shows the listed top-level pages of the page tree,
+     * in order, with their listed children.
+     *
+     * @return Collection<int, MenuItem>
      */
-    public function menu(): Query
+    public function menu(string $name = 'main'): Collection
     {
-        return $this->pages()->listed()->orderBy('num');
+        return app(Menus::class)->items($name, $this->language());
     }
 
     /**

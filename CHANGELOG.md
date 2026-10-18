@@ -151,6 +151,15 @@ All notable changes to Wake are documented here. The format follows
 - Preview of entries in any status in the theme, from the editor, and preview
   links that work for seven days without an account (signed URLs).
 - Redirects page in the panel: see, add and remove old addresses.
+- Page tree in the panel: arrange pages by drag and drop or with arrow
+  buttons, nest them and take them in or out of the menu order. Folders are
+  renamed on disk; versions, redirects and menus follow, and published pages
+  whose address changes get a redirect.
+- Menus: a main and a footer menu with pages, links, labels per language and
+  one level of sub-items, stored in `site/menus.yml`. Without a hand-made main
+  menu, it follows the page tree. New right `structure.manage`.
+- `$site->menu()` now returns menu items (`title()`, `url()`, `children()`,
+  `isActive()`) instead of a query of pages, and takes a menu name.
 - File details: alt text and caption per language, credit and focus point,
   edited in the media library and stored next to the file (`photo.jpg.yml`).
   Images in Markdown without alt text take it from the details; cropped images

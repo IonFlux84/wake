@@ -21,6 +21,7 @@ final class Capabilities
             'content.delete_all' => __('Delete any entry'),
             'stats.view' => __('See statistics'),
             'consent.manage' => __('Manage the consent banner'),
+            'structure.manage' => __('Arrange the page tree and menus'),
             'categories.manage' => __('Manage categories'),
             'themes.manage' => __('Manage themes'),
             'team.manage' => __('Manage the team and roles'),
@@ -39,7 +40,7 @@ final class Capabilities
         return [
             __('Content') => ['content.write', 'content.publish', 'content.edit_all', 'content.publish_all', 'content.delete_all'],
             __('Insights') => ['stats.view', 'consent.manage'],
-            __('Site') => ['categories.manage', 'themes.manage', 'team.manage', 'settings.manage'],
+            __('Site') => ['structure.manage', 'categories.manage', 'themes.manage', 'team.manage', 'settings.manage'],
             __('Assistants') => ['assistants.use'],
         ];
     }

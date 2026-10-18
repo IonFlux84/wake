@@ -120,7 +120,7 @@ it('builds the page tree', function () {
 
     expect($about->children()->first()->title())->toBe('Team')
         ->and($about->children()->first()->parent()->id())->toBe('pages/1_about')
-        ->and(app(Site::class)->menu()->get()->map->title()->all())->toBe(['About', 'Blog']);
+        ->and(app(Site::class)->menu()->map->title()->all())->toBe(['About', 'Blog']);
 });
 
 it('lists the tags of the site', function () {

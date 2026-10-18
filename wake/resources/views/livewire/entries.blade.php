@@ -23,6 +23,17 @@
         @endforeach
     </section>
 
+    @if ($showTree)
+        <div class="actions" style="justify-content:flex-end;margin-bottom:-8px">
+            <button type="button" class="btn btn-small" wire:click="$set('view', 'list')">{{ __('Show as list') }}</button>
+        </div>
+        <livewire:wake.page-tree />
+    @else
+    @if ($type === 'page' && $canTree)
+        <div class="actions" style="justify-content:flex-end;margin-bottom:-8px">
+            <button type="button" class="btn btn-small" wire:click="$set('view', 'tree'); $set('status', 'all'); $set('search', '')">{{ __('Show as tree') }}</button>
+        </div>
+    @endif
     <section class="card">
         <div class="card-head">
             <input type="search" class="input" style="max-width:360px" wire:model.live.debounce.300ms="search" placeholder="{{ __('Search by title') }}" aria-label="{{ __('Search by title') }}">
@@ -70,4 +81,5 @@
             </div>
         @endif
     </section>
+    @endif
 </div>

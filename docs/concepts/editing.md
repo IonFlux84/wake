@@ -28,7 +28,8 @@ file, and every version younger than 30 days.
 
 ## Redirects
 
-When the address of a published entry changes, Wake writes the old address to
+When the address of a published entry changes (a new slug, or a page moved to
+another parent page), Wake writes the old address to
 `site/redirects.yml` and answers it with a permanent redirect (301). You can add and
 remove redirects in the panel under *Redirects* (people with `settings.manage`)
 or by hand, also to other sites:

@@ -21,6 +21,7 @@ may do and add your own under *Team → Roles and rights* (owners and anyone wit
 | `content.delete_all` | deleting any entry (everyone may delete their own drafts) |
 | `stats.view` | the statistics, the wake view and the numbers on the dashboard |
 | `consent.manage` | the consent page and banner editor |
+| `structure.manage` | arranging the page tree and editing menus |
 | `categories.manage` | creating and changing categories |
 | `themes.manage` | choosing, configuring, installing and removing themes |
 | `team.manage` | inviting, changing and removing members, and roles |
@@ -40,6 +41,7 @@ Installing updates is reserved for the owner.
 | `content.delete_all` | ✓ | ✓ | ✓ | | |
 | `stats.view` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `consent.manage` | ✓ | ✓ | | | |
+| `structure.manage` | ✓ | ✓ | ✓ | | |
 | `categories.manage` | ✓ | ✓ | | | |
 | `themes.manage` | ✓ | ✓ | | | |
 | `team.manage` | ✓ | ✓ | | | |

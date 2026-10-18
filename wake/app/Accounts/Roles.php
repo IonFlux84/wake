@@ -33,7 +33,7 @@ class Roles
         return [
             Role::Owner => $all,
             Role::Admin => $all,
-            Role::Editor => ['content.write', 'content.publish', 'content.edit_all', 'content.publish_all', 'content.delete_all', 'stats.view', 'assistants.use'],
+            Role::Editor => ['content.write', 'content.publish', 'content.edit_all', 'content.publish_all', 'content.delete_all', 'structure.manage', 'stats.view', 'assistants.use'],
             Role::Author => ['content.write', 'content.publish', 'stats.view', 'assistants.use'],
             Role::Contributor => ['content.write', 'stats.view', 'assistants.use'],
         ];

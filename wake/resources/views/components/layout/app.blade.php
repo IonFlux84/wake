@@ -8,6 +8,7 @@
             ['dashboard', 'wake.dashboard', __('Dashboard'), 'dashboard', null],
             ['posts', 'wake.posts', __('Posts'), 'posts', 'content.write'],
             ['pages', 'wake.pages', __('Pages'), 'pages', 'content.write'],
+            ['menus', 'wake.menus', __('Menus'), 'menu', 'structure.manage'],
             ['categories', 'wake.categories', __('Categories'), 'tag', 'categories.manage'],
             ['media', 'wake.media.index', __('Media'), 'media', 'content.write'],
         ]],

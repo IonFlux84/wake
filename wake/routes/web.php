@@ -38,6 +38,7 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::view('settings', 'wake::panel.settings')->name('settings');
         Route::view('media', 'wake::panel.media')->name('media.index');
         Route::view('categories', 'wake::panel.categories')->name('categories');
+        Route::view('menus', 'wake::panel.menus')->middleware('can:structure.manage')->name('menus');
         Route::view('redirects', 'wake::panel.redirects')->middleware('can:settings.manage')->name('redirects');
         Route::view('themes', 'wake::panel.themes')->middleware('can:themes.manage')->name('themes');
 
