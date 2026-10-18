@@ -8,8 +8,10 @@ management are built in, so the dashboard shows what you wrote next to how it
 is doing. Wake also ships its own MCP server, which lets AI assistants such as
 Claude answer questions about your stats and read, draft and publish posts.
 
-> **Status:** early development (phase 1 of 6). Nothing here is ready for a
-> real website yet. See the [roadmap](docs/project/roadmap.md).
+> **Status:** version 1.0 is feature-complete and in testing before its first
+> real website. See the [roadmap](docs/project/roadmap.md).
+
+![The Wake dashboard: visitors, page views, reading time and consent share](docs/images/dashboard.jpg)
 
 ## Why Wake
 
@@ -23,6 +25,29 @@ Claude answer questions about your stats and read, draft and publish posts.
 - **Made for AI assistants.** A built-in MCP server with scoped tokens.
 - **Runs on cheap shared hosting.** No SSH, no cron and no Node on the server.
 - **Free.** MIT licensed. There is no paid tier and no pro version.
+
+## What's inside
+
+- **Writing:** an editor that writes Markdown, with cards (callouts, buttons,
+  embeds), images by drag and drop, translations, scheduling, versions and a
+  history of every change.
+- **Statistics:** visitors, sources, campaigns, reading time and read-through
+  rate per post, live visitors, AI crawlers, and *the wake* of every post:
+  where readers came from and where they went next.
+- **Consent:** a banner only when it is needed, two-click embeds, anonymous
+  consent records and a ready-made section for your privacy policy.
+- **Assistants:** an MCP server for Claude and others, with personal tokens,
+  scopes, drafts-only writing and an optional approval mode.
+- **Multilingual:** one file per language, translated addresses, `hreflang`,
+  feeds and sitemap per language.
+- **Fast:** a content index in OPcache and a full page cache that answers before
+  Laravel starts.
+- **Tide**, a calm default theme, a read-only content API, search, an import
+  from Ghost and updates from the panel.
+
+| The editor | The wake of a post | Tide |
+|---|---|---|
+| ![Editor](docs/images/editor.jpg) | ![Wake view](docs/images/wake.jpg) | ![Tide theme](docs/images/tide.jpg) |
 
 ## Quick look
 
@@ -49,15 +74,21 @@ The first paragraph …
 
 ## Getting started
 
+On a web host: download the ZIP, upload it, point the document root to
+`public/`, open `/wake`. Details in
+[Install on a web host](docs/getting-started/hosting.md).
+
+On your computer:
+
 ```bash
 git clone https://github.com/IonFlux84/wake.git my-site
-cd my-site/wake
-composer install
-cp ../.env.example ../.env && php artisan key:generate
-php artisan serve
+cd my-site
+composer --working-dir=wake install
+php wake/artisan serve
 ```
 
-Then open http://localhost:8000. The full guide is in
+Then open http://localhost:8000, and http://localhost:8000/wake to create your
+account. The full guide is in
 [docs/getting-started/installation.md](docs/getting-started/installation.md).
 
 ## Documentation

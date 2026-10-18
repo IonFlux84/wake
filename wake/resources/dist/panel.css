@@ -88,7 +88,7 @@ img, svg { display: block; }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .h2 { margin: 0; font: 700 15px/1.2 var(--sans); font-stretch: 115%; letter-spacing: .01em; }
 .kpi-label { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); font-weight: 500; }
-.kpi-value { font: 800 36px/1 var(--sans); font-stretch: 125%; letter-spacing: -.02em; }
+.kpi-value { font: 800 clamp(26px, 2.5vw, 36px)/1 var(--sans); font-stretch: 125%; letter-spacing: -.02em; white-space: nowrap; }
 .kpi-note { font-size: 12px; color: var(--faint); }
 .delta { font: 600 12px var(--mono); padding: 2px 7px; border-radius: 6px; background: var(--night); color: var(--accent); }
 .delta.down { color: #fff; background: #3a3a3a; }

@@ -45,7 +45,7 @@ SSH nor Composer, and no database.
 |---|---|
 | PHP | 8.4 or newer with `mbstring`, `intl`, `gd`, `zip`, `fileinfo` |
 | Web server | Apache with `mod_rewrite` (`.htaccess` files allowed), or nginx (see below) |
-| Disk | about 45 MB for Wake, plus your content |
+| Disk | about 60 MB for Wake, plus your content |
 | Cron | not needed ([maintenance](../concepts/architecture.md#maintenance-without-cron)) |
 
 ## nginx

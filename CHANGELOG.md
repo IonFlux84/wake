@@ -105,3 +105,4 @@ All notable changes to Wake are documented here. The format follows
 - Updates from the panel (owner only): Wake checks GitHub only on request,
   verifies the SHA-256 checksum, swaps the `wake/` folder atomically and keeps
   the previous version as a backup in `storage/updates/`.
+- README with screenshots, guides for hosting and updating.
