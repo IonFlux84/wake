@@ -10,7 +10,10 @@ use League\CommonMark\Parser\Cursor;
 
 class CardParser extends AbstractBlockContinueParser
 {
-    public function __construct(protected Card $card) {}
+    /**
+     * @param  bool  $closed  the card was opened and closed on one line
+     */
+    public function __construct(protected Card $card, protected bool $closed = false) {}
 
     public function getBlock(): Card
     {
@@ -29,6 +32,10 @@ class CardParser extends AbstractBlockContinueParser
 
     public function tryContinue(Cursor $cursor, BlockContinueParserInterface $activeBlockParser): ?BlockContinue
     {
+        if ($this->closed) {
+            return BlockContinue::none();
+        }
+
         if (! $cursor->isIndented() && preg_match('/^:::[ \t]*$/', $cursor->getRemainder())) {
             $cursor->advanceToEnd();
 

@@ -205,6 +205,10 @@ All notable changes to Wake are documented here. The format follows
 - The privacy link of the cookie banner can be the site's privacy policy, any
   page or another address (`privacy_page`, `privacy_url`); pages are linked in
   the visitor's language once published.
+- Cards without content (`::: privacy-details` and `:::` on the next line)
+  were not recognised by the editor, which joined them into one line; that
+  line then swallowed the rest of the page. The editor reads them now, and a
+  card written on one line (`::: name … :::`) is complete.
 - The privacy details showed raw template code (`@if`) after "operating
   system"; fixed.
 - OAuth for the MCP server, so claude.ai connectors connect with just the

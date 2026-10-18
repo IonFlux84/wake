@@ -232,7 +232,8 @@ Become a member
 
 A card starts with `:::` followed by its name and optional settings
 (`key="value"` and free text), and ends with a line containing only `:::`.
-Cards cannot be nested.
+A card without content can also be written on one line:
+`::: privacy-details :::`. Cards cannot be nested.
 
 | Card | Settings | Result |
 |---|---|---|

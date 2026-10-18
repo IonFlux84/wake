@@ -103,7 +103,7 @@ class CardTypes
             }
 
             if ($type = $this->get(strtolower($m[1]))) {
-                [$attributes, $value] = Card::parseArguments($m[2]);
+                [$attributes, $value] = Card::parseArguments(preg_replace('/\s*:::[ \t]*$/', '', $m[2]));
                 $missing = $type->missing(new Card($type->name, $attributes, $value), $language);
 
                 if ($missing !== []) {

@@ -15,9 +15,11 @@ class CardStartParser implements BlockStartParserInterface
             return BlockStart::none();
         }
 
-        [$attributes, $value] = Card::parseArguments($m[2]);
+        // "::: name … :::" on one line is a whole card without content.
+        $closed = (bool) preg_match('/^(.*?)\s*:::[ \t]*$/', $m[2], $one);
+        [$attributes, $value] = Card::parseArguments($closed ? $one[1] : $m[2]);
         $cursor->advanceToEnd();
 
-        return BlockStart::of(new CardParser(new Card(strtolower($m[1]), $attributes, $value)))->at($cursor);
+        return BlockStart::of(new CardParser(new Card(strtolower($m[1]), $attributes, $value), $closed))->at($cursor);
     }
 }

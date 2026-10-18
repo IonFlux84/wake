@@ -41,3 +41,21 @@ it('leaves a lonely ::: line alone', function () {
 it('blocks javascript links', function () {
     expect(app(Markdown::class)->render('[x](javascript:alert(1))'))->not->toContain('javascript:');
 });
+
+it('closes empty cards and cards written on one line, so nothing after them is swallowed', function (string $markdown) {
+    $html = app(Markdown::class)->render($markdown);
+
+    expect($html)->toContain('card-note')->toContain('<h2>After</h2>')
+        ->and(substr_count($html, 'card-note'))->toBe(1)
+        ->and(strpos($html, '<h2>After</h2>'))->toBeGreaterThan(strpos($html, '</div>'));
+})->with([
+    'empty' => ["::: note\n:::\n\n## After"],
+    'one line' => ["::: note :::\n\n## After"],
+    'one line with settings' => ["::: note tone=\"dark\" :::\n\n## After"],
+]);
+
+it('reads settings of a card written on one line', function () {
+    $html = app(Markdown::class)->render('::: button href="/join" Join us :::');
+
+    expect($html)->toContain('href="/join"')->toContain('Join us')->not->toContain(':::');
+});

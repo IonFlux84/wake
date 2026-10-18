@@ -144,7 +144,11 @@ function wakeCard(types, files) {
       level: 'block',
       start: src => src.search(/^:::[ \t]*[a-z]/m),
       tokenize(src, _tokens, lexer) {
-        const match = /^:::[ \t]*([a-z][a-z0-9-]*)([^\n]*)\n([\s\S]*?)(?:^|\n):::[ \t]*(?:\n|$)/.exec(src)
+        // "::: name …" with content up to a line ":::" (the content may be
+        // empty), or "::: name … :::" on one line.
+        const one = /^:::[ \t]*([a-z][a-z0-9-]*)([^\n]*?)[ \t]*:::[ \t]*(?:\n|$)/.exec(src)
+        if (one) return { type: 'card', raw: one[0], name: one[1], args: one[2].trim(), tokens: [] }
+        const match = /^:::[ \t]*([a-z][a-z0-9-]*)([^\n]*)\n(?:([\s\S]*?)\n)?:::[ \t]*(?:\n|$)/.exec(src)
         if (!match) return undefined
         return { type: 'card', raw: match[0], name: match[1], args: match[2].trim(), tokens: lexer.blockTokens(match[3] || '') }
       },
