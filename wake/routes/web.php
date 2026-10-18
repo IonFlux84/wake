@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Wake\Backup\Backups;
 use Wake\Http\Controllers\Panel\ContentController;
 use Wake\Http\Controllers\Panel\DashboardController;
 use Wake\Http\Controllers\Panel\LoginController;
@@ -38,6 +39,10 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::view('settings', 'wake::panel.settings')->name('settings');
         Route::view('media', 'wake::panel.media')->name('media.index');
         Route::view('categories', 'wake::panel.categories')->name('categories');
+        Route::view('backups', 'wake::panel.backups')->middleware('can:settings.manage')->name('backups');
+        Route::get('backups/{name}', function (string $name, Backups $backups) {
+            return response()->download($backups->path($name) ?? abort(404));
+        })->middleware('can:settings.manage')->name('backups.download');
         Route::view('menus', 'wake::panel.menus')->middleware('can:structure.manage')->name('menus');
         Route::view('redirects', 'wake::panel.redirects')->middleware('can:settings.manage')->name('redirects');
         Route::view('themes', 'wake::panel.themes')->middleware('can:themes.manage')->name('themes');

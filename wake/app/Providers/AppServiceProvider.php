@@ -25,6 +25,7 @@ use Wake\Content\Redirects;
 use Wake\Content\Site;
 use Wake\Content\Writer;
 use Wake\Livewire\Assistants;
+use Wake\Livewire\BackupManager;
 use Wake\Livewire\CategoryManager;
 use Wake\Livewire\Consent;
 use Wake\Livewire\Dashboard;
@@ -68,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
         'role-manager' => RoleManager::class,
         'category-manager' => CategoryManager::class,
         'media-library' => MediaLibrary::class,
+        'backup-manager' => BackupManager::class,
         'page-tree' => PageTree::class,
         'menu-editor' => MenuEditor::class,
         'settings' => \Wake\Livewire\Settings::class,

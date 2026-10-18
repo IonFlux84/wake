@@ -151,6 +151,10 @@ All notable changes to Wake are documented here. The format follows
 - Preview of entries in any status in the theme, from the editor, and preview
   links that work for seven days without an account (signed URLs).
 - Redirects page in the panel: see, add and remove old addresses.
+- Backups: one ZIP with content, settings, themes, accounts, versions and
+  consent records (statistics optional), written, downloaded, uploaded and
+  restored in the panel or with `wake:backup` and `wake:restore`. A restore
+  saves the current state first and checks every path in the ZIP.
 - Page tree in the panel: arrange pages by drag and drop or with arrow
   buttons, nest them and take them in or out of the menu order. Folders are
   renamed on disk; versions, redirects and menus follow, and published pages

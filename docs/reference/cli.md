@@ -30,6 +30,29 @@ php wake/artisan wake:index --force
 Problems found while reading content, such as broken front matter or two
 entries with the same address, are listed after the summary.
 
+## `wake:backup`
+
+Writes a backup ZIP to `storage/backups`, the same as *Backups* in the panel.
+With `--stats`, the statistics are included. See
+[backups](../guides/backups.md).
+
+```bash
+php wake/artisan wake:backup
+php wake/artisan wake:backup --stats
+```
+
+## `wake:restore`
+
+Replaces content, settings and accounts with a backup: a path, or the name of
+a file in `storage/backups`. The current state is saved as a backup first, and
+the replaced folders go to the trash. Asks before it starts, unless you pass
+`--force`.
+
+```bash
+php wake/artisan wake:restore wake-backup-2026-10-18-120000.zip
+php wake/artisan wake:restore /path/to/backup.zip --force
+```
+
 ## `wake:clear`
 
 Removes all cached pages. Wake does this by itself whenever content changes,
