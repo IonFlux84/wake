@@ -3,8 +3,12 @@
 @section('content')
     @php
         $tz = config('app.timezone');
-        $start = \Carbon\CarbonImmutable::parse($post->get('start'), $tz)->locale($post->language());
-        $end = $post->get('end') ? \Carbon\CarbonImmutable::parse($post->get('end'), $tz)->locale($post->language()) : null;
+        $recurrence = $post->recurrence();
+        $next = $recurrence?->next(now());
+        // For a recurring event, "when" shows the next date; the rule follows below.
+        $start = ($next['start'] ?? $recurrence->start)->locale($post->language());
+        $end = $post->get('end') ? (($next['end'] ?? null) ?: \Carbon\CarbonImmutable::parse($post->get('end'), $tz))->locale($post->language()) : null;
+        $upcomingDates = $recurrence?->isRecurring() ? $recurrence->between(now(), now()->addYear(), 6) : [];
         $allDay = (bool) $post->get('all_day');
         $category = $post->category();
         $status = $post->get('event_status');
@@ -13,7 +17,7 @@
         $when = $start->isoFormat('dddd, LL');
         if (! $allDay) { $when .= ', '.$start->isoFormat('LT'); }
         if ($end) { $when .= ' – '.($end->isSameDay($start) ? ($allDay ? '' : $end->isoFormat('LT')) : $end->isoFormat($allDay ? 'dddd, LL' : 'dddd, LL, LT')); }
-        $past = ($end ?? $start)->endOfDay()->isPast();
+        $past = $next === null;
     @endphp
 
     <article class="post event">
@@ -30,7 +34,12 @@
 
         <section class="wrap narrow event-facts" aria-label="{{ __('Details') }}">
             <dl>
-                <div><dt>{{ __('When') }}</dt><dd>{{ $when }}</dd></div>
+                <div><dt>{{ $recurrence?->isRecurring() ? __('Next date') : __('When') }}</dt><dd>{{ $when }}</dd></div>
+                @if ($recurrence?->isRecurring())
+                    <div><dt>{{ __('Repeats') }}</dt><dd>{{ $recurrence->describe($post->language()) }}
+                        @if (count($upcomingDates) > 1)<br><span class="muted">{{ collect($upcomingDates)->skip(1)->map(fn ($o) => $o['start']->locale($post->language())->isoFormat('D. MMM'))->implode(' · ') }}</span>@endif
+                    </dd></div>
+                @endif
                 @if ($post->get('location') || $post->get('address'))
                     <div><dt>{{ __('Where') }}</dt><dd>
                         {{ $post->get('location') }}@if ($post->get('location') && $post->get('address'))<br>@endif{{ $post->get('address') }}

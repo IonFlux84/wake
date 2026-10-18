@@ -303,6 +303,26 @@ class Entry implements JsonSerializable
             ->values();
     }
 
+    /**
+     * The dates of an event (start, end, repetition), or null without start.
+     */
+    public function recurrence(): ?Recurrence
+    {
+        $fields = array_replace($this->row['languages'][app(Languages::class)->default()]['fields'] ?? [], $this->fields());
+
+        return Recurrence::fromFields($fields);
+    }
+
+    /**
+     * The next occurrence that has not ended yet.
+     *
+     * @return array{start: CarbonImmutable, end: CarbonImmutable}|null
+     */
+    public function nextOccurrence(): ?array
+    {
+        return $this->recurrence()?->next(CarbonImmutable::now());
+    }
+
     public function category(): ?Category
     {
         return app(Categories::class)->get($this->get('category'));

@@ -175,6 +175,26 @@ fields:
       cancelled: { de: Abgesagt, en: Cancelled }
 ```
 
+A field with `list: true` (type `textarea`) is edited one item per line and
+stored as a YAML list.
+
+### Recurring events
+
+Any entry with a `start` field can repeat:
+
+```yaml
+start: 2026-11-03 19:00
+end: 2026-11-03 21:00          # the duration applies to every date
+repeat: weekly                 # weekly, biweekly, monthly_date, monthly_weekday, yearly
+repeat_until: 2027-06-29       # optional
+repeat_except: [2026-12-22, 2026-12-29]
+```
+
+`monthly_weekday` takes the weekday and its position from `start`: a start on
+the second Tuesday repeats on every second Tuesday; a start on the last Tuesday
+of a month repeats on every last Tuesday. `monthly_date` skips months that are
+too short (no 31 February).
+
 Values are stored in the post's front matter: dates as `2026-07-04 15:00`,
 yes/no fields as `true`. Fields with `translate: false` are written in the
 default language only; translations read them from there.

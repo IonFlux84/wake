@@ -169,6 +169,7 @@ a:hover { text-decoration-color: var(--accent); text-decoration-thickness: 3px; 
 .event-date.is-cancelled { opacity: .45; text-decoration: line-through; }
 .status-label { padding: .05rem .5rem; border-radius: 999px; background: var(--ink); color: var(--paper); }
 .status-cancelled { background: #c62828; color: #fff; }
+.status-recurring { background: var(--paper-2); color: var(--ink); }
 .event-banner { display: inline-block; margin: 0 0 1rem; padding: .35rem .8rem; border-radius: 999px; background: var(--paper-2); font-weight: 600; }
 .event-banner.status-cancelled { background: #c62828; color: #fff; }
 .event-banner.status-postponed, .event-banner.status-soldout { background: var(--accent); color: #0a0a0a; }

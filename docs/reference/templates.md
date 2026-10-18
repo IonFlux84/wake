@@ -161,6 +161,13 @@ The category page receives `$category`:
 | `fields()`, `label('start')` | field definitions and labels |
 | `template()`, `dateField()`, `icon()` | settings |
 
+For recurring events, `$category->occurrences($from, $to)` returns one row
+per date (`entry`, `start`, `end`), earliest first. On a post,
+`$post->recurrence()` gives the rule (`isRecurring()`, `between()`, `next()`,
+`last()`, `describe()`), and `$post->nextOccurrence()` the next date with
+`start` and `end`. `upcoming()` and `past()` in queries take repetitions into
+account; a series without end never becomes past.
+
 On posts, `$post->category()` returns the category, and the category's fields
 are available like any other field: `$post->start`, `$post->get('location')`.
 In queries: `$site->posts()->category('termine')->upcoming('start')`, or

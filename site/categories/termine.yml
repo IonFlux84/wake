@@ -28,6 +28,27 @@ fields:
     type: toggle
     label: { de: Ganztägig, en: All day }
     translate: false
+  repeat:
+    type: select
+    label: { de: Wiederholung, en: Repeats }
+    translate: false
+    options:
+      weekly: { de: Jede Woche, en: Every week }
+      biweekly: { de: Alle 2 Wochen, en: Every other week }
+      monthly_date: { de: Jeden Monat am gleichen Tag, en: Every month on the same day }
+      monthly_weekday: { de: Jeden Monat am gleichen Wochentag (z. B. 2. Dienstag), en: Every month on the same weekday (e.g. 2nd Tuesday) }
+      yearly: { de: Jedes Jahr, en: Every year }
+  repeat_until:
+    type: date
+    label: { de: Wiederholen bis, en: Repeat until }
+    hint: { de: Leer lassen für ohne Ende., en: Leave empty to repeat without end. }
+    translate: false
+  repeat_except:
+    type: textarea
+    list: true
+    label: { de: Fällt aus am, en: Skipped on }
+    placeholder: { de: "ein Datum pro Zeile, z. B. 2026-12-24", en: "one date per line, e.g. 2026-12-24" }
+    translate: false
   location:
     type: text
     label: { de: Ort, en: Venue }

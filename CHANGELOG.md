@@ -127,6 +127,12 @@ All notable changes to Wake are documented here. The format follows
 - Queries: `category()`, `upcoming()` and `past()`. Fields a translation leaves
   out are taken from the default language in queries as well.
 
+- Recurring events: weekly, every other week, monthly on the same day or the
+  same weekday (2nd Tuesday, last Friday), yearly, with an end date and
+  skipped dates. One post per series; every date appears in the event list,
+  the event page shows the rule and the next dates, the calendar file carries
+  the rule (`RRULE`, `EXDATE`), and the editor previews the dates.
+
 ### Fixed
 
 - Images uploaded to a new post without a title were lost. Wake now saves the

@@ -148,36 +148,43 @@ class Query implements Countable, IteratorAggregate
     }
 
     /**
-     * Entries whose date field (or end, if set) lies today or later, the
-     * next one first. For events.
+     * Entries with an occurrence today or later, the next one first. Works
+     * for single and recurring events (see Recurrence).
      */
     public function upcoming(string $field = 'start'): static
     {
         $today = CarbonImmutable::now()->startOfDay();
 
-        $this->filters[] = function (array $fields) use ($field, $today) {
-            $value = ($fields['end'] ?? '') !== '' ? $fields['end'] : ($fields[$field] ?? null);
+        $this->filters[] = fn (array $fields) => static::recurrence($fields, $field)?->next($today) !== null;
+        $this->order = ['@next:'.$field, 'asc'];
 
-            return $value !== null && $value !== '' && (static::parseDate($value)?->gte($today) ?? false);
-        };
-
-        return $this->orderBy($field, 'asc');
+        return $this;
     }
 
     /**
-     * Entries whose date field lies in the past, the latest first.
+     * Entries whose last occurrence lies in the past, the latest first.
+     * Recurring events without an end never become past.
      */
     public function past(string $field = 'start'): static
     {
         $today = CarbonImmutable::now()->startOfDay();
 
         $this->filters[] = function (array $fields) use ($field, $today) {
-            $value = ($fields['end'] ?? '') !== '' ? $fields['end'] : ($fields[$field] ?? null);
+            $recurrence = static::recurrence($fields, $field);
 
-            return $value !== null && $value !== '' && (static::parseDate($value)?->lt($today) ?? false);
+            return $recurrence !== null && $recurrence->next($today) === null;
         };
+        $this->order = ['@last:'.$field, 'desc'];
 
-        return $this->orderBy($field, 'desc');
+        return $this;
+    }
+
+    /**
+     * @param  array<string, mixed>  $fields
+     */
+    protected static function recurrence(array $fields, string $field): ?Recurrence
+    {
+        return Recurrence::fromFields($field === 'start' ? $fields : ['start' => $fields[$field] ?? null] + $fields);
     }
 
     protected static function parseDate(mixed $value): ?CarbonImmutable
@@ -417,7 +424,18 @@ class Query implements Countable, IteratorAggregate
             default => ['date', 'desc'],
         };
 
-        $value = function (array $row) use ($field, $language, $default) {
+        $today = CarbonImmutable::now()->startOfDay();
+
+        $value = function (array $row) use ($field, $language, $default, $today) {
+            if (str_starts_with($field, '@')) {
+                [$kind, $dateField] = explode(':', substr($field, 1), 2);
+                $fields = array_replace($row['languages'][$default]['fields'] ?? [], $row['languages'][$language]['fields'] ?? []);
+                $recurrence = static::recurrence($fields, $dateField);
+                $occurrence = $kind === 'next' ? $recurrence?->next($today) : $recurrence?->last($today);
+
+                return $occurrence ? $occurrence['start']->getTimestamp() : 0;
+            }
+
             return match ($field) {
                 'date' => Addresses::date($row, $language, $default)?->getTimestamp() ?? 0,
                 'num' => $row['num'] ?? PHP_INT_MAX,

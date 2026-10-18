@@ -198,6 +198,12 @@
                         @foreach ($categoryFields as $key => $field)
                             @include('wake::livewire.partials.field', ['key' => $key, 'field' => $field])
                         @endforeach
+                        @if ($occurrences)
+                            <div style="padding:12px 14px;border-radius:12px;background:var(--night);color:#fff">
+                                <div class="mono" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px">↻ {{ $occurrences['rule'] }}</div>
+                                <div style="font-size:13px;line-height:1.7">{{ collect($occurrences['dates'])->map(fn ($d) => $d->locale(app()->getLocale())->isoFormat('dd D. MMM YYYY'))->implode(' · ') ?: __('No dates left.') }}</div>
+                            </div>
+                        @endif
                     </div>
                 @endif
 

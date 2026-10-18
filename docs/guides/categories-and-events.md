@@ -13,10 +13,31 @@ their own look on the website. Wake comes with the category **Termine**
 
 1. Create a new post and choose the category *Termine* under *Details*.
 2. A card with the event fields appears in the side panel: start (required),
-   end, all day, venue, address, join online, organizer, admission,
+   end, all day, repetition, venue, address, join online, organizer, admission,
    registration link, registration deadline, contact and status (takes place,
    cancelled, postponed, sold out).
 3. Write the description in the text and publish.
+
+## Recurring events
+
+A choir rehearsal every Tuesday stays **one** post. Choose a rule under
+*Repeats*:
+
+| Rule | Example |
+|---|---|
+| Every week | every Tuesday |
+| Every other week | every second Tuesday |
+| Every month on the same day | on the 15th |
+| Every month on the same weekday | every 2nd Tuesday, or every last Friday |
+| Every year | every 24 December |
+
+*Repeat until* ends the series (leave it empty for no end). Under *Skipped on*,
+list dates without the event, one per line, for example holidays. The editor
+shows the next dates right away, so you can check the rule before saving.
+
+On the website every date appears in the event list in its month, the event
+page shows the next date, the rule in words and the following dates, and the
+calendar file contains the whole series, so calendar apps show every date.
 
 On a multilingual site, dates, the address and links are the same in every
 language: you enter them once in the default language. Venue, organizer and

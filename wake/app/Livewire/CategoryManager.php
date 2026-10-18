@@ -145,8 +145,8 @@ class CategoryManager extends Component
                 'translate' => $field['translate'] ? null : false,
             ], fn ($v) => $v !== null);
 
-            // Keep placeholders and hints written in the file by hand.
-            foreach (['placeholder', 'hint'] as $extra) {
+            // Keep placeholders, hints and list fields written in the file by hand.
+            foreach (['placeholder', 'hint', 'list'] as $extra) {
                 if (isset($field['raw'][$extra])) {
                     $definition[$extra] = $field['raw'][$extra];
                 }

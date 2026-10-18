@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
@@ -188,4 +190,47 @@ it('tells assistants about categories and filters by them', function () {
     WakeServer::tool(SiteInfoTool::class)->assertOk()->assertSee('termine')->assertSee('start');
     WakeServer::tool(ContentListTool::class, ['category' => 'termine'])->assertOk()->assertSee('Summer fest')->assertDontSee('First post');
     $this->getJson('/wake/api/v1/entries?category=termine')->assertOk()->assertJsonPath('data.0.title', 'Summer fest')->assertJsonCount(1, 'data');
+});
+
+describe('recurring events', function () {
+    beforeEach(function () {
+        $this->writeContent('posts/2026-05-21-choir/index.en.md', "---\ntitle: Choir\nslug: choir\npublished: 2026-05-21 10:00\ncategory: termine\nstart: 2026-05-26 19:00\nend: 2026-05-26 21:00\nrepeat: weekly\nrepeat_until: 2026-07-28\nrepeat_except: [2026-06-09]\nlocation: Hall\n---\n\nWe sing.\n");
+    });
+
+    it('lists each date in the category and counts as upcoming', function () {
+        $termine = app(Categories::class)->get('termine');
+        $june = collect($termine->occurrences(CarbonImmutable::parse('2026-06-01'), CarbonImmutable::parse('2026-06-30 23:59')))
+            ->filter(fn ($o) => $o['entry']->slug() === 'choir')
+            ->map(fn ($o) => $o['start']->format('d.m.'))->values()->all();
+
+        expect($june)->toBe(['02.06.', '16.06.', '23.06.', '30.06.'])
+            ->and($termine->posts()->get()->map->title()->all())->toBe(['Choir', 'Summer fest']);
+    });
+
+    it('shows the rule and the next date on the event page', function () {
+        $this->get('/events/choir')->assertOk()->assertSee('"startDate":"2026-06-02T19:00:00+02:00"', false);
+    });
+
+    it('puts the rule and exceptions into the calendar file', function () {
+        $this->get('/events/choir.ics')->assertOk()
+            ->assertSee('RRULE:FREQ=WEEKLY;UNTIL=20260728T215959Z')
+            ->assertSee('EXDATE:20260609T170000Z');
+    });
+
+    it('becomes past after its last date', function () {
+        Carbon::setTestNow('2026-08-15 12:00:00');
+
+        expect(app(Categories::class)->get('termine')->past()->get()->map->title()->all())->toContain('Choir');
+    });
+
+    it('edits exceptions one per line and previews the dates', function () {
+        Livewire::withQueryParams(['id' => 'posts/2026-05-21-choir'])->actingAs($this->owner)
+            ->test(EntryEditor::class, ['type' => 'post'])
+            ->assertSet('custom.repeat_except', '2026-06-09')
+            ->assertSee('Every Tuesday')
+            ->set('custom.repeat_except', "2026-06-09\n2026-06-16")
+            ->call('save');
+
+        expect(Post::find('posts/2026-05-21-choir')->get('repeat_except'))->toBe(['2026-06-09', '2026-06-16']);
+    });
 });

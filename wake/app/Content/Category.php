@@ -2,6 +2,8 @@
 
 namespace Wake\Content;
 
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Str;
 use Wake\Localization\Languages;
 
@@ -122,6 +124,27 @@ class Category
         $query = (new Query('post'))->in($language)->published()->category($this->key);
 
         return $this->dateField() ? $query->past($this->dateField()) : $query->latest();
+    }
+
+    /**
+     * Every occurrence of the category's events in a period, one row per
+     * date, earliest first. A weekly event appears once a week.
+     *
+     * @return list<array{entry: Entry, start: CarbonImmutable, end: CarbonImmutable}>
+     */
+    public function occurrences(CarbonInterface $from, CarbonInterface $to, ?string $language = null, int $limit = 200): array
+    {
+        $rows = [];
+
+        foreach ((new Query('post'))->in($language)->published()->category($this->key)->get() as $entry) {
+            foreach ($entry->recurrence()?->between($from, $to, $limit) ?? [] as $occurrence) {
+                $rows[] = ['entry' => $entry, ...$occurrence];
+            }
+        }
+
+        usort($rows, fn ($a, $b) => $a['start'] <=> $b['start']);
+
+        return array_slice($rows, 0, $limit);
     }
 
     protected function translated(string $key, ?string $language): string

@@ -18,6 +18,7 @@ use Wake\Content\Entry;
 use Wake\Content\History;
 use Wake\Content\Index;
 use Wake\Content\Query;
+use Wake\Content\Recurrence;
 use Wake\Content\Revisions;
 use Wake\Content\Writer;
 use Wake\Localization\Languages;
@@ -356,6 +357,7 @@ class EntryEditor extends Component
             'mediaMap' => $this->mediaMap($entry),
             'blueprint' => app(ContentTypes::class)->get($this->type)->blueprint['fields'] ?? [],
             'categories' => $this->type === 'post' ? app(Categories::class)->all() : [],
+            'occurrences' => $this->previewOccurrences(),
             'categoryFields' => $this->type === 'post' ? (app(Categories::class)->get($this->category)?->fields() ?? []) : [],
             'mayPublish' => $this->mayPublish(),
             'otherEditor' => $this->otherEditor(),
@@ -429,10 +431,40 @@ class EntryEditor extends Component
                 continue;
             }
 
-            $fields[$key] = $this->fromInput($value, $definition['type'] ?? 'text');
+            $fields[$key] = ! empty($definition['list'])
+                ? (array_values(array_filter(array_map('trim', preg_split('/\R/', (string) $value)))) ?: null)
+                : $this->fromInput($value, $definition['type'] ?? 'text');
         }
 
         return $fields;
+    }
+
+    /**
+     * The next dates of an event as they are in the form right now, so a
+     * repetition can be checked before saving.
+     *
+     * @return array{rule: string, dates: list<CarbonImmutable>}|null
+     */
+    protected function previewOccurrences(): ?array
+    {
+        $fields = [];
+
+        foreach ($this->fieldDefinitions() as $key => $definition) {
+            $fields[$key] = ! empty($definition['list'])
+                ? preg_split('/\R/', (string) ($this->custom[$key] ?? ''))
+                : $this->fromInput($this->custom[$key] ?? null, $definition['type'] ?? 'text');
+        }
+
+        $recurrence = Recurrence::fromFields($fields);
+
+        if (! $recurrence?->isRecurring()) {
+            return null;
+        }
+
+        return [
+            'rule' => $recurrence->describe(),
+            'dates' => array_column($recurrence->between(now()->startOfDay(), now()->addYears(2), 8), 'start'),
+        ];
     }
 
     public function updatedCategory(): void
@@ -473,6 +505,11 @@ class EntryEditor extends Component
 
             if (($definition['type'] ?? '') === 'toggle') {
                 $value = (bool) $value;
+            }
+
+            // List fields ("list: true") are edited one item per line.
+            if (! empty($definition['list']) && is_array($value)) {
+                $value = implode("\n", $value);
             }
 
             $values[$key] = $value;

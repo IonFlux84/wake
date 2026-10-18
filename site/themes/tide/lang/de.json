@@ -34,5 +34,8 @@
     "Past events": "Vergangene Termine",
     "Next :category": "Nächste :category",
     "All": "Alle",
-    "Details": "Details"
+    "Details": "Details",
+    "repeats": "wiederkehrend",
+    "Next date": "Nächster Termin",
+    "Repeats": "Wiederholung"
 }

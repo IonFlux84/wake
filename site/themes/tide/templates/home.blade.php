@@ -20,6 +20,7 @@
     @foreach ($site->categories() as $eventCategory)
         @continue(! $eventCategory->dateField())
         @php($nextEvents = $eventCategory->posts()->limit(3)->get())
+        {{-- posts() is ordered by the next date, so each event appears once, at its next date. --}}
         @if ($nextEvents->isNotEmpty() && $posts->currentPage() === 1)
             <section class="wrap next-events">
                 <div class="section-head"><h2 class="section-title">{{ __('Next :category', ['category' => $eventCategory->title()]) }}</h2><a href="{{ $eventCategory->url() }}">{{ __('All') }} →</a></div>
