@@ -198,9 +198,17 @@ class EntryEditor extends Component
         $this->dispatch('wake-saved', at: now()->format('H:i'));
     }
 
-    public function publish(): void
+    /** @var list<array{card: string, missing: list<string>}> cards with empty required settings, asked about before publishing */
+    public array $cardWarnings = [];
+
+    public function publish(bool $anyway = false): void
     {
         $this->authorizePublishing();
+        $this->cardWarnings = $anyway ? [] : app(CardTypes::class)->missingIn($this->body);
+
+        if ($this->cardWarnings !== []) {
+            return;
+        }
 
         foreach ($this->fieldDefinitions() as $key => $definition) {
             if (! empty($definition['required']) && ($this->custom[$key] ?? '') === '' && ($this->language === app(Languages::class)->default() || ($definition['translate'] ?? true) !== false)) {

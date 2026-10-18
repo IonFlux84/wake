@@ -59,6 +59,18 @@
     @if ($entry?->get('review'))
         <div class="flash" role="status">{{ __('An assistant asked to publish this entry. Check it and click Publish to approve.') }}</div>
     @endif
+    @if ($cardWarnings)
+        <div class="flash error" role="alert" style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+            <span>{{ __('Some cards are missing information. Publish anyway?') }}</span>
+            <ul style="margin:0;padding-left:18px">
+                @foreach ($cardWarnings as $warning)<li><b>{{ $warning['card'] }}</b>: {{ implode(', ', $warning['missing']) }}</li>@endforeach
+            </ul>
+            <div class="actions">
+                <button type="button" class="btn btn-primary btn-small" @click="flush(); $wire.publish(true)">{{ __('Publish anyway') }}</button>
+                <button type="button" class="btn btn-small" wire:click="$set('cardWarnings', [])">{{ __('Cancel') }}</button>
+            </div>
+        </div>
+    @endif
     @if ($entry && ! $entry->hasTranslation($language))
         <div class="flash" role="status">{{ __('This entry has no :language version yet. Write it here and save to add the translation.', ['language' => $languages->name($language)]) }}</div>
     @endif

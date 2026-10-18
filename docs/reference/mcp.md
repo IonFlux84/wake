@@ -287,7 +287,9 @@ Scope `content:publish`. Publish a translation now or later.
 | `language` | string | no | default the site's default language |
 | `at` | string | no | publish later: `YYYY-MM-DD HH:MM` in the site's time zone |
 
-Returns `id`, `status` (`published` or `scheduled`), `date` and `url`. With
+Returns `id`, `status` (`published` or `scheduled`), `date` and `url`, plus
+`card_warnings` (card and missing settings) when cards in the text leave
+required settings empty; publishing happens anyway. With
 [approval mode](#approval-mode) it publishes nothing and returns
 `status: waiting_for_approval` with a message.
 

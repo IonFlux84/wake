@@ -13,6 +13,7 @@ use Wake\Accounts\Permissions;
 use Wake\Content\Query;
 use Wake\Content\Writer;
 use Wake\Localization\Languages;
+use Wake\Markdown\Cards\CardTypes;
 
 #[Name('content_publish')]
 #[Description('Publish one translation now or schedule it for later. If the site requires approval for assistants, the entry is only marked for review and a person publishes it in the panel.')]
@@ -49,6 +50,9 @@ class ContentPublishTool extends WakeTool
             return Response::error('The date could not be read. Use YYYY-MM-DD HH:MM.');
         }
 
+        $cards = app(CardTypes::class)->missingIn($entry->body(), $language);
+        $warnings = $cards === [] ? [] : ['card_warnings' => $cards, 'hint' => 'Some cards miss required settings. content_cards describes them; fix them with content_update.'];
+
         if (config('wake.mcp.approval')) {
             app(Writer::class)->update($id, $language, ['review' => $at ? 'scheduled '.$at->format('Y-m-d H:i') : 'requested']);
 
@@ -56,7 +60,7 @@ class ContentPublishTool extends WakeTool
                 'id' => $id,
                 'status' => 'waiting_for_approval',
                 'message' => 'This site requires a person to approve what assistants publish. The entry is marked for review in the panel.',
-            ]);
+            ] + $warnings);
         }
 
         $published = app(Writer::class)->publish($id, $language, $at);
@@ -66,6 +70,6 @@ class ContentPublishTool extends WakeTool
             'status' => $published->isScheduled() ? 'scheduled' : 'published',
             'date' => $published->date()?->toIso8601String(),
             'url' => $published->url(),
-        ]);
+        ] + $warnings);
     }
 }

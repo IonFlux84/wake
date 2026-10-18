@@ -364,6 +364,10 @@ fields:
 </figure>
 ```
 
+Required settings are marked in the editor. They never block saving; when
+someone publishes an entry with a card that leaves them empty, Wake names the
+card and asks first, and `content_publish` returns them as `card_warnings`.
+
 Wake reads its own descriptions (for `callout`, `button`, `embed` and
 `divider`) first, then those of running plugins (`views/cards/{name}.yml`),
 then the theme's; the theme wins. A description that cannot be read is shown

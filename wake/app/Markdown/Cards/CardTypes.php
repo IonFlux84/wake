@@ -80,6 +80,41 @@ class CardTypes
         return $this->errors;
     }
 
+    /**
+     * Cards in a Markdown text that leave required settings empty, for a
+     * hint before publishing. Code blocks are skipped.
+     *
+     * @return list<array{card: string, missing: list<string>}>
+     */
+    public function missingIn(string $markdown, ?string $language = null): array
+    {
+        $found = [];
+        $fence = null;
+
+        foreach (preg_split('/\R/', $markdown) as $line) {
+            if (preg_match('/^\s{0,3}(`{3,}|~{3,})/', $line, $m)) {
+                $fence = $fence === null ? $m[1][0] : ($m[1][0] === $fence ? null : $fence);
+
+                continue;
+            }
+
+            if ($fence !== null || ! preg_match('/^:::[ \t]*([a-z][a-z0-9-]*)(.*)$/i', $line, $m)) {
+                continue;
+            }
+
+            if ($type = $this->get(strtolower($m[1]))) {
+                [$attributes, $value] = Card::parseArguments($m[2]);
+                $missing = $type->missing(new Card($type->name, $attributes, $value), $language);
+
+                if ($missing !== []) {
+                    $found[] = ['card' => $type->title($language), 'missing' => $missing];
+                }
+            }
+        }
+
+        return $found;
+    }
+
     public function get(string $name): ?CardType
     {
         return $this->all()[$name] ?? null;

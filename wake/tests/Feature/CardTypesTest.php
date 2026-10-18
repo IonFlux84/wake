@@ -3,11 +3,13 @@
 use Livewire\Livewire;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
+use Wake\Content\Models\Post;
 use Wake\Content\Writer;
 use Wake\Livewire\EntryEditor;
 use Wake\Markdown\Cards\Card;
 use Wake\Markdown\Cards\CardTypes;
 use Wake\Mcp\Tools\ContentCardsTool;
+use Wake\Mcp\Tools\ContentPublishTool;
 use Wake\Mcp\WakeServer;
 use Wake\Support\Files;
 use Wake\Support\Paths;
@@ -84,4 +86,29 @@ it('shows card descriptions that cannot be read on the themes page', function ()
     expect(app(CardTypes::class)->get('broken'))->toBeNull();
 
     $this->actingAs($owner)->get('/wake/themes')->assertOk()->assertSee('broken.yml');
+});
+
+it('asks before publishing an entry with incomplete cards', function () {
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+    app(Writer::class)->update('posts/draft', 'en', body: "Text\n\n::: member Jane Doe\n:::\n\n```\n::: member\n```");
+
+    expect(app(CardTypes::class)->missingIn(Post::find('posts/draft')->body()))->toBe([['card' => 'Board member', 'missing' => ['Role']]]);
+
+    $editor = Livewire::withQueryParams(['id' => 'posts/draft'])->actingAs($owner)->test(EntryEditor::class, ['type' => 'post'])
+        ->call('publish')
+        ->assertSee('Some cards are missing information')->assertSee('Role');
+
+    expect(Post::find('posts/draft')->isDraft())->toBeTrue();
+
+    $editor->call('publish', true)->assertSet('cardWarnings', []);
+
+    expect(Post::find('posts/draft')->isPublished())->toBeTrue();
+});
+
+it('tells assistants about incomplete cards when they publish', function () {
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+    $this->actingAs($owner);
+    app(Writer::class)->update('posts/draft', 'en', body: "::: member Jane Doe\n:::");
+
+    WakeServer::tool(ContentPublishTool::class, ['id' => 'posts/draft'])->assertOk()->assertSee('card_warnings')->assertSee('Role');
 });

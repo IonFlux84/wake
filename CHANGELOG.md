@@ -223,6 +223,8 @@ All notable changes to Wake are documented here. The format follows
   them with the MCP tool `content_cards`. The view also gets `$card` and the
   media files of its image fields as `$images`. Descriptions that cannot be
   read are shown on the *Themes* page.
+  Publishing an entry whose cards leave required settings empty asks first in
+  the editor; `content_publish` reports them as `card_warnings`.
 - Design of a single page: a `style.css` next to `content.md`, edited in the
   editor under *Design* with the same rights as the text. Wake loads it only on
   that page, limits it to `<main>` with `@scope`, and cleans it: no `@import`,
