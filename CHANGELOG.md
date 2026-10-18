@@ -187,6 +187,10 @@ All notable changes to Wake are documented here. The format follows
 
 ### Fixed
 
+- Hand-edited `site/menus.yml` and `site/redirects.yml` now clear the page
+  cache like content changes do.
+- The release ZIP shipped a `.env` with the same application key for every
+  site, and rebuilding a ZIP kept files from the previous build.
 - Tokens for AI assistants could read statistics without the owner's
   `stats.view` right, and contributors' tokens could read other people's
   drafts. A token scope now only works while the owner's role allows it, and

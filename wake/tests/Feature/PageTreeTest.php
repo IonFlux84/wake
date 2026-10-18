@@ -11,6 +11,7 @@ use Wake\Content\Site;
 use Wake\Content\Writer;
 use Wake\Livewire\MenuEditor;
 use Wake\Livewire\PageTree;
+use Wake\Support\Files;
 use Wake\Support\Paths;
 
 function pageIds(): array
@@ -157,4 +158,14 @@ it('edits menus in the panel', function () {
     Livewire::actingAs($owner)->withQueryParams(['menu' => 'main'])->test(MenuEditor::class)->call('automatic');
 
     expect(app(Menus::class)->isCustom('main'))->toBeFalse();
+});
+
+it('notices a menu edited by hand', function () {
+    $index = app(Index::class);
+    $index->refresh();
+
+    Files::write(app(Menus::class)->file(), "main:\n  - page: pages/contact\n");
+    touch(app(Menus::class)->file(), time() + 5);
+
+    expect($index->refresh())->toBeTrue();
 });

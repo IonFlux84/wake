@@ -103,6 +103,8 @@ footer:
   it is a text or one text per language.
 - `children` holds one level of sub-items.
 - Pages that are not published are left out.
+- Changes made by hand are noticed like changes to content: on the next
+  uncached request, then the page cache is cleared.
 
 See [Arrange pages and menus](../guides/pages-and-menus.md).
 
