@@ -87,7 +87,8 @@ php wake/artisan wake:layout --apply    # do it
 | `--no-backup` | Skip the ZIP of the old folders. |
 | `--root=PATH` | Move another site folder. |
 
-Running it again on a moved site does nothing.
+Afterwards Wake clears the page cache and the compiled views. Running it again
+on a moved site does nothing.
 
 ## `wake:maintenance`
 

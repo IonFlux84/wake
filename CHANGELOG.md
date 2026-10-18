@@ -204,7 +204,7 @@ All notable changes to Wake are documented here. The format follows
   - All media are in one library, `content/media/`. Content refers to files
     as `media/<path>`; the editor uploads to `media/<entry id>/`.
   - `php wake/artisan wake:layout --apply` moves an existing site, with a
-    backup first.
+    backup first, and clears the compiled views afterwards.
 - Card descriptions: a `{name}.yml` next to a card's view (theme
   `templates/cards/`, plugin `views/cards/`, and for Wake's own cards) gives it
   a title, a description and typed settings. The editor shows a form for the
