@@ -22,10 +22,9 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first. Everything there applies to you.
   ([decisions 0008](docs/decisions/0008-application-in-its-own-folder.md) and
   [0011](docs/decisions/0011-one-folder-per-entry.md)). Every entry is a folder
   with `content.md`; media are in `content/media/`.
-- `docs/internal/konzept.md` is the German founding concept. Decision records in
-  `docs/decisions/` take precedence over it.
-- `design/` holds the design prototypes. Panel and website follow the "Hairline"
-  design ([decision 0010](docs/decisions/0010-hairline-design.md)).
+- Decision records in `docs/decisions/` explain why Wake is built the way it
+  is. Panel and website follow the "Hairline" design
+  ([decision 0010](docs/decisions/0010-hairline-design.md)).
 
 ## Commands
 

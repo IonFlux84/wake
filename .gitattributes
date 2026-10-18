@@ -7,5 +7,3 @@
 *.php diff=php
 
 /.github export-ignore
-/design export-ignore
-/docs/internal export-ignore

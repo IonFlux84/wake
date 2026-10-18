@@ -12,7 +12,7 @@ trap 'rm -rf "$work"' EXIT
 
 echo "Building Wake $version"
 
-# Tracked files only; export-ignore in .gitattributes leaves out design/ and docs/internal/.
+# Tracked files only; export-ignore in .gitattributes leaves out .github/.
 mkdir -p "$target"
 git -C "$root" archive HEAD | tar -x -C "$target"
 

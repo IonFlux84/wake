@@ -35,7 +35,6 @@ function documentationFiles(): array
 it('gives every documentation page a title', function () {
     $missing = collect(documentationFiles())
         ->filter(fn (string $file) => str_starts_with($file, repository('docs/')))
-        ->reject(fn (string $file) => $file === repository('docs/internal/konzept.md'))
         ->filter(fn (string $file) => empty(FrontMatter::parse(file_get_contents($file))[0]['title']))
         ->map(fn (string $file) => Str::after($file, repository().'/'))
         ->values()

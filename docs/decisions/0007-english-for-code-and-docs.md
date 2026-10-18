@@ -20,7 +20,7 @@ English. The panel and the default theme ship in English and German from the
 start. Translated documentation lives next to the original as `page.de.md`,
 which is the same convention Wake uses for content.
 
-The founding concept in `docs/internal/` stays in German as a historical
+The German founding concept is kept outside this repository as a historical
 document.
 
 ## Consequences
