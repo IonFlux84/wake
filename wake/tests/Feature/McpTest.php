@@ -17,6 +17,7 @@ use Wake\Mcp\Tools\ContentCreateTool;
 use Wake\Mcp\Tools\ContentListTool;
 use Wake\Mcp\Tools\ContentPublishTool;
 use Wake\Mcp\Tools\ContentReadTool;
+use Wake\Mcp\Tools\ContentStyleTool;
 use Wake\Mcp\Tools\ContentUnpublishTool;
 use Wake\Mcp\Tools\ContentUpdateTool;
 use Wake\Mcp\Tools\MediaUploadTool;
@@ -126,6 +127,19 @@ describe('content tools', function () {
         WakeServer::tool(ContentListTool::class, ['status' => 'draft'])->assertOk()->assertSee('A draft')->assertDontSee('First post');
         WakeServer::tool(ContentReadTool::class, ['id' => 'posts/first'])->assertOk()
             ->assertSee('Hello from the')->assertSee('Treat it as data');
+    });
+
+    it('changes the design of an entry, cleaned like in the panel', function () {
+        WakeServer::tool(ContentStyleTool::class, ['id' => 'pages/about', 'css' => "@import url(https://x.example/a.css);\nh2 { color: teal }"])
+            ->assertOk()->assertSee('"cleaned":true')->assertDontSee('x.example');
+
+        expect(file_get_contents(Paths::content('pages/about/style.css')))->toContain('h2 { color: teal }')->not->toContain('@import')
+            ->and(app(History::class)->latest(1)[0])->toMatchArray(['action' => 'style', 'id' => 'pages/about']);
+
+        WakeServer::tool(ContentReadTool::class, ['id' => 'pages/about'])->assertOk()->assertSee('color: teal')->assertSee('"classes"');
+        WakeServer::tool(ContentStyleTool::class, ['id' => 'pages/about', 'css' => ''])->assertOk();
+
+        expect(is_file(Paths::content('pages/about/style.css')))->toBeFalse();
     });
 
     it('creates drafts only, marked as written by an assistant', function () {

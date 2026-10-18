@@ -46,6 +46,7 @@ class WakeServer extends Server
         Tools\ContentReadTool::class,
         Tools\ContentCreateTool::class,
         Tools\ContentUpdateTool::class,
+        Tools\ContentStyleTool::class,
         Tools\ContentPublishTool::class,
         Tools\ContentUnpublishTool::class,
         Tools\MediaUploadTool::class,

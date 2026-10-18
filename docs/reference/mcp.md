@@ -58,7 +58,7 @@ A token has one or more scopes, chosen when it is created:
 |---|---|---|
 | `stats:read` | all statistics tools, `consent_overview` and `wake://stats/today` | people with `stats.view` |
 | `content:read` | `content_list` and `content_read` | people with `content.write` |
-| `content:write` | `content_create`, `content_update` and `media_upload` | people with `content.write` |
+| `content:write` | `content_create`, `content_update`, `content_style` and `media_upload` | people with `content.write` |
 | `content:publish` | `content_publish` and `content_unpublish` | people with `content.publish` or `content.publish_all` |
 
 ### Scopes and roles
@@ -73,7 +73,7 @@ decides which tools the token may call at all; the person's
   other people only to owners who see them in the panel as well
   (`content.edit_all` or `content.publish`); everyone else sees published
   entries and their own.
-- `content_update` and `media_upload` only change entries the owner may edit
+- `content_update`, `content_style` and `media_upload` only change entries the owner may edit
   (`content.edit_all` for other people's entries, `content.publish` to change
   published ones).
 - `content_publish` and `content_unpublish` follow the owner's
@@ -201,7 +201,9 @@ Scope `content:read`. One entry in one language.
 
 Returns `id`, `type`, `language`, `requested_language_missing`, `status`,
 `url`, `fields` (all front matter), `files` (references of the files in the
-entry's media folder, e.g. `media/posts/harbour/boats.jpg`), `translations` and
+entry's media folder, e.g. `media/posts/harbour/boats.jpg`), `style` (the
+entry's `style.css`, empty without one), `classes` (the CSS classes in the
+rendered text, e.g. `card-callout`, to write CSS against), `translations` and
 `body` (the Markdown, marked as data).
 
 ### `content_create`
@@ -237,6 +239,27 @@ Scope `content:write`. Change one translation, or add a new one.
 Every change keeps the previous version as a revision
 ([editing](../concepts/editing.md)). Returns `id`, `language`, `status` and
 `url`.
+
+### `content_style`
+
+Scope `content:write`. Replace the design of one entry, its
+[`style.css`](content-format.md#design-of-a-single-page-stylecss). It applies to
+that page only, inside `<main>`, in every language.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | yes | entry id |
+| `css` | string | yes | the complete new CSS, at most 64 KB; an empty string removes `style.css` |
+
+Wake cleans the CSS exactly as in the panel: `@import`, addresses of other
+sites, `image-set()` and `expression()` are removed, braces are balanced.
+Images from the media library work with `url(media/…)`. The previous CSS is
+kept as a version, and the change is live at once on a published entry, so the
+same rights apply as for `content_update`. Returns `id`, `css` (as saved),
+`cleaned` (`true` when Wake changed something), a `note` and `url`.
+
+A good workflow for an assistant: `content_read` for `style` and `classes`,
+write the CSS, call `content_style`, then look at `url`.
 
 ### `content_publish`
 
