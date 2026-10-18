@@ -6,7 +6,9 @@
 @endphp
 <div class="field">
     <label for="f-{{ $key }}">{{ $label }}@if (! empty($field['required'])) <span class="muted">*</span>@endif</label>
-    @if ($fieldType === 'textarea')
+    @if ($pluginField = app(\Wake\Plugins\Plugins::class)->fields[$fieldType] ?? null)
+        @include($pluginField['view'], ['key' => $key, 'field' => $field, 'model' => 'custom.'.$key, 'disabled' => $shared])
+    @elseif ($fieldType === 'textarea')
         <textarea id="f-{{ $key }}" class="textarea" style="min-height:80px" wire:model.blur="custom.{{ $key }}" placeholder="{{ $pick($field['placeholder'] ?? '') }}" @disabled($shared)></textarea>
     @elseif ($fieldType === 'toggle')
         <label class="check"><input id="f-{{ $key }}" type="checkbox" wire:model.live="custom.{{ $key }}" @disabled($shared)> {{ __('Yes') }}</label>

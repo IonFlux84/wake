@@ -88,3 +88,4 @@
 @if (config('wake.tracking.enabled'))
     <script defer src="{{ app(\Wake\Panel\Panel::class)->asset('track.js') }}" data-endpoint="{{ url('hit.php') }}"></script>
 @endif
+{{ app(\Wake\Plugins\Plugins::class)->head($site, $entry) }}

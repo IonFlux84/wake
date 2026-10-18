@@ -36,6 +36,7 @@ use Wake\Livewire\LiveVisitors;
 use Wake\Livewire\MediaLibrary;
 use Wake\Livewire\MenuEditor;
 use Wake\Livewire\PageTree;
+use Wake\Livewire\PluginManager;
 use Wake\Livewire\RedirectManager;
 use Wake\Livewire\RoleManager;
 use Wake\Livewire\Statistics;
@@ -47,6 +48,7 @@ use Wake\Maintenance\Maintenance;
 use Wake\Markdown\Markdown;
 use Wake\Mcp\CurrentToken;
 use Wake\Panel\Panel;
+use Wake\Plugins\Plugins;
 use Wake\Support\Paths;
 use Wake\Support\Settings;
 use Wake\Theme\Theme;
@@ -72,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
         'media-library' => MediaLibrary::class,
         'backup-manager' => BackupManager::class,
         'two-factor-settings' => TwoFactorSettings::class,
+        'plugin-manager' => PluginManager::class,
         'page-tree' => PageTree::class,
         'menu-editor' => MenuEditor::class,
         'settings' => \Wake\Livewire\Settings::class,
@@ -82,7 +85,7 @@ class AppServiceProvider extends ServiceProvider
         $this->mergeSiteConfig();
 
         foreach ([Languages::class, ContentTypes::class, Index::class, Site::class, Markdown::class,
-            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class, Writer::class, Redirects::class, CurrentToken::class, Categories::class, Roles::class, Themes::class] as $service) {
+            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class, Writer::class, Redirects::class, CurrentToken::class, Categories::class, Roles::class, Themes::class, Plugins::class] as $service) {
             $this->app->singleton($service);
         }
     }
@@ -110,6 +113,7 @@ class AppServiceProvider extends ServiceProvider
 
         Auth::provider('wake', fn ($app) => new AccountUserProvider($app->make(Accounts::class)));
         $this->app->make(Theme::class)->register();
+        $this->app->make(Plugins::class)->boot();
 
         Blade::directive('wakeConsentLink', fn () => "<?php echo view('wake::consent-link')->render(); ?>");
         Blade::directive('wakeServices', fn () => "<?php echo view('wake::services')->render(); ?>");

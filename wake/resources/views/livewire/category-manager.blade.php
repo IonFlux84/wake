@@ -1,5 +1,8 @@
 @php
     $typeLabels = ['text' => __('Text'), 'textarea' => __('Long text'), 'number' => __('Number'), 'toggle' => __('Yes/No'), 'date' => __('Date'), 'datetime' => __('Date and time'), 'select' => __('Choice'), 'url' => __('Link'), 'email' => __('Email address')];
+    foreach (app(\Wake\Plugins\Plugins::class)->fields as $pluginType => $pluginField) {
+        $typeLabels[$pluginType] = is_array($pluginField['label']) ? ($pluginField['label'][app()->getLocale()] ?? reset($pluginField['label'])) : $pluginField['label'];
+    }
 @endphp
 <div style="display:flex;flex-direction:column;gap:20px">
     <header class="page-head">

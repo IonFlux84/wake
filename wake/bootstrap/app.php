@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Wake\Http\Middleware\CachePages;
 use Wake\Http\Middleware\ClosedSite;
 use Wake\Http\Middleware\PanelLocale;
+use Wake\Plugins\Plugins;
 
 // The Laravel application lives in wake/. Everything a site owner touches
 // (site/, content/, storage/, public/ and .env) sits one level above it,
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // The website comes last, because it answers every remaining address.
         then: function () {
             Route::group([], __DIR__.'/../routes/mcp.php');
+            app(Plugins::class)->registerRoutes();
             Route::group([], __DIR__.'/../routes/site.php');
         },
     )

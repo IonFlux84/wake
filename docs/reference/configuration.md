@@ -30,7 +30,7 @@ Owners and administrators can change some settings under *Settings* in the
 panel. Wake stores them in `site/settings.yml`, which overrides
 `site/config.php`, so the panel always shows what is in effect. These are
 `timezone`, `post_url`, `missing_translation`, `prefix_default_language`, the
-`tracking.*` settings, `mcp.approval`, `panel.accent`, `panel.language`, `closed`, `theme` and `theme_options`. Everything else is
+`tracking.*` settings, `mcp.approval`, `panel.accent`, `panel.language`, `closed`, `theme`, `theme_options`, `plugins.disabled` and `plugins.options`. Everything else is
 only set in `site/config.php`.
 
 Secrets such as the application key and mail passwords belong in `.env`, not
@@ -47,6 +47,8 @@ here, so `site/` can be committed to Git safely.
 | `timezone` | `'UTC'` | Time zone for dates in your content and for scheduled publishing, e.g. `'Europe/Berlin'`. Also settable as `WAKE_TIMEZONE` in `.env`. |
 | `theme` | `'tide'` | Folder in `site/themes/` that renders the website. |
 | `theme_options` | `[]` | Options of the active theme as declared in its `theme.yml`, usually set in the panel under *Themes*. See [Tide](tide.md). |
+| `plugins.disabled` | `[]` | Folders in `site/plugins/` that are switched off. Usually changed in the panel under *Plugins*. See [plugins](plugins.md). |
+| `plugins.options` | `[]` | Settings of each plugin as declared in its `plugin.yml`, folder → option → value. Usually changed in the panel under *Plugins*. |
 
 ## Addresses
 

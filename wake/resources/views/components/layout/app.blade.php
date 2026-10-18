@@ -18,6 +18,7 @@
         ]],
         [__('Manage'), [
             ['themes', 'wake.themes', __('Themes'), 'brush', 'themes.manage'],
+            ['plugins', 'wake.plugins', __('Plugins'), 'plug', 'settings.manage'],
             ['assistant', 'wake.assistants', __('Assistants'), 'assistant', 'assistants.use'],
             ['team', 'wake.team', __('Team'), 'team', 'team.manage'],
             ['backups', 'wake.backups', __('Backups'), 'download', 'settings.manage'],

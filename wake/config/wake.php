@@ -37,6 +37,13 @@ return [
     // Options for the active theme, e.g. ['accent' => '#3D5AFE'] for Tide.
     'theme_options' => [],
 
+    // Plugins in site/plugins/: folders that are switched off, and the
+    // settings of each plugin, usually changed in the panel under Plugins.
+    'plugins' => [
+        'disabled' => [],
+        'options' => [],
+    ],
+
     // URL pattern for posts. Placeholders: {slug}, {year}, {month}, {day}.
     'post_url' => '{slug}',
 

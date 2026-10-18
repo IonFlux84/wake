@@ -10,6 +10,7 @@ description: Exact descriptions of settings, files, templates and commands.
 - [Templates](templates.md)
 - [Command line](cli.md)
 - [MCP server](mcp.md)
+- [Plugins](plugins.md)
 - [Roles](roles.md)
 - [Content API](api.md)
 - [Tide](tide.md)

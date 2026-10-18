@@ -128,7 +128,7 @@ class CategoryManager extends Component
             'titles.'.$codes[0] => 'required|string|max:60',
             'slugs.*' => ['nullable', 'regex:/^[a-z0-9-]*$/'],
             'fields.*.key' => ['required', 'regex:/^[a-z][a-z0-9_]*$/', 'distinct', Rule::notIn(EntryEditor::BASE_FIELDS)],
-            'fields.*.type' => ['required', Rule::in(Category::FIELD_TYPES)],
+            'fields.*.type' => ['required', Rule::in(Category::fieldTypes())],
         ], [
             'fields.*.key.regex' => __('Field names use small letters, digits and _, starting with a letter.'),
             'fields.*.key.not_in' => __('This field name is used by Wake itself.'),
@@ -228,7 +228,7 @@ class CategoryManager extends Component
             'categories' => $categories->all(),
             'counts' => collect($categories->all())->map(fn ($c) => (new Query('post'))->withFallback(true)->category($c->key)->count()),
             'languages' => app(Languages::class),
-            'types' => Category::FIELD_TYPES,
+            'types' => Category::fieldTypes(),
         ]);
     }
 }

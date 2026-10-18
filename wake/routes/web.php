@@ -47,6 +47,7 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         })->middleware('can:settings.manage')->name('backups.download');
         Route::view('menus', 'wake::panel.menus')->middleware('can:structure.manage')->name('menus');
         Route::view('redirects', 'wake::panel.redirects')->middleware('can:settings.manage')->name('redirects');
+        Route::view('plugins', 'wake::panel.plugins')->middleware('can:settings.manage')->name('plugins');
         Route::view('themes', 'wake::panel.themes')->middleware('can:themes.manage')->name('themes');
 
         Route::get('posts', [ContentController::class, 'index'])->defaults('type', 'post')->name('posts');

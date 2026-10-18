@@ -28,6 +28,7 @@ $paths = [
     'brush' => '<path d="M9.5 14.5 4 20M14 4l6 6-7.5 7.5a3 3 0 0 1-4.2 0l-1.8-1.8a3 3 0 0 1 0-4.2Z" stroke-linejoin="round"/><path d="m11 7 6 6"/>',
     'menu' => '<path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/>',
     'grip' => '<circle cx="9" cy="6" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="18" r="1.2"/>',
+    'plug' => '<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4" stroke-linecap="round" stroke-linejoin="round"/>',
     'tag' => '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.5"/>',
 ];
 @endphp

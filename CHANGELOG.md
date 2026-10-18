@@ -151,6 +151,11 @@ All notable changes to Wake are documented here. The format follows
 - Preview of entries in any status in the theme, from the editor, and preview
   links that work for seven days without an account (signed URLs).
 - Redirects page in the panel: see, add and remove old addresses.
+- Plugins in `site/plugins/`: a `plugin.php` adds cards, field types,
+  website routes, maintenance tasks, `<head>` tags, event listeners and
+  commands, with views, translations, assets and settings like themes. The
+  panel lists them, switches them on and off and edits their settings; a
+  plugin that fails to start is skipped and its error shown.
 - Two-factor sign-in with codes from an authenticator app (TOTP) and eight
   recovery codes, set up per account under Settings. Team managers can turn
   it off for someone who lost their phone.

@@ -1,0 +1,9 @@
+name: Greeter
+description: A test plugin with a card, a field type, an address and a head tag.
+version: 1.0.0
+author: Wake
+options:
+  greeting:
+    type: text
+    label: Greeting
+    default: Hello

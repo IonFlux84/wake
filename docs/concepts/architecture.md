@@ -168,5 +168,7 @@ addresses.
 | `Markdown/` | Markdown rendering and cards |
 | `Maintenance/` | maintenance runner and tasks |
 | `Theme/` | theme templates and assets |
+| `Plugins/` | loading plugins from `site/plugins` ([plugins](../reference/plugins.md)) |
+| `Backup/` | backup ZIPs and restoring them |
 | `Localization/` | languages |
 | `Support/` | atomic file writes, paths |

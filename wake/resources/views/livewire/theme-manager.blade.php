@@ -49,25 +49,7 @@
             <h2 class="h2">{{ __('Settings of “:name”', ['name' => $current->name()]) }}</h2>
             <div class="grid grid-2" style="gap:16px">
                 @foreach ($current->options() as $key => $option)
-                    @php($type = $option['type'] ?? 'text')
-                    <div class="field">
-                        <label for="o-{{ $key }}">{{ $pick($option['label'] ?? $key) }}</label>
-                        @if ($type === 'color')
-                            <div style="display:flex;gap:8px;align-items:center">
-                                <input type="color" wire:model.live="options.{{ $key }}" style="width:44px;height:44px;border:1px solid var(--line);border-radius:10px;padding:2px;background:var(--paper)" aria-label="{{ $pick($option['label'] ?? $key) }}">
-                                <input id="o-{{ $key }}" class="input mono" style="width:140px" wire:model.live.debounce.400ms="options.{{ $key }}">
-                            </div>
-                        @elseif ($type === 'toggle')
-                            <label class="check"><input id="o-{{ $key }}" type="checkbox" wire:model="options.{{ $key }}"> {{ __('Yes') }}</label>
-                        @elseif ($type === 'select')
-                            <select id="o-{{ $key }}" class="select" wire:model="options.{{ $key }}">@foreach ((array) ($option['options'] ?? []) as $value => $text)<option value="{{ $value }}">{{ $pick($text) }}</option>@endforeach</select>
-                        @elseif ($type === 'textarea')
-                            <textarea id="o-{{ $key }}" class="textarea" wire:model="options.{{ $key }}" placeholder="{{ $pick($option['placeholder'] ?? '') }}"></textarea>
-                        @else
-                            <input id="o-{{ $key }}" class="input" wire:model="options.{{ $key }}" placeholder="{{ $pick($option['placeholder'] ?? '') }}">
-                        @endif
-                        @error('options.'.$key)<span class="error">{{ $message }}</span>@enderror
-                    </div>
+                    @include('wake::livewire.partials.option', ['key' => $key, 'option' => $option, 'model' => 'options.'.$key])
                 @endforeach
             </div>
             <div class="actions"><button type="submit" class="btn btn-primary">{{ __('Save theme settings') }}</button></div>

@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Str;
 use Wake\Localization\Languages;
+use Wake\Plugins\Plugins;
 
 /**
  * A category of posts, defined in site/categories/{key}.yml. It brings its
@@ -15,6 +16,16 @@ use Wake\Localization\Languages;
 class Category
 {
     public const FIELD_TYPES = ['text', 'textarea', 'number', 'toggle', 'date', 'datetime', 'select', 'url', 'email'];
+
+    /**
+     * The built-in field types and those added by plugins.
+     *
+     * @return list<string>
+     */
+    public static function fieldTypes(): array
+    {
+        return [...self::FIELD_TYPES, ...array_keys(app(Plugins::class)->fields)];
+    }
 
     /**
      * @param  array<string, mixed>  $data
