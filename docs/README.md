@@ -35,6 +35,7 @@ The documentation is split by what you want to do, following the
 ## Concepts
 
 - [Architecture](concepts/architecture.md)
+- [Analytics](concepts/analytics.md)
 
 ## Project
 

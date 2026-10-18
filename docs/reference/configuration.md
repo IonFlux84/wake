@@ -69,6 +69,18 @@ and custom content types use the `url` of their [blueprint](content-format.md#cu
 | `page_cache.enabled` | `true` | Serve finished pages from `storage/cache/pages` without starting Laravel. Also settable as `WAKE_PAGE_CACHE` in `.env`. |
 | `page_cache.ttl` | `300` | Seconds a cached page is served before Wake looks again. Changes made via FTP and posts that become due show up after at most this long. |
 
+## Statistics
+
+How Wake counts visits is explained in [analytics](../concepts/analytics.md).
+
+| Setting | Default | Description |
+|---|---|---|
+| `tracking.enabled` | `true` | Count visits with Wake's own statistics. Also settable as `WAKE_TRACKING` in `.env`. |
+| `tracking.level1` | `'always'` | Level 1 counts without cookies. `'always'` counts every visitor, `'consent'` only those who agreed to statistics in the banner. Level 2 (with a cookie) always needs consent. |
+| `tracking.respect_privacy_signals` | `false` | `true` ignores visitors whose browser sends Do Not Track or Global Privacy Control. |
+| `tracking.retention` | `30` | Days to keep raw data. Daily and monthly sums are kept. |
+| `tracking.geo` | `storage/stats/geo/country.mmdb` | Optional IP-to-country database in MaxMind format, e.g. [DB-IP Lite](https://db-ip.com/db/lite.php) (free, CC BY 4.0). Without it, countries stay empty. |
+
 ## Panel
 
 | Setting | Default | Description |

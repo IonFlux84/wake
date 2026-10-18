@@ -36,3 +36,8 @@ All notable changes to Wake are documented here. The format follows
   `/wake`, sign-in with rate limiting and "stay signed in".
 - Panel layout in the "Neon clean" design with self-hosted fonts and a
   configurable accent colour (`panel.accent`), in English and German.
+- Built-in analytics: a small tracking script, `public/hit.php` that records
+  hits without starting Laravel and without storing IP addresses, daily
+  salted visitor hashes (level 1) and an optional consent cookie (level 2),
+  daily and monthly summaries, real-time visitors, reading time, scroll depth,
+  campaigns, events and next pages. Raw data is deleted after 30 days.

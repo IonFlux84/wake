@@ -4,6 +4,7 @@ namespace Wake\Maintenance;
 
 use Throwable;
 use Wake\Maintenance\Tasks\PublishScheduled;
+use Wake\Maintenance\Tasks\SummariseStats;
 use Wake\Support\Files;
 
 /**
@@ -18,6 +19,7 @@ class Maintenance
     /** @var list<class-string<Task>> */
     protected array $tasks = [
         PublishScheduled::class,
+        SummariseStats::class,
     ];
 
     /**

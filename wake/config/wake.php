@@ -68,6 +68,24 @@ return [
         'ttl' => 300,
     ],
 
+    'tracking' => [
+        // Count visits with Wake's own, cookieless statistics.
+        'enabled' => env('WAKE_TRACKING', true),
+
+        // Level 1 (no cookie): "always", or "consent" to count only after the
+        // visitor agreed in the banner. Level 2 (with cookie) always needs consent.
+        'level1' => 'always',
+
+        // Ignore visitors who send Do Not Track or Global Privacy Control.
+        'respect_privacy_signals' => false,
+
+        // Days to keep raw data. Daily and monthly sums are kept forever.
+        'retention' => 30,
+
+        // Optional IP-to-country database in MaxMind format (e.g. DB-IP Lite).
+        'geo' => dirname(base_path()).'/storage/stats/geo/country.mmdb',
+    ],
+
     'panel' => [
         // The one neon colour of the panel. Text on it turns black or white by itself.
         'accent' => '#C6FF3D',

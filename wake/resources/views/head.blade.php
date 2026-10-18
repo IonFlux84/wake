@@ -56,3 +56,7 @@
     ]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
 @endif
     <meta name="generator" content="Wake">
+@if (config('wake.tracking.enabled'))
+@php(app(\Wake\Stats\TrackingConfig::class)->sync())
+    <script defer src="{{ app(\Wake\Panel\Panel::class)->asset('track.js') }}" data-endpoint="{{ url('hit.php') }}"></script>
+@endif
