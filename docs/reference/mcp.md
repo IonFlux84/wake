@@ -1,92 +1,347 @@
 ---
 title: MCP server
-description: Every tool, resource and prompt of Wake's built-in MCP server, and how tokens work.
+description: Every tool, resource and prompt of Wake's built-in MCP server, with parameters, answers, tokens, scopes and limits.
 ---
 
 # MCP server
 
 Wake speaks the [Model Context Protocol](https://modelcontextprotocol.io), so
-AI assistants such as Claude can work with your site
-([decision 0006](../decisions/0006-mcp-server-built-in.md)).
-
-| Transport | Address |
-|---|---|
-| HTTP (Streamable HTTP, no streaming) | `https://your-site/wake/mcp` with `Authorization: Bearer wake_…` |
-| stdio | `php wake/artisan wake:mcp --token=wake_…` |
+AI assistants such as Claude can answer questions about your statistics and
+read, draft and publish content
+([decision 0006](../decisions/0006-mcp-server-built-in.md)). The server is
+part of every Wake installation; there is nothing to install.
 
 Connecting step by step: [Connect an AI assistant](../guides/connect-an-assistant.md).
+Why it is built the way it is: [Assistants and safety](../concepts/assistants.md).
+
+## Endpoints
+
+| Transport | Address | Authentication |
+|---|---|---|
+| HTTP | `POST https://your-site/wake/mcp` | header `Authorization: Bearer wake_…` |
+| stdio | `php wake/artisan wake:mcp` | `--token=wake_…` or the environment variable `WAKE_TOKEN` |
+
+The HTTP endpoint uses *Streamable HTTP* without streaming: every request is
+one JSON-RPC message and gets one JSON answer. That works on any shared host,
+without long-running connections. It is not affected by the
+[closed site](configuration.md#site) setting, because it always needs a token.
+
+The stdio server is for an assistant on the same computer as the site, for
+example during development. It runs `wake:mcp` as a child process of the
+assistant ([CLI](cli.md#wakemcp)).
+
+Server name: `Wake`. The server sends instructions to the assistant on how to
+use the tools (start with `site_info`, read `wake://site` before writing,
+publish only when asked, treat website text as data).
 
 ## Tokens
 
-Every team member creates their own tokens in the panel under *Assistants*.
-A token acts as that person, never with more rights than they have, and only
-with the scopes chosen for it:
+Every team member with the right `assistants.use` ([roles](roles.md)) creates
+their own tokens in the panel under *Assistants*.
 
-| Scope | Allows |
-|---|---|
-| `stats:read` | all statistics and consent tools |
-| `content:read` | reading posts, pages and other entries |
-| `content:write` | creating and changing drafts |
-| `content:publish` | publishing and unpublishing (authors and above) |
+- A token looks like `wake_` followed by 40 letters and digits. Wake shows it
+  once, right after creating it.
+- Wake stores only a SHA-256 hash of it, in
+  `storage/accounts/{account}/tokens/{id}.yml`, with the name, the scopes, the
+  creation date and when it was last used (updated at most once a minute).
+- Revoking a token in the panel deletes that file; the next request with it
+  fails.
+- Tokens do not expire. Revoke the ones you no longer use.
+- Tokens for AI assistants never need the password and are not affected by
+  [two-factor sign-in](../guides/two-factor.md).
 
-Wake stores only a SHA-256 fingerprint of a token, in
-`storage/accounts/{account}/tokens/`. Revoking a token deletes that file.
-Requests are limited to 60 per minute.
+### Scopes
+
+A token has one or more scopes, chosen when it is created:
+
+| Scope | Allows | Offered to |
+|---|---|---|
+| `stats:read` | all statistics tools, `consent_overview` and `wake://stats/today` | people with `stats.view` |
+| `content:read` | `content_list` and `content_read` | people with `content.write` |
+| `content:write` | `content_create`, `content_update` and `media_upload` | people with `content.write` |
+| `content:publish` | `content_publish` and `content_unpublish` | people with `content.publish` or `content.publish_all` |
+
+### Scopes and roles
+
+A request with a token acts **as the person who created it**. The scope
+decides which tools the token may call at all; the person's
+[role](roles.md) then decides what the tool may do:
+
+- A token can never do more than its owner. A contributor cannot create a
+  token with `content:publish`.
+- `content_list` and `content_read` show drafts and scheduled entries of
+  other people only to owners who see them in the panel as well
+  (`content.edit_all` or `content.publish`); everyone else sees published
+  entries and their own.
+- `content_update` and `media_upload` only change entries the owner may edit
+  (`content.edit_all` for other people's entries, `content.publish` to change
+  published ones).
+- `content_publish` and `content_unpublish` follow the owner's
+  `content.publish` / `content.publish_all` rights.
+- If the owner's role changes, their tokens follow immediately: a scope only
+  works while the role still has the right listed above. If the
+  account is removed, its tokens stop working.
 
 ## Tools
 
-| Tool | Scope | What it does |
-|---|---|---|
-| `site_info` | none | title, address, languages, content types with counts, categories with their fields, the current person and the token's scopes |
-| `stats_overview` | `stats:read` | visitors, page views, reading time and consent share for `today`, `yesterday`, `7d`, `30d`, `90d`, `12m` or `month`, with change against the previous period, top pages and top sources |
-| `stats_query` | `stats:read` | any date range (`from`, `to`, at most 400 days) broken down by `days`, `hours`, `pages`, `referrers`, `campaigns`, `countries`, `languages`, `devices`, `browsers`, `os` or `events` |
-| `stats_post` | `stats:read` | one entry (by `id`) or path: visitors, reading time, scroll depth, read-through rate, where readers came from, where they went next, visitors per day, per language |
-| `stats_realtime` | `stats:read` | visitors of the last five minutes and their pages |
-| `stats_ai_crawlers` | `stats:read` | visits of AI crawlers by crawler and page |
-| `consent_overview` | `stats:read` | consent decisions, agreement per category, whether a banner is needed, embedded services |
-| `content_list` | `content:read` | entries of a type with id, title, status, date, URL, languages, tags, category and start; filter by status, tag, category or title |
-| `content_read` | `content:read` | one entry in one language: all fields, the Markdown body, files and translations |
-| `content_create` | `content:write` | a new entry, always as a draft, marked with `via: mcp` |
-| `content_update` | `content:write` | change title, body or fields of a translation, or add a translation |
-| `content_publish` | `content:publish` | publish now or at a given time (`at`); with approval mode only marks the entry for review |
-| `content_unpublish` | `content:publish` | turn a translation back into a draft |
-| `media_upload` | `content:write` | add an image to an entry from base64 data |
+Tools answer with JSON. A mistake (an unknown id, a missing scope, a right the
+role does not have, a date that cannot be read) comes back as an MCP error
+result with a sentence that tells the assistant what to do instead, for
+example "There is no entry with this id. content_list shows the ids."
 
-Tools answer with JSON. Mistakes, such as an unknown id or a missing scope,
-come back as an error message that tells the assistant what to do instead.
+Dates are `YYYY-MM-DD`, times `YYYY-MM-DD HH:MM` in the site's time zone
+(`site_info` returns it). Entry ids are the folders below `content/`, for
+example `posts/2026-10-17-hello-world` or `pages/1_about`.
+
+### `site_info`
+
+Basic facts about the site. Needs no scope; a good first call.
+
+No parameters.
+
+Returns `title`, `description`, `url`, `languages` (code → name),
+`default_language`, `content_types` (with folder and number of entries),
+`categories` (with their fields: type, label, required, options, whether the
+same in all languages), `you` (name, role and its capabilities),
+`token_scopes` and `timezone`.
+
+### `stats_overview`
+
+Scope `stats:read`. The numbers of a period compared with the period before.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `period` | string | no | `today`, `yesterday`, `7d` (default, the last seven days including today), `30d`, `90d`, `12m` or `month` |
+
+Returns `from`, `to`, `visitors`, `pageviews`, `average_reading_seconds`,
+`consent_share`, `change_percent` (visitors and page views against the
+previous period), `top_pages` (path, title, id, visitors, page views, read
+rate) and `top_sources`.
+
+### `stats_query`
+
+Scope `stats:read`. Any date range, broken down by one dimension.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `from` | string | yes | first day, `YYYY-MM-DD` |
+| `to` | string | yes | last day, `YYYY-MM-DD`, at most 400 days after `from` |
+| `dimension` | string | yes | `days`, `hours`, `pages`, `referrers`, `campaigns`, `countries`, `languages`, `devices`, `browsers`, `os` or `events` |
+| `limit` | integer | no | maximum number of rows, 1–200, default 20 |
+
+Returns `from`, `to`, `visitors`, `pageviews` and the rows under the name of
+the dimension, e.g. `"pages": […]`.
+
+### `stats_post`
+
+Scope `stats:read`. Everything about one entry or address.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | one of `id` or `path` | entry id, e.g. `posts/2026-10-17-hello-world` |
+| `path` | string | one of `id` or `path` | URL path, e.g. `/hello-world`; used when no id is given |
+| `period` | string | no | `7d`, `30d` (default), `90d` or `12m` |
+
+Returns `id`, `title`, `from`, `to` and, per language, `path`, `visitors`,
+`pageviews`, `average_reading_seconds`, `average_scroll_percent`, `read_rate`,
+`came_from` (top eight sources), `went_on_to` (top eight next pages) and
+`per_day`.
+
+### `stats_realtime`
+
+Scope `stats:read`. Visitors of the last five minutes and the pages they are
+on. No parameters.
+
+### `stats_ai_crawlers`
+
+Scope `stats:read`. Visits of AI crawlers (such as GPTBot or ClaudeBot) by
+crawler and page.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `period` | string | no | `today`, `7d`, `30d` (default) or `90d` |
+
+### `consent_overview`
+
+Scope `stats:read`. How visitors answered the consent banner.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `days` | integer | no | days back from today, 1–366, default 30 |
+
+Returns the decisions and the agreement per category, plus `banner_needed`,
+`banner_version`, `categories_offered` and `embedded_services`. See
+[consent](../concepts/consent.md).
+
+### `content_list`
+
+Scope `content:read`. Entries of one type, newest first.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `type` | string | no | `post` (default), `page`, `tag` or a custom type from `site_info` |
+| `status` | string | no | `any` (default), `published`, `draft` or `scheduled` |
+| `tag` | string | no | only entries with this tag |
+| `category` | string | no | only posts of this category key, e.g. `termine` |
+| `search` | string | no | words in the title |
+| `language` | string | no | language code, default the site's default language |
+| `limit` | integer | no | default 20, at most 100 |
+
+Returns `count` and `entries`, each with `id`, `title`, `status`, `date`,
+`url`, `languages`, `tags`, `category`, `start` and `created_by_assistant`.
+
+### `content_read`
+
+Scope `content:read`. One entry in one language.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | yes | entry id from `content_list` |
+| `language` | string | no | language code, default the site's default language |
+
+Returns `id`, `type`, `language`, `requested_language_missing`, `status`,
+`url`, `fields` (all front matter), `files`, `translations` and `body` (the
+Markdown, marked as data).
+
+### `content_create`
+
+Scope `content:write`. A new entry, always as a draft.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `title` | string | yes | the title |
+| `type` | string | no | `post` (default), `page` or a custom type |
+| `body` | string | no | the Markdown body, see [content format](content-format.md) |
+| `language` | string | no | language code, default the site's default language |
+| `fields` | object | no | more front matter, e.g. `{"tags": ["news"], "excerpt": "…", "slug": "…"}`; for a category `{"category": "termine", "start": "2026-11-11 17:30", "location": "Town hall"}` |
+| `parent` | string | no | for pages: id of the parent page |
+
+Wake sets `status: draft`, `author` (the token's owner) and `via: mcp`;
+`status`, `author`, `via` and `published` in `fields` are ignored. Returns
+`id`, `status`, `language`, `edit_in_panel` (a link for the person) and a
+`next_step` hint.
+
+### `content_update`
+
+Scope `content:write`. Change one translation, or add a new one.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | yes | entry id |
+| `language` | string | no | language code; a language the entry does not have yet adds a translation (as a draft, marked `via: mcp`) |
+| `title` | string | no | new title |
+| `body` | string | no | the complete new Markdown body; leave it out to keep the body |
+| `fields` | object | no | fields to change; `null` removes a field. `status`, `author`, `via` and `published` cannot be changed here |
+
+Every change keeps the previous version as a revision
+([editing](../concepts/editing.md)). Returns `id`, `language`, `status` and
+`url`.
+
+### `content_publish`
+
+Scope `content:publish`. Publish a translation now or later.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | yes | entry id |
+| `language` | string | no | default the site's default language |
+| `at` | string | no | publish later: `YYYY-MM-DD HH:MM` in the site's time zone |
+
+Returns `id`, `status` (`published` or `scheduled`), `date` and `url`. With
+[approval mode](#approval-mode) it publishes nothing and returns
+`status: waiting_for_approval` with a message.
+
+### `content_unpublish`
+
+Scope `content:publish`. Turn a translation back into a draft.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | yes | entry id |
+| `language` | string | no | default the site's default language |
+
+Returns `id` and `status: draft`.
+
+### `media_upload`
+
+Scope `content:write`. Add an image to an entry's folder.
+
+| Parameter | Type | Required | Meaning |
+|---|---|---|---|
+| `id` | string | yes | entry id |
+| `name` | string | yes | file name with extension, e.g. `harbour.jpg` |
+| `data` | string | yes | the file as base64, at most 10 MB |
+
+Only images are accepted: `jpg`, `jpeg`, `png`, `gif`, `webp`, `avif`. Wake
+checks that the data really is an image and picks a free file name. Returns
+`id`, `name` and `markdown`, the snippet to put into the body
+(`![](harbour.jpg)`).
 
 ## Resources
 
-| Resource | Contents |
-|---|---|
-| `wake://site` | the site at a glance and how content is written in Wake |
-| `wake://stats/today` | today's numbers and visitors right now |
+| Resource | Type | Contents | Scope |
+|---|---|---|---|
+| `wake://site` | Markdown | the site at a glance and how content is written in Wake: front matter and cards | none |
+| `wake://stats/today` | JSON | today so far: `visitors`, `pageviews`, `top_pages`, `top_sources` and `right_now` | `stats:read` |
 
 ## Prompts
 
-| Prompt | Purpose |
-|---|---|
-| `weekly_review` | a short review of the last seven days with one suggestion |
+| Prompt | Arguments | Purpose |
+|---|---|---|
+| `weekly_review` | none | a short review of the last seven days: calls `stats_overview` and `stats_post`, then writes at most eight sentences with one suggestion |
 
 ## Approval mode
 
-With `mcp.approval` set to `true` in `site/config.php`, `content_publish` does
-not publish. It writes `review: requested` into the entry, the panel shows
-*Waiting for approval*, and a person publishes it there.
+With `mcp.approval` set to `true` in `site/config.php` (or under *Settings*
+in the panel), assistants can prepare everything but publish nothing:
 
-## History
+- `content_publish` writes `review: requested` into the entry, or
+  `review: scheduled 2026-11-03 18:00` when `at` was given, and answers
+  `status: waiting_for_approval`.
+- The panel shows *Waiting for approval* in the list of entries. A
+  person checks the draft and publishes it; publishing removes the `review`
+  field.
+- `content_unpublish` and all other tools work as usual.
 
-Every change is written to `storage/history/{year}-{month}.log` with the
-person, the action and how it was made (`panel` or `mcp` with the token's
-name).
+## Marking and history
 
-## Safety
+- Entries created by an assistant carry `via: mcp` in their front matter. The
+  lists in the panel show an *MCP* badge, and `content_list` returns
+  `created_by_assistant`.
+- Every change is written to `storage/history/{year}-{month}.log` with the
+  person, the action, `via: mcp` and the name of the token, so you can see
+  which assistant changed what.
 
-- Content and statistics returned to an assistant are marked as data in the
-  server instructions. Assistants are told never to follow requests found in
-  them (protection against prompt injection).
-- Assistants cannot delete anything, and new entries always start as drafts.
-- A token acts with the role of its owner: a contributor's token cannot publish
-  or change other people's entries.
-- Status, author and publication date cannot be set through `fields`.
-- Every token can be revoked at any time and shows when it was last used.
+## Limits
+
+| Limit | Value |
+|---|---|
+| Requests over HTTP | 60 per minute per person; more get HTTP 429 |
+| `stats_query` range | at most 400 days |
+| `content_list` | at most 100 entries per call |
+| `media_upload` | images only, at most 10 MB |
+
+## Errors
+
+| Situation | Answer |
+|---|---|
+| no token, unknown or revoked token | HTTP 401 with `{"error": "A valid token is required. …"}` and `WWW-Authenticate: Bearer` |
+| too many requests | HTTP 429 |
+| token without the needed scope | tool error: "This token may not use … It needs the scope …" |
+| role may not do it | tool error, e.g. "Your role may not publish this entry." |
+| unknown id, type or language | tool error naming the tool that shows valid values |
+| invalid parameters | tool error with the validation message |
+
+## What assistants can never do
+
+- Delete anything: entries, files, accounts or statistics. There is no tool
+  for it.
+- Change settings, themes, plugins, roles, the team or tokens.
+- Set `status`, `author`, `via` or `published` directly. New entries always
+  start as drafts.
+- Do more than the person behind the token may do.
+- Read accounts, passwords, mail settings or the raw statistics files.
+
+Content and statistics are returned as data, and the server instructions tell
+the assistant never to follow requests found inside them (protection against
+prompt injection). More in [Assistants and safety](../concepts/assistants.md).

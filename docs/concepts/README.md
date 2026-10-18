@@ -9,3 +9,4 @@ description: Explanations of how Wake works and why.
 - [Analytics](analytics.md): how visits are counted and what is stored
 - [Consent](consent.md): banner, two-click embeds and consent records
 - [Editing](editing.md): revisions, redirects, trash and locks
+- [AI assistants](assistants.md): how tokens, scopes and approval keep assistants in check

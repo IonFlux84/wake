@@ -13,11 +13,14 @@ site/themes/tide/
   theme.yml              name, version, author
   templates/             Blade templates
     layouts/default.blade.php
-    home.blade.php       the start page
+    home.blade.php       the start page (required)
     post.blade.php       a post
+    post-event.blade.php a post in a category with the template "event"
     page.blade.php       a page
     tag.blade.php        a tag with its posts
+    category.blade.php   a category page
     event.blade.php      an entry of the custom type "event"
+    landing.blade.php    any name, chosen with the template field
     default.blade.php    anything without its own template
     search.blade.php     search results
     404.blade.php        page not found
@@ -25,7 +28,12 @@ site/themes/tide/
     snippets/            your own partials
   assets/                CSS, JavaScript, fonts, images
   lang/de.json           translations of the theme's own texts
+  screenshot.jpg         optional, shown in the panel
 ```
+
+Only `templates/` is required, and in it `home.blade.php`: without it the
+start page answers with 404. A step-by-step tutorial is in
+[Build your own theme](../guides/build-a-theme.md).
 
 ## theme.yml
 
@@ -62,8 +70,13 @@ of the theme with the `theme::` prefix:
 | Address | Templates, first match wins |
 |---|---|
 | `/` | `template` field of `pages/home` → `home` → `page` → `default` |
-| an entry | its `template` field → its type (`post`, `page`, `tag`, `event`) → `default` |
+| an entry | its `template` field → `post-{category template}` (posts with a category) → its type (`post`, `page`, `tag`, `event`) → `default` |
+| a category page | `category-{category template}` → `category` → Wake's built-in list |
+| `/search?q=…` | `search` → Wake's built-in page |
 | not found | `404` → Wake's built-in page |
+
+When no template matches an entry, Wake renders it with a plain built-in
+page. `$entry->template()` returns the `template` field, else the type.
 
 ## Variables
 
@@ -72,6 +85,17 @@ of the theme with the `theme::` prefix:
 | `$site` | always | the website (see below) |
 | `$entry` | always, `null` on a start page without `pages/home` | the current entry |
 | `$post`, `$page`, `$tag`, `$event` … | matching type | the same entry under its type's name |
+| `$category` | category pages | the [category](#categories) |
+| `$query`, `$results` | `search` | the search words and the matching entries |
+
+## Helpers
+
+| Helper | Returns |
+|---|---|
+| `theme_asset('style.css')` | the public address of a file in `assets/`, see [assets](#assets) |
+| `theme_option('accent', $default)` | an option of the active theme: the value from the panel, else the `default` from `theme.yml`, else `$default` |
+| `__('Text')`, `trans_choice('… \| …', $n)` | the theme's own texts, see [translations](#translations) |
+| `app(\Wake\Localization\Languages::class)` | languages: `all()`, `codes()`, `isMultilingual()`, `current()`, `url($path, $code)` |
 
 ## `$site`
 
@@ -115,6 +139,7 @@ menu shows the listed top-level pages with their listed sub-pages.
 | Method | Returns |
 |---|---|
 | `title()`, `slug()`, `url()`, `path()` | title and address |
+| `template()` | the `template` field, else the type |
 | `get('field', $default)` or `$entry->field` | any front matter field, also nested: `get('seo.title')` |
 | `content()` | the text as HTML |
 | `body()` | the text as Markdown |
@@ -127,7 +152,8 @@ menu shows the listed top-level pages with their listed sub-pages.
 | `image($name = null)` | the header image (`cover`), or the named file |
 | `thumbnail()` | the preview image (`thumbnail`), or else the header image |
 | `file('name.pdf')`, `media()` | files in the entry's folder |
-| `language()`, `translations()`, `translation('de')` | languages |
+| `language()`, `translations()`, `translation('de')`, `hasTranslation('de')` | languages: `translations()` lists the codes, `translation()` returns the entry in that language or `null` |
+| `requestedLanguage()` | the language of the address, which differs from `language()` for a fallback |
 | `isFallback()` | `true` when shown in the default language because a translation is missing |
 | `parent()`, `children()` | page tree |
 | `id()`, `type()` | folder below `content/` and content type |
@@ -157,6 +183,10 @@ Queries work like Laravel's query builder and can be looped over directly:
 | `get()`, `first()`, `count()`, `exists()` | results |
 | `paginate($perPage = null)` | a Laravel paginator, page from `?page=` |
 
+A paginator loops like a query and offers `hasPages()`, `currentPage()`,
+`lastPage()`, `previousPageUrl()` and `nextPageUrl()`. Without an argument it
+takes `per_page` entries ([configuration](configuration.md)).
+
 In PHP code the same queries start from the models:
 `Wake\Content\Models\Post::published()->latest()->get()`.
 
@@ -184,9 +214,20 @@ and add `object-position` for a focus point, so cropped images
 
 ## The head
 
-Put `@wakeHead` into `<head>`. It writes the title, description, canonical URL,
-`hreflang` links for every translation, the RSS link, Open Graph tags and
-JSON-LD for posts.
+Put `@wakeHead` into `<head>`. It writes `<meta charset>`, the viewport, the
+title, description, canonical URL, `hreflang` links for every translation, the
+RSS link, Open Graph tags, JSON-LD for posts and events, the consent manager,
+the statistics script and anything [plugins](plugins.md) add. Do not write
+these tags yourself.
+
+Editors can adjust it per entry with front matter fields:
+
+| Field | Effect |
+|---|---|
+| `seo.title` | replaces the `<title>` (default: entry title · site title) |
+| `seo.description` | replaces the description (default: the excerpt) |
+| `noindex: true` | adds `<meta name="robots" content="noindex">` |
+| `thumbnail` / `cover` | the image for Open Graph |
 
 ```blade
 <head>
@@ -251,13 +292,18 @@ not reachable.
 
 `theme_asset('tide.css')` returns the public address of a file in `assets/`.
 Wake copies changed files to `public/assets/themes/{theme}/` by itself and adds
-a version to the address, so browsers never keep an old file.
+a version to the address, so browsers never keep an old file. Inside CSS, refer
+to other assets with relative paths (`url(../fonts/inter.woff2)`): when Wake
+copies a stylesheet, it copies the files it points to as well, as long as they
+stay inside `assets/`.
 
 ## Cards
 
-Wake renders [cards](content-format.md#cards) with
-`templates/cards/{name}.blade.php` of the theme if it exists, then with its
-built-in look. The template receives:
+Wake renders a [card](content-format.md#cards) with the first view that
+exists: the theme's `templates/cards/{name}.blade.php`, a view registered by a
+[plugin](plugins.md), Wake's built-in look (`callout`, `button`, `divider`,
+`embed`), else a plain `<div class="card card-{name}">`. So a theme can
+restyle built-in cards and add new ones. The template receives:
 
 | Variable | Contents |
 |---|---|
@@ -274,7 +320,8 @@ built-in look. The template receives:
 ## Translations
 
 Texts of the theme itself go through Laravel's `__()` helper with English as the
-key. Translations live in `lang/{code}.json` of the theme:
+key. Translations live in `lang/{code}.json` of the theme; the language of the
+page decides which one is used:
 
 ```json
 { "Older posts": "Ältere Beiträge" }

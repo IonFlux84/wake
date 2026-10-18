@@ -44,7 +44,7 @@ SSH nor Composer, and no database.
 
 | | |
 |---|---|
-| PHP | 8.4 or newer with `mbstring`, `intl`, `gd`, `zip`, `fileinfo` |
+| PHP | 8.4 or newer with `mbstring`, `gd`, `zip`, `fileinfo` and the usual Laravel extensions ([full list](requirements.md)) |
 | Web server | Apache with `mod_rewrite` (`.htaccess` files allowed), or nginx (see below) |
 | Disk | about 60 MB for Wake, plus your content |
 | Cron | not needed ([maintenance](../concepts/architecture.md#maintenance-without-cron)) |
@@ -66,6 +66,8 @@ location ~ \.php$ {
 
 location ~ /\.(?!well-known) { deny all; }
 ```
+
+Then continue with [Your first site](first-site.md).
 
 ## Updates
 

@@ -26,6 +26,9 @@ site/plugins/opening-hours/
 ```
 
 The folder name is the plugin's key: lowercase letters, digits, `-` and `_`.
+Folders with other names, and folders without a `plugin.php`, are ignored.
+
+For a step-by-step example, see [Write a plugin](../guides/write-a-plugin.md).
 
 ### `plugin.yml`
 
@@ -65,8 +68,15 @@ return function (Plugin $plugin) {
 };
 ```
 
-Wake calls the function on every request, so keep it quick: register things
-here and do the work later, when they are used.
+Wake calls the function on every request that is not answered from the page
+cache, so keep it quick: register things here and do the work later, when
+they are used. The file may also return nothing; then Wake only loads its
+views, translations and assets.
+
+Plugins have no autoloader. Load your own classes with
+`require_once __DIR__.'/src/MyClass.php';` and give them a namespace of your
+own. To share an object between views, routes and tasks, put it into
+Laravel's container: `app()->instance(MyService::class, new MyService($plugin));`.
 
 ## What a plugin can add
 
@@ -74,8 +84,8 @@ here and do the work later, when they are used.
 |---|---|
 | `card($name, $view)` | a card for Markdown, `::: name … :::`. The view gets `$name`, `$value`, `$attributes` and `$content`. A theme's `cards/{name}.blade.php` still wins. See [cards](content-format.md#cards). |
 | `field($type, $view, $label)` | a field type for [categories](content-format.md#categories). The view renders the input in the editor and gets `$key`, `$field`, `$model` (for `wire:model`) and `$disabled`. `$label` is a text or one per language. |
-| `routes($closure)` | website routes, registered before Wake's own addresses. They have no session; use `Route::middleware('web')` inside if you need one. |
-| `task($class)` | a [maintenance](../concepts/architecture.md#maintenance-without-cron) task, a class implementing `Wake\Maintenance\Task`. |
+| `routes($closure)` | website routes, registered before Wake's own addresses, in the alphabetical order of the plugin folders. They have no session and no page cache. While the site is [closed](configuration.md#site), they answer only signed-in team members, like the website. Wrap them in `Route::middleware('web')` only for routes used by signed-in team members (session and CSRF protection). |
+| `task($class)` | a [maintenance](../concepts/architecture.md#maintenance-without-cron) task, a class implementing `Wake\Maintenance\Task` with `run(Deadline $deadline)`. Wake creates it through Laravel's container, so the constructor can ask for services. Check `$deadline->expired()` in loops. |
 | `head($closure)` | HTML for the `<head>` of every website page: `fn ($site, $entry) => '<meta …>'`. |
 | `on($event, $listener)` | an event listener, e.g. for `Wake\Content\ContentChanged`. |
 | `command($class)` | an Artisan command for `php wake/artisan`. |
@@ -92,6 +102,17 @@ And to help with that:
 
 Every method that adds something returns the plugin, so calls can be chained.
 
+## Views, translations and assets
+
+| Folder | What Wake does with it |
+|---|---|
+| `views/` | registered as the view namespace `{folder}`: `views/cards/hours.blade.php` is `opening-hours::cards.hours` |
+| `lang/` | JSON translations (`de.json`, …) added to Wake's texts, used with `__('Text')` |
+| `assets/` | copied to `public/assets/plugins/{folder}/` when a file changed; `asset('file')` returns its address with a version |
+
+Translations of all plugins, themes and Wake share one list, so pick texts
+that are unlikely to mean something else elsewhere.
+
 ## Example: a field type
 
 ```php
@@ -107,6 +128,70 @@ return function (Wake\Plugins\Plugin $plugin) {
 ```
 
 The value is saved in the entry's front matter like any other field.
+
+## Useful Wake APIs for plugins
+
+The methods of `Wake\Plugins\Plugin` are the promise Wake makes to plugin
+authors. Beyond that, these classes are the ones plugins can rely on. They
+are also what themes use, so they change only with a note in the changelog.
+
+### Reading content
+
+```php
+use Wake\Content\Models\Page;
+use Wake\Content\Models\Post;
+use Wake\Content\Query;
+use Wake\Content\Site;
+
+$latest = Post::published()->tag('events')->latest()->limit(3)->get();
+$page = Page::find('pages/1_about');                    // by folder, or null
+$events = (new Query('post'))->published()->category('events')->upcoming()->get();
+$site = app(Site::class);                                // the same as $site in templates
+```
+
+A query reads Wake's index from memory. It offers `published()`, `drafts()`,
+`scheduled()`, `tag()`, `category()`, `upcoming()`, `past()`, `childrenOf()`,
+`listed()`, `where()`, `latest()`, `oldest()`, `orderBy()`, `limit()`,
+`offset()`, `in($language)`, `get()`, `first()`, `find()`, `count()`,
+`exists()` and `paginate()`. Entries offer `id()`, `title()`, `url()`,
+`date()`, `get('field')`, `content()`, `excerpt()`, `image()`, `file()`,
+`category()`, `tags()`, `parent()`, `children()` and more; see
+[templates](templates.md#entries) for the full list.
+
+### Changing content
+
+```php
+use Wake\Content\Writer;
+
+$writer = app(Writer::class);
+$entry = $writer->create('post', ['title' => 'Open on Sunday', 'status' => 'draft'], 'We open at noon.');
+$writer->update($entry->id(), 'en', ['title' => 'Open this Sunday']);
+$writer->publish($entry->id(), 'en');
+```
+
+The writer keeps versions, the history and redirects, moves deleted entries
+to the trash and clears the page cache. Do not edit files in `content/`
+directly from a plugin.
+
+### Files, paths and settings
+
+| Class | Use |
+|---|---|
+| `Wake\Support\Files::write($path, $contents)` | write a file atomically (never `file_put_contents()`) |
+| `Wake\Support\Files::lock($name, $callback)` | run code while holding a lock, e.g. when two requests could write the same file |
+| `Wake\Support\Paths::site()`, `content()`, `theme()`, `root()` | folders of the site; your own data belongs in `storage_path('your-plugin/…')` |
+| `config('wake.…')` | every [setting](configuration.md), e.g. `config('wake.closed')` |
+| `$plugin->option($key)` | your plugin's settings from the panel |
+| `app(Wake\Cache\PageCache::class)->flush()` | throw away all cached pages, e.g. when your output changes |
+
+### Events
+
+| Event | Fired when |
+|---|---|
+| `Wake\Content\ContentChanged` | the index noticed new, changed or deleted content (from the panel, an assistant, FTP or Git); Wake clears the page cache right after |
+
+Laravel's own events work as well, for example
+`Illuminate\Auth\Events\Login` when someone signs in to the panel.
 
 ## When something goes wrong
 

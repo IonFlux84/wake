@@ -10,7 +10,7 @@ The documentation is split by what you want to do, following the
 
 | Section | Read it when you … |
 |---|---|
-| [Getting started](getting-started/installation.md) | want a site running for the first time |
+| [Getting started](getting-started/requirements.md) | want a site running for the first time |
 | [Guides](guides/README.md) | have a concrete task, e.g. "add a second language" |
 | [Reference](reference/README.md) | need the exact name of a setting, field or command |
 | [Concepts](concepts/README.md) | want to understand how and why Wake works the way it does |
@@ -19,28 +19,41 @@ The documentation is split by what you want to do, following the
 
 ## Getting started
 
+- [System requirements](getting-started/requirements.md)
 - [Installation](getting-started/installation.md) on your computer
 - [Install on a web host](getting-started/hosting.md)
+- [Your first site](getting-started/first-site.md): a walk through the panel
 - [Updating](getting-started/updating.md)
 
 ## Guides
 
-- [Add a second language](guides/second-language.md)
-- [Connect an AI assistant](guides/connect-an-assistant.md)
-- [Write and publish](guides/write-and-publish.md)
-- [Categories and events](guides/categories-and-events.md)
-- [Choose and adjust a theme](guides/themes.md)
-- [Invite your team](guides/invite-your-team.md)
-- [Move from Ghost](guides/move-from-ghost.md)
+Writing and organising:
+[Write and publish](guides/write-and-publish.md) ·
+[Arrange pages and menus](guides/pages-and-menus.md) ·
+[Categories and events](guides/categories-and-events.md) ·
+[Add a second language](guides/second-language.md) ·
+[Move from Ghost](guides/move-from-ghost.md)
+
+Running the site:
+[Invite your team](guides/invite-your-team.md) ·
+[Sign in with two factors](guides/two-factor.md) ·
+[Back up and restore](guides/backups.md) ·
+[Connect an AI assistant](guides/connect-an-assistant.md)
+
+Look and extensions:
+[Choose and adjust a theme](guides/themes.md) ·
+[Build a theme](guides/build-a-theme.md) ·
+[Write a plugin](guides/write-a-plugin.md)
 
 ## Reference
 
 - [Configuration](reference/configuration.md): every setting in `site/config.php`
-- [Content format](reference/content-format.md): folders, files and front matter
+- [Content format](reference/content-format.md): folders, files, front matter, menus
 - [Templates](reference/templates.md): what a theme can use
 - [Tide](reference/tide.md): the default theme
-- [Command line](reference/cli.md): Artisan commands
+- [Plugins](reference/plugins.md): what a plugin can add
 - [MCP server](reference/mcp.md): tools for AI assistants
+- [Command line](reference/cli.md): Artisan commands
 - [Roles](reference/roles.md): who may do what
 - [Content API](reference/api.md): content as JSON
 
@@ -50,6 +63,7 @@ The documentation is split by what you want to do, following the
 - [Analytics](concepts/analytics.md)
 - [Consent](concepts/consent.md)
 - [Editing](concepts/editing.md)
+- [AI assistants](concepts/assistants.md)
 
 ## Project
 

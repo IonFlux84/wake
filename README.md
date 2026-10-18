@@ -96,6 +96,16 @@ account. The full guide is in
 Documentation is part of every change in Wake, not something that follows
 later. Start at [docs/README.md](docs/README.md).
 
+- [System requirements](docs/getting-started/requirements.md) and
+  [installation](docs/getting-started/installation.md)
+- [Your first site](docs/getting-started/first-site.md)
+- [Build a theme](docs/guides/build-a-theme.md) and the
+  [template reference](docs/reference/templates.md)
+- [Write a plugin](docs/guides/write-a-plugin.md) and the
+  [plugin reference](docs/reference/plugins.md)
+- [Connect an AI assistant](docs/guides/connect-an-assistant.md) and the
+  [MCP reference](docs/reference/mcp.md)
+
 ## Contributing
 
 Wake is built in the open for everyone. Read [CONTRIBUTING.md](CONTRIBUTING.md)

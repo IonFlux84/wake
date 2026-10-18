@@ -24,4 +24,6 @@ Open *Themes* in the panel (owners, administrators, and anyone with
 > Themes contain PHP (Blade) and run with full rights. Only install themes
 > from people you trust.
 
-How to build a theme is described in [Templates](../reference/templates.md).
+How to build a theme step by step is described in
+[Build your own theme](build-a-theme.md); every variable and method is in the
+[templates reference](../reference/templates.md).

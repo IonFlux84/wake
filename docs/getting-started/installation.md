@@ -10,7 +10,8 @@ out. To put a site online, see [Install on a web host](hosting.md).
 
 ## What you need
 
-- PHP 8.4 or newer with the extensions `mbstring`, `intl`, `gd` and `zip`
+- PHP 8.4 or newer with the usual extensions, among them `mbstring`, `gd` and
+  `zip` (full list: [system requirements](requirements.md))
 - [Composer](https://getcomposer.org)
 
 Check with:
@@ -35,7 +36,8 @@ composer -V
    composer --working-dir=wake install
    ```
 
-3. **Create the settings file** with a fresh application key.
+3. **The settings file `.env`** is created with a fresh application key on
+   the first request. To create it yourself instead:
 
    ```bash
    cp .env.example .env
@@ -64,6 +66,7 @@ composer -V
 | `storage/` | accounts, statistics and caches, never public |
 | `public/` | the folder your web server serves |
 
-Read [Architecture](../concepts/architecture.md) to see how these fit together,
+Continue with [Your first site](first-site.md). Read
+[Architecture](../concepts/architecture.md) to see how these fit together,
 and [Configuration](../reference/configuration.md) for everything you can set
 in `site/config.php`.

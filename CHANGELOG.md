@@ -151,6 +151,10 @@ All notable changes to Wake are documented here. The format follows
 - Preview of entries in any status in the theme, from the editor, and preview
   links that work for seven days without an account (signed URLs).
 - Redirects page in the panel: see, add and remove old addresses.
+- Documentation: system requirements, a walk through the first site, a
+  tutorial for building a theme, a tutorial for writing a plugin, a complete
+  MCP reference with a guide for connecting assistants, and a page on the
+  security model for AI assistants.
 - Plugins in `site/plugins/`: a `plugin.php` adds cards, field types,
   website routes, maintenance tasks, `<head>` tags, event listeners and
   commands, with views, translations, assets and settings like themes. The
@@ -179,6 +183,14 @@ All notable changes to Wake are documented here. The format follows
 
 ### Fixed
 
+- Tokens for AI assistants could read statistics without the owner's
+  `stats.view` right, and contributors' tokens could read other people's
+  drafts. A token scope now only works while the owner's role allows it, and
+  drafts follow the same visibility as in the panel (MCP and content API).
+- Fonts and images referenced only from a theme's CSS were not published.
+- A theme ZIP without `templates/home.blade.php` could be installed and left
+  the start page empty.
+- Plugin routes now follow the closed-site setting like the website.
 - Invitations said “sent” although Wake only wrote mails to the log. Mail can
   now be set up in the panel (*Settings* → *Sending mail*, SMTP or sendmail,
   with a test mail); the team page says honestly whether a mail went out, and
