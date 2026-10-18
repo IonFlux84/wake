@@ -133,6 +133,14 @@ All notable changes to Wake are documented here. The format follows
   the event page shows the rule and the next dates, the calendar file carries
   the rule (`RRULE`, `EXDATE`), and the editor previews the dates.
 
+- Closed site (`closed`, switched under *Settings*): only signed-in team
+  members see the website, everyone else lands on the sign-in page and comes
+  back to the page they wanted. `robots.txt` disallows everything, pages carry
+  `noindex`, nothing is cached or counted, and the API needs a token.
+- Roles with capabilities: the five built-in roles can be adjusted and reset,
+  custom roles added and removed, in a matrix under *Team → Roles and rights*
+  (`site/roles.yml`). Menu, pages and the MCP server follow the capabilities.
+
 ### Fixed
 
 - Images uploaded to a new post without a title were lost. Wake now saves the

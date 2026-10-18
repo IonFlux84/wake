@@ -57,7 +57,7 @@ class SiteInfoTool extends WakeTool
                 ]))->all(),
                 'note' => 'Set fields.category to the key and fill these fields in content_create. Dates as YYYY-MM-DD HH:MM.',
             ])->all(),
-            'you' => auth()->user() ? ['name' => auth()->user()->name(), 'role' => auth()->user()->role()->value] : null,
+            'you' => auth()->user() ? ['name' => auth()->user()->name(), 'role' => auth()->user()->role()->key, 'capabilities' => auth()->user()->role()->capabilities()] : null,
             'token_scopes' => $token->record()['scopes'] ?? null,
             'timezone' => config('app.timezone'),
         ]);

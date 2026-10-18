@@ -36,6 +36,7 @@
         </div>
     </header>
 
+    @if (auth()->user()->can('stats.view'))
     <section class="grid grid-4" aria-label="{{ __('Key figures') }}">
         <div class="card">
             <div class="kpi-label">{{ __('Visitors') }} {!! $delta($deltas['visitors']) !!}</div>
@@ -110,6 +111,8 @@
 
         <livewire:wake.live-visitors />
     </section>
+
+    @endif
 
     <section class="grid grid-3">
         @foreach ([[__('Drafts'), $drafts, 'draft'], [__('Scheduled'), $scheduled, 'scheduled'], [__('Recently published'), $latest, 'published']] as [$heading, $posts, $status])

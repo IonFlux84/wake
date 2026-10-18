@@ -12,7 +12,7 @@ use Wake\Content\Writer;
 use Wake\Livewire\Entries;
 use Wake\Livewire\EntryEditor;
 
-function member(Role $role, string $name = 'Dana'): Account
+function member(string $role, string $name = 'Dana'): Account
 {
     return app(Accounts::class)->create(['name' => $name, 'email' => strtolower($name).'@example.com', 'password' => 'secret secret', 'role' => $role]);
 }

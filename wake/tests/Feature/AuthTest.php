@@ -3,6 +3,7 @@
 use Wake\Accounts\Account;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
+use Wake\Accounts\Roles;
 
 function owner(array $attributes = []): Account
 {
@@ -24,7 +25,7 @@ it('creates the owner during setup and signs them in', function () {
 
     $account = app(Accounts::class)->findByEmail('dana@example.com');
 
-    expect($account->role())->toBe(Role::Owner)
+    expect($account->role()->key)->toBe(Role::Owner)
         ->and($account->id())->toBe('dana-owner')
         ->and($account->language())->toBe('de')
         ->and(file_get_contents(storage_path('accounts/dana-owner/account.yml')))->not->toContain('a long password');
@@ -86,9 +87,12 @@ it('keeps the website free of sessions and cookies', function () {
     $this->get('/first')->assertCookieMissing('wake_session')->assertHeaderMissing('Set-Cookie');
 });
 
-it('ranks roles', function () {
-    expect(Role::Editor->atLeast(Role::Author))->toBeTrue()
-        ->and(Role::Contributor->atLeast(Role::Author))->toBeFalse();
+it('gives the built-in roles sensible capabilities', function () {
+    $roles = app(Roles::class);
+
+    expect($roles->get(Role::Editor)->can('content.edit_all'))->toBeTrue()
+        ->and($roles->get(Role::Contributor)->can('content.publish'))->toBeFalse()
+        ->and($roles->get(Role::Owner)->can('team.manage'))->toBeTrue();
 });
 
 it('gives accounts unique ids and refuses duplicate emails', function () {

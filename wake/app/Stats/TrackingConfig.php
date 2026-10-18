@@ -19,7 +19,7 @@ class TrackingConfig
     public function values(): array
     {
         return [
-            'enabled' => (bool) config('wake.tracking.enabled'),
+            'enabled' => (bool) config('wake.tracking.enabled') && ! config('wake.closed'),
             'level1' => config('wake.tracking.level1') === 'consent' ? 'consent' : 'always',
             'respect_privacy_signals' => (bool) config('wake.tracking.respect_privacy_signals'),
             'session_cookie' => (string) config('session.cookie'),

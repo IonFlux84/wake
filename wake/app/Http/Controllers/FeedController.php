@@ -47,7 +47,9 @@ class FeedController
 
     public function robots(): Response
     {
-        $lines = ['User-agent: *', 'Disallow: /wake/', '', 'Sitemap: '.url('sitemap.xml')];
+        $lines = config('wake.closed')
+            ? ['User-agent: *', 'Disallow: /']
+            : ['User-agent: *', 'Disallow: /wake/', '', 'Sitemap: '.url('sitemap.xml')];
 
         return response(implode("\n", $lines)."\n")->header('Content-Type', 'text/plain; charset=UTF-8');
     }

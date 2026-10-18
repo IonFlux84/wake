@@ -5,12 +5,16 @@ namespace Wake\Providers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Wake\Accounts\Account;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\AccountUserProvider;
+use Wake\Accounts\Capabilities;
+use Wake\Accounts\Roles;
 use Wake\Cache\PageCache;
 use Wake\Consent\ConsentSettings;
 use Wake\Content\Categories;
@@ -29,6 +33,7 @@ use Wake\Livewire\EntryEditor;
 use Wake\Livewire\Journey;
 use Wake\Livewire\LiveVisitors;
 use Wake\Livewire\MediaLibrary;
+use Wake\Livewire\RoleManager;
 use Wake\Livewire\Statistics;
 use Wake\Livewire\Team;
 use Wake\Localization\Languages;
@@ -53,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         'entries' => Entries::class,
         'entry-editor' => EntryEditor::class,
         'team' => Team::class,
+        'role-manager' => RoleManager::class,
         'category-manager' => CategoryManager::class,
         'media-library' => MediaLibrary::class,
         'settings' => \Wake\Livewire\Settings::class,
@@ -63,7 +69,7 @@ class AppServiceProvider extends ServiceProvider
         $this->mergeSiteConfig();
 
         foreach ([Languages::class, ContentTypes::class, Index::class, Site::class, Markdown::class,
-            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class, Writer::class, Redirects::class, CurrentToken::class, Categories::class] as $service) {
+            Theme::class, PageCache::class, ConsentSettings::class, Maintenance::class, Accounts::class, Panel::class, Writer::class, Redirects::class, CurrentToken::class, Categories::class, Roles::class] as $service) {
             $this->app->singleton($service);
         }
     }
@@ -81,6 +87,13 @@ class AppServiceProvider extends ServiceProvider
         foreach (self::COMPONENTS as $name => $component) {
             Livewire::component('wake.'.$name, $component);
         }
+
+        // Capabilities of roles ("team.manage") answer Laravel's gate and "can:" middleware.
+        Gate::before(function ($user, string $ability) {
+            if ($user instanceof Account && array_key_exists($ability, Capabilities::all())) {
+                return $user->role()->can($ability);
+            }
+        });
 
         Auth::provider('wake', fn ($app) => new AccountUserProvider($app->make(Accounts::class)));
         $this->app->make(Theme::class)->register();

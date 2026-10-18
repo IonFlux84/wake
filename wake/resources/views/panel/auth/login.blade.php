@@ -2,6 +2,7 @@
     <div>
         <div class="eyebrow">{{ app(\Wake\Content\Site::class)->title() }}</div>
         <h1 class="title" style="font-size:32px">{{ __('Sign in') }}</h1>
+        @if (config('wake.closed'))<p class="lead" style="font-size:15px">{{ __('This website is only visible to its team at the moment.') }}</p>@endif
     </div>
 
     @if (session('status'))

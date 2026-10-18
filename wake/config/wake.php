@@ -12,6 +12,10 @@ return [
         'content' => env('WAKE_CONTENT_PATH', dirname(base_path()).'/content'),
     ],
 
+    // Closed site: only signed-in team members see it, everyone else lands on
+    // the sign-in page, and search engines are kept out.
+    'closed' => false,
+
     // Languages of the site. The first one is the default language.
     'languages' => [
         'en' => 'English',

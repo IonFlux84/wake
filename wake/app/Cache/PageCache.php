@@ -12,7 +12,8 @@ class PageCache
 {
     public function enabled(): bool
     {
-        return (bool) config('wake.page_cache.enabled');
+        // A closed site must never be served from the cache.
+        return (bool) config('wake.page_cache.enabled') && ! config('wake.closed');
     }
 
     public function directory(): string
@@ -85,6 +86,8 @@ class PageCache
 
         if ($this->enabled()) {
             $this->writeRules();
+        } else {
+            @unlink($this->directory().'/.rules.php');
         }
     }
 

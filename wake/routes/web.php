@@ -27,11 +27,11 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
     Route::middleware('auth')->group(function () {
         Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
         Route::get('/', DashboardController::class)->name('dashboard');
-        Route::view('stats', 'wake::panel.stats')->name('stats');
-        Route::view('stats/journey', 'wake::panel.journey')->name('stats.journey');
-        Route::view('consent', 'wake::panel.consent')->name('consent');
-        Route::view('assistants', 'wake::panel.assistants')->name('assistants');
-        Route::view('team', 'wake::panel.team')->name('team');
+        Route::view('stats', 'wake::panel.stats')->middleware('can:stats.view')->name('stats');
+        Route::view('stats/journey', 'wake::panel.journey')->middleware('can:stats.view')->name('stats.journey');
+        Route::view('consent', 'wake::panel.consent')->middleware('can:consent.manage')->name('consent');
+        Route::view('assistants', 'wake::panel.assistants')->middleware('can:assistants.use')->name('assistants');
+        Route::view('team', 'wake::panel.team')->middleware('can:team.manage')->name('team');
         Route::view('settings', 'wake::panel.settings')->name('settings');
         Route::view('media', 'wake::panel.media')->name('media.index');
         Route::view('categories', 'wake::panel.categories')->name('categories');

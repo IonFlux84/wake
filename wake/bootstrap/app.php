@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Wake\Http\Middleware\CachePages;
+use Wake\Http\Middleware\ClosedSite;
 use Wake\Http\Middleware\PanelLocale;
 
 // The Laravel application lives in wake/. Everything a site owner touches
@@ -36,6 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'wake.cache' => CachePages::class,
+            'wake.closed' => ClosedSite::class,
         ]);
         $middleware->appendToGroup('wake.panel', [PanelLocale::class]);
         $middleware->redirectGuestsTo(fn () => route('wake.login'));

@@ -4,7 +4,6 @@ namespace Wake\Livewire;
 
 use Illuminate\View\View;
 use Livewire\Component;
-use Wake\Accounts\Role;
 use Wake\Accounts\Tokens;
 
 /**
@@ -45,13 +44,12 @@ class Assistants extends Component
      */
     public function allowedScopes(): array
     {
-        $role = auth()->user()->role();
 
         return array_values(array_filter([
             'stats:read',
             'content:read',
             'content:write',
-            $role->atLeast(Role::Author) ? 'content:publish' : null,
+            auth()->user()->can('content.publish') || auth()->user()->can('content.publish_all') ? 'content:publish' : null,
         ]));
     }
 

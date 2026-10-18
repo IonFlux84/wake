@@ -30,6 +30,10 @@ class OptionalToken
             $this->current->set($found[1]);
         }
 
+        if (config('wake.closed') && $request->bearerToken() === null) {
+            return response()->json(['error' => 'This site is closed. A token is required.'], 401);
+        }
+
         $response = $next($request);
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Headers', 'Authorization, Content-Type');

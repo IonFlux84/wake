@@ -6,7 +6,6 @@ use Illuminate\View\View;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Wake\Accounts\Role;
 use Wake\Content\Categories;
 use Wake\Content\ContentTypes;
 use Wake\Content\Entry;
@@ -99,7 +98,7 @@ class Entries extends Component
         }
 
         // Contributors only see their own entries.
-        if (! auth()->user()->role()->atLeast(Role::Author)) {
+        if (! auth()->user()->can('content.edit_all') && ! auth()->user()->can('content.publish')) {
             $query->author(auth()->user()->id());
         }
 

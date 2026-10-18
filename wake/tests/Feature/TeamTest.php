@@ -28,7 +28,7 @@ it('invites someone, who chooses a password and joins', function () {
         return $mail->hasTo('eve@example.com');
     });
 
-    expect($eve->isPending())->toBeTrue()->and($eve->role())->toBe(Role::Editor);
+    expect($eve->isPending())->toBeTrue()->and($eve->role()->key)->toBe(Role::Editor);
 
     auth()->logout();
     $this->get("/wake/invitation/eve-editor/{$token}")->assertOk()->assertSee('Eve Editor');
@@ -62,7 +62,7 @@ it('changes roles and removes members, but never the owner or yourself', functio
     app(Invitations::class)->invite('Al', 'al@example.com', Role::Author, $this->owner);
 
     Livewire::actingAs($this->owner)->test(Team::class)->call('changeRole', 'al', 'editor');
-    expect(app(Accounts::class)->find('al')->role())->toBe(Role::Editor);
+    expect(app(Accounts::class)->find('al')->role()->key)->toBe(Role::Editor);
 
     Livewire::actingAs($this->owner)->test(Team::class)->call('changeRole', 'dana', 'author')->assertForbidden();
     Livewire::actingAs($this->owner)->test(Team::class)->call('changeRole', 'al', 'owner')->assertForbidden();

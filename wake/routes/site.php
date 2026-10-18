@@ -11,16 +11,22 @@ use Wake\Localization\Languages;
 
 $languages = implode('|', array_map('preg_quote', app(Languages::class)->codes()));
 
-Route::get('media/{hash}/{version}/{variant}/{name}', MediaController::class)
-    ->where(['hash' => '[a-f0-9]{10}', 'version' => '[a-z0-9]+', 'name' => '[^/]+'])
-    ->name('wake.media');
-
-Route::get('feed.xml', [FeedController::class, 'feed'])->name('wake.feed');
-Route::get('{language}/feed.xml', [FeedController::class, 'feed'])->where('language', $languages);
-Route::get('sitemap.xml', [FeedController::class, 'sitemap'])->name('wake.sitemap');
+// robots.txt stays public, so search engines learn that a closed site is off limits.
 Route::get('robots.txt', [FeedController::class, 'robots']);
 
-Route::get('{path?}', [SiteController::class, 'show'])
-    ->where('path', '(?!wake(/|$)).*')
-    ->middleware('wake.cache')
-    ->name('wake.site');
+Route::middleware('wake.closed')->group(function () use ($languages) {
+
+    Route::get('media/{hash}/{version}/{variant}/{name}', MediaController::class)
+        ->where(['hash' => '[a-f0-9]{10}', 'version' => '[a-z0-9]+', 'name' => '[^/]+'])
+        ->name('wake.media');
+
+    Route::get('feed.xml', [FeedController::class, 'feed'])->name('wake.feed');
+    Route::get('{language}/feed.xml', [FeedController::class, 'feed'])->where('language', $languages);
+    Route::get('sitemap.xml', [FeedController::class, 'sitemap'])->name('wake.sitemap');
+
+    Route::get('{path?}', [SiteController::class, 'show'])
+        ->where('path', '(?!wake(/|$)).*')
+        ->middleware('wake.cache')
+        ->name('wake.site');
+
+});

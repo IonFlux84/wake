@@ -5,7 +5,6 @@ namespace Wake\Livewire;
 use Carbon\CarbonImmutable;
 use Illuminate\View\View;
 use Livewire\Component;
-use Wake\Accounts\Role;
 use Wake\Consent\ConsentRecords;
 use Wake\Consent\ConsentSettings;
 use Wake\Content\Index;
@@ -47,7 +46,7 @@ class Consent extends Component
 
     public function save(ConsentSettings $settings): void
     {
-        abort_unless(auth()->user()->role()->atLeast(Role::Admin), 403);
+        abort_unless(auth()->user()->can('consent.manage'), 403);
 
         $this->validate([
             'position' => 'in:bottom,center',

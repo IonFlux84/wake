@@ -9,7 +9,6 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Wake\Accounts\Accounts;
-use Wake\Accounts\Role;
 use Wake\Cache\PageCache;
 use Wake\Content\ContentTypes;
 use Wake\Content\FrontMatter;
@@ -17,6 +16,7 @@ use Wake\Content\History;
 use Wake\Content\Index;
 use Wake\Import\GhostImporter;
 use Wake\Localization\Languages;
+use Wake\Stats\TrackingConfig;
 use Wake\Support\Files;
 use Wake\Support\Health;
 use Wake\Support\Paths;
@@ -62,6 +62,8 @@ class Settings extends Component
 
     public string $panelLanguage = 'de';
 
+    public bool $closed = false;
+
     public string $name = '';
 
     public string $email = '';
@@ -89,6 +91,7 @@ class Settings extends Component
         $this->approval = (bool) config('wake.mcp.approval');
         $this->accent = (string) config('wake.panel.accent');
         $this->panelLanguage = (string) config('wake.panel.language', 'de');
+        $this->closed = (bool) config('wake.closed');
 
         $me = auth()->user();
         $this->name = $me->name();
@@ -130,11 +133,13 @@ class Settings extends Component
             'mcp.approval' => $this->approval,
             'panel.accent' => strtoupper($this->accent),
             'panel.language' => $this->panelLanguage,
+            'closed' => $this->closed,
         ]);
 
         app(ContentTypes::class)->flush();
         $index->refresh(force: true);
         app(PageCache::class)->flush();
+        app(TrackingConfig::class)->sync();
         session()->flash('status', __('Settings saved.'));
         $this->redirectRoute('wake.settings');
     }
@@ -209,7 +214,7 @@ class Settings extends Component
 
     public function installUpdate(Updater $updater): void
     {
-        abort_unless(auth()->user()->role() === Role::Owner, 403);
+        abort_unless(auth()->user()->role()->isOwner(), 403);
 
         if ($this->release === null) {
             return;
@@ -229,13 +234,13 @@ class Settings extends Component
 
     protected function authorizeAdmin(): void
     {
-        abort_unless(auth()->user()->role()->atLeast(Role::Admin), 403);
+        abort_unless(auth()->user()->can('settings.manage'), 403);
     }
 
     public function render(Health $health, History $history): View
     {
         return view('wake::livewire.settings', [
-            'isAdmin' => auth()->user()->role()->atLeast(Role::Admin),
+            'isAdmin' => auth()->user()->can('settings.manage'),
             'problems' => $health->problems(),
             'history' => $history->latest(15),
             'timezones' => DateTimeZone::listIdentifiers(),

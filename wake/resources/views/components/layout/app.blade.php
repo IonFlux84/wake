@@ -2,24 +2,27 @@
 @php
     $account = auth()->user();
     $site = app(\Wake\Content\Site::class);
+    // [key, route, label, icon, capability needed (null = everyone)]
     $nav = [
         [null, [
-            ['dashboard', 'wake.dashboard', __('Dashboard'), 'dashboard'],
-            ['posts', 'wake.posts', __('Posts'), 'posts'],
-            ['pages', 'wake.pages', __('Pages'), 'pages'],
-            ['categories', 'wake.categories', __('Categories'), 'tag'],
-            ['media', 'wake.media.index', __('Media'), 'media'],
+            ['dashboard', 'wake.dashboard', __('Dashboard'), 'dashboard', null],
+            ['posts', 'wake.posts', __('Posts'), 'posts', 'content.write'],
+            ['pages', 'wake.pages', __('Pages'), 'pages', 'content.write'],
+            ['categories', 'wake.categories', __('Categories'), 'tag', 'categories.manage'],
+            ['media', 'wake.media.index', __('Media'), 'media', 'content.write'],
         ]],
         [__('Insights'), [
-            ['stats', 'wake.stats', __('Statistics'), 'stats'],
-            ['consent', 'wake.consent', __('Consent'), 'consent'],
+            ['stats', 'wake.stats', __('Statistics'), 'stats', 'stats.view'],
+            ['consent', 'wake.consent', __('Consent'), 'consent', 'consent.manage'],
         ]],
         [__('Manage'), [
-            ['assistant', 'wake.assistants', __('Assistants'), 'assistant'],
-            ['team', 'wake.team', __('Team'), 'team'],
-            ['settings', 'wake.settings', __('Settings'), 'settings'],
+            ['themes', 'wake.themes', __('Themes'), 'brush', 'themes.manage'],
+            ['assistant', 'wake.assistants', __('Assistants'), 'assistant', 'assistants.use'],
+            ['team', 'wake.team', __('Team'), 'team', 'team.manage'],
+            ['settings', 'wake.settings', __('Settings'), 'settings', null],
         ]],
     ];
+    $visible = fn ($item) => Route::has($item[1]) && ($item[4] === null || $account->can($item[4]));
 @endphp
 <x-wake::layout.base :title="$title">
 <div class="shell">
@@ -34,9 +37,10 @@
 
         <nav class="nav" aria-label="{{ __('Main menu') }}">
             @foreach ($nav as [$label, $items])
-                @if ($label && collect($items)->contains(fn ($item) => Route::has($item[1])))<div class="nav-label">{{ $label }}</div>@endif
-                @foreach ($items as [$key, $route, $text, $icon])
-                    @if (Route::has($route) && (! in_array($key, ['team', 'categories'], true) || $account->role()->atLeast(\Wake\Accounts\Role::Admin)))
+                @if ($label && collect($items)->contains($visible))<div class="nav-label">{{ $label }}</div>@endif
+                @foreach ($items as $item)
+                    @php([$key, $route, $text, $icon] = $item)
+                    @if ($visible($item))
                         <a href="{{ route($route) }}" @class(['on' => $active === $key]) @if ($active === $key) aria-current="page" @endif>
                             <x-wake::icon :name="$icon" />{{ $text }}
                         </a>
@@ -57,6 +61,9 @@
 
     <main class="main">
         <div class="main-inner">
+            @if (config('wake.closed'))
+                <div class="flash" role="status" style="background:var(--accent);color:var(--on-accent)">{{ __('The site is closed: only signed-in team members can see it.') }} @if ($account->can('settings.manage'))<a href="{{ route('wake.settings') }}" style="color:inherit;font-weight:700">{{ __('Open it') }} →</a>@endif</div>
+            @endif
             @if (session('status'))
                 <div class="flash" role="status">{{ session('status') }}</div>
             @endif

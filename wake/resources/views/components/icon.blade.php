@@ -25,6 +25,7 @@ $paths = [
     'history' => '<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/>',
     'upload' => '<path d="M12 16V4M6 10l6-6 6 6M4 20h16"/>',
     'download' => '<path d="M12 4v12M6 10l6 6 6-6M4 20h16"/>',
+    'brush' => '<path d="M9.5 14.5 4 20M14 4l6 6-7.5 7.5a3 3 0 0 1-4.2 0l-1.8-1.8a3 3 0 0 1 0-4.2Z" stroke-linejoin="round"/><path d="m11 7 6 6"/>',
     'tag' => '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.5"/>',
 ];
 @endphp

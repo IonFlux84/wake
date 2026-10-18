@@ -9,6 +9,7 @@ use Wake\Accounts\Account;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Invitations;
 use Wake\Accounts\Role;
+use Wake\Accounts\Roles;
 
 /**
  * The team: who has access, with which role, and invitations.
@@ -23,7 +24,7 @@ class Team extends Component
 
     public function mount(): void
     {
-        abort_unless($this->me()->role()->atLeast(Role::Admin), 403);
+        abort_unless($this->me()->can('team.manage'), 403);
     }
 
     public function invite(Invitations $invitations, Accounts $accounts): void
@@ -38,7 +39,7 @@ class Team extends Component
             'role' => ['required', Rule::in($this->assignableRoles())],
         ]);
 
-        $invitations->invite($this->name, $this->email, Role::from($this->role), $this->me());
+        $invitations->invite($this->name, $this->email, $this->role, $this->me());
         session()->flash('status', __('Invitation sent to :email.', ['email' => $this->email]));
         session()->flash('invite_link', $invitations->lastLink);
         $this->reset('name', 'email');
@@ -78,12 +79,12 @@ class Team extends Component
      */
     public function assignableRoles(): array
     {
-        return array_values(array_map(fn (Role $r) => $r->value, array_filter(Role::cases(), fn (Role $r) => $r !== Role::Owner)));
+        return array_values(array_filter(array_keys(app(Roles::class)->all()), fn (string $key) => $key !== Role::Owner));
     }
 
     protected function mayManage(Account $account): bool
     {
-        return $account->id() !== $this->me()->id() && $account->role() !== Role::Owner;
+        return $account->id() !== $this->me()->id() && ! $account->role()->isOwner();
     }
 
     protected function me(): Account

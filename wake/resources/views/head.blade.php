@@ -14,7 +14,7 @@
     <meta name="description" content="{{ $description }}">
 @endif
     <link rel="canonical" href="{{ $canonical }}">
-@if ($entry?->get('noindex') || $entry?->isFallback())
+@if ($entry?->get('noindex') || $entry?->isFallback() || config('wake.closed'))
     <meta name="robots" content="noindex">
 @endif
 @if ($languages->isMultilingual())

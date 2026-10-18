@@ -20,7 +20,7 @@ class Invitations
 
     public function __construct(protected Accounts $accounts) {}
 
-    public function invite(string $name, string $email, Role $role, Account $inviter): Account
+    public function invite(string $name, string $email, Role|string $role, Account $inviter): Account
     {
         $account = $this->accounts->create(['name' => $name, 'email' => $email, 'role' => $role]);
 

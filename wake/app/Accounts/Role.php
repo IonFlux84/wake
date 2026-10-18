@@ -3,43 +3,69 @@
 namespace Wake\Accounts;
 
 /**
- * Roles in the team, modelled after Ghost.
+ * A role in the team: a name and a set of capabilities. The five built-in
+ * roles follow Ghost and can be adjusted; sites can add their own (see
+ * Roles). The owner always has every capability.
  */
-enum Role: string
+final class Role
 {
-    /** Everything, including the team and settings. Exactly one per site. */
-    case Owner = 'owner';
+    public const Owner = 'owner';
 
-    /** Everything except transferring ownership. */
-    case Admin = 'admin';
+    public const Admin = 'admin';
 
-    /** Writes, edits and publishes all content. */
-    case Editor = 'editor';
+    public const Editor = 'editor';
 
-    /** Writes and publishes own posts. */
-    case Author = 'author';
+    public const Author = 'author';
 
-    /** Writes own drafts, cannot publish. */
-    case Contributor = 'contributor';
+    public const Contributor = 'contributor';
 
-    public function rank(): int
+    /**
+     * @param  array<string, string>|string  $label  per panel language
+     * @param  list<string>  $capabilities
+     */
+    public function __construct(
+        public readonly string $key,
+        protected array|string $label,
+        protected array $capabilities,
+        public readonly bool $builtIn = false,
+    ) {}
+
+    public function isOwner(): bool
     {
-        return match ($this) {
-            self::Owner => 5,
-            self::Admin => 4,
-            self::Editor => 3,
-            self::Author => 2,
-            self::Contributor => 1,
-        };
+        return $this->key === self::Owner;
     }
 
-    public function atLeast(self $role): bool
+    public function can(string $capability): bool
     {
-        return $this->rank() >= $role->rank();
+        return $this->isOwner() || in_array($capability, $this->capabilities, true);
     }
 
-    public function label(): string
+    /**
+     * @return list<string>
+     */
+    public function capabilities(): array
     {
-        return __('wake::roles.'.$this->value);
+        return $this->isOwner() ? array_keys(Capabilities::all()) : $this->capabilities;
+    }
+
+    public function label(?string $locale = null): string
+    {
+        if (is_string($this->label) && $this->label !== '') {
+            return $this->label;
+        }
+
+        $locale ??= app()->getLocale();
+
+        return (string) ($this->label[$locale] ?? $this->label['en'] ?? (in_array($this->key, [self::Owner, self::Admin, self::Editor, self::Author, self::Contributor], true)
+            ? __('wake::roles.'.$this->key, locale: $locale)
+            : ucfirst($this->key)));
+    }
+
+    /**
+     * @return array<string, string>|string
+     */
+    public function rawLabel(): array|string
+    {
+        return $this->label;
     }
 }

@@ -23,11 +23,11 @@
                         <b style="display:block">{{ $account->name() }} @if ($account->isPending())<span class="badge">{{ __('invited') }}</span>@endif</b>
                         <span class="muted" style="font-size:13px">{{ $account->email() }}</span>
                     </span>
-                    @if ($account->role() === \Wake\Accounts\Role::Owner || $account->id() === auth()->id())
+                    @if ($account->role()->isOwner() || $account->id() === auth()->id())
                         <span class="badge">{{ $account->role()->label() }}</span>
                     @else
                         <select class="select" style="width:auto;min-height:36px" wire:change="changeRole('{{ $account->id() }}', $event.target.value)" aria-label="{{ __('Role') }}">
-                            @foreach ($roles as $role)<option value="{{ $role }}" @selected($account->role()->value === $role)>{{ __('wake::roles.'.$role) }}</option>@endforeach
+                            @foreach ($roles as $role)<option value="{{ $role }}" @selected($account->role()->key === $role)>{{ app(\Wake\Accounts\Roles::class)->get($role)->label() }}</option>@endforeach
                         </select>
                         @if ($account->isPending())<button class="btn btn-small" wire:click="resend('{{ $account->id() }}')">{{ __('Resend') }}</button>@endif
                         <button class="btn btn-small btn-danger" wire:click="remove('{{ $account->id() }}')" wire:confirm="{{ __('Remove :name from the team?', ['name' => $account->name()]) }}" title="{{ __('Remove') }}"><x-wake::icon name="trash" /></button>
@@ -41,9 +41,11 @@
             <div class="field"><label for="invite-name">{{ __('Name') }}</label><input id="invite-name" class="input" wire:model="name">@error('name')<span class="error">{{ $message }}</span>@enderror</div>
             <div class="field"><label for="invite-email">{{ __('Email address') }}</label><input id="invite-email" type="email" class="input" wire:model="email">@error('email')<span class="error">{{ $message }}</span>@enderror</div>
             <div class="field"><label for="invite-role">{{ __('Role') }}</label>
-                <select id="invite-role" class="select" wire:model="role">@foreach ($roles as $role)<option value="{{ $role }}">{{ __('wake::roles.'.$role) }}</option>@endforeach</select></div>
+                <select id="invite-role" class="select" wire:model="role">@foreach ($roles as $role)<option value="{{ $role }}">{{ app(\Wake\Accounts\Roles::class)->get($role)->label() }}</option>@endforeach</select></div>
             <p class="muted" style="margin:0;font-size:13px">{{ __('They get a mail with a link to choose their password. The link works for 7 days.') }}</p>
             <div class="actions"><button class="btn btn-primary" type="submit">{{ __('Send invitation') }}</button></div>
         </form>
     </section>
+
+    <livewire:wake.role-manager />
 </div>

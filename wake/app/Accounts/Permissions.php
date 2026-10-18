@@ -16,23 +16,24 @@ class Permissions
             return true;
         }
 
-        $role = $account->role();
         $own = $entry->get('author') === $account->id();
 
-        return $role->atLeast(Role::Editor) || ($own && ($role->atLeast(Role::Author) || $entry->isDraft()));
+        return $account->can('content.edit_all')
+            || ($own && ($account->can('content.publish') || ($entry->isDraft() && $account->can('content.write'))));
     }
 
     public static function mayPublish(Account $account, ?Entry $entry): bool
     {
-        $role = $account->role();
+        if ($entry !== null && $entry->get('author') !== $account->id()) {
+            return $account->can('content.publish_all');
+        }
 
-        return $role->atLeast(Role::Editor)
-            || ($role === Role::Author && ($entry === null || $entry->get('author') === $account->id()));
+        return $account->can('content.publish') || $account->can('content.publish_all');
     }
 
     public static function mayDelete(Account $account, ?Entry $entry): bool
     {
-        return $entry !== null && ($account->role()->atLeast(Role::Editor)
-            || ($entry->get('author') === $account->id() && $entry->isDraft()));
+        return $entry !== null && ($account->can('content.delete_all')
+            || ($entry->get('author') === $account->id() && $entry->isDraft() && $account->can('content.write')));
     }
 }

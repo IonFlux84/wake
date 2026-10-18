@@ -3,6 +3,7 @@
 namespace Wake\Accounts;
 
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Foundation\Auth\Access\Authorizable;
@@ -38,7 +39,19 @@ class Account implements Authenticatable, AuthorizableContract, CanResetPassword
 
     public function role(): Role
     {
-        return Role::tryFrom((string) ($this->attributes['role'] ?? '')) ?? Role::Contributor;
+        $roles = app(Roles::class);
+
+        return $roles->get((string) ($this->attributes['role'] ?? '')) ?? $roles->get(Role::Contributor);
+    }
+
+    public function can($abilities, $arguments = []): bool
+    {
+        // A capability like "team.manage"; Laravel's gate abilities otherwise.
+        if (is_string($abilities) && array_key_exists($abilities, Capabilities::all())) {
+            return $this->role()->can($abilities);
+        }
+
+        return app(Gate::class)->forUser($this)->check($abilities, $arguments);
     }
 
     /**

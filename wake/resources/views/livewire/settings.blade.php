@@ -10,6 +10,14 @@
 
     @if ($isAdmin)
         <form wire:submit="saveSite" style="display:flex;flex-direction:column;gap:16px">
+            <section class="card" style="flex-direction:row;align-items:center;gap:16px;{{ $closed ? 'background:var(--night);color:#fff;border-color:var(--night)' : '' }}">
+                <x-wake::icon name="key" size="22" />
+                <div style="flex:1">
+                    <h2 class="h2" style="{{ $closed ? 'color:#fff' : '' }}">{{ __('Closed site') }}</h2>
+                    <p style="margin:4px 0 0;font-size:14px;{{ $closed ? 'color:#bdbdbd' : '' }}" class="{{ $closed ? '' : 'muted' }}">{{ __('Only signed-in team members see the website. Everyone else lands on the sign-in page, and search engines are kept out. Good while building a site.') }}</p>
+                </div>
+                <label class="check" style="white-space:nowrap"><input type="checkbox" wire:model.live="closed"> {{ $closed ? __('Closed') : __('Open') }}</label>
+            </section>
             <section class="grid grid-2">
                 <div class="card form">
                     <h2 class="h2">{{ __('Website') }}</h2>
@@ -73,7 +81,7 @@
                     <h3 class="h2" style="margin:0 0 8px">{{ __('Wake :version is available', ['version' => $release['version']]) }}</h3>
                     <div class="muted" style="white-space:pre-line;font-size:13px;max-height:180px;overflow:auto">{{ \Illuminate\Support\Str::limit($release['notes'], 1500) }}</div>
                 </div>
-                @if (auth()->user()->role() === \Wake\Accounts\Role::Owner)
+                @if (auth()->user()->role()->isOwner())
                     <div class="actions"><button type="button" class="btn btn-primary" wire:click="installUpdate" wire:confirm="{{ __('Install the update now? Your content and settings are not touched; the current version is kept as a backup.') }}" wire:loading.attr="disabled">{{ __('Install') }}</button><span wire:loading wire:target="installUpdate" class="muted">{{ __('Installing …') }}</span></div>
                 @else
                     <p class="muted" style="margin:0">{{ __('Only the owner can install updates.') }}</p>

@@ -6,7 +6,6 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Component;
-use Wake\Accounts\Role;
 use Wake\Content\Categories;
 use Wake\Content\Category;
 use Wake\Content\Index;
@@ -50,7 +49,7 @@ class CategoryManager extends Component
 
     public function mount(): void
     {
-        abort_unless(auth()->user()->role()->atLeast(Role::Admin), 403);
+        abort_unless(auth()->user()->can('categories.manage'), 403);
     }
 
     public function create(): void

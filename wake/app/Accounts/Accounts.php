@@ -60,7 +60,7 @@ class Accounts
 
     public function owner(): ?Account
     {
-        return $this->all()->first(fn (Account $account) => $account->role() === Role::Owner);
+        return $this->all()->first(fn (Account $account) => $account->role()->isOwner());
     }
 
     /**
@@ -74,13 +74,14 @@ class Accounts
 
         $id = $this->uniqueId(Str::slug($data['name']) ?: 'member');
         $role = $data['role'] ?? Role::Contributor;
+        $role = $role instanceof Role ? $role->key : (string) $role;
 
         $account = new Account(array_filter([
             'id' => $id,
             'name' => trim($data['name']),
             'email' => mb_strtolower(trim($data['email'])),
             'password' => isset($data['password']) ? Hash::make($data['password']) : null,
-            'role' => $role instanceof Role ? $role->value : $role,
+            'role' => $role,
             'language' => $data['language'] ?? null,
             'created_at' => now()->toIso8601String(),
         ], fn ($value) => $value !== null));
