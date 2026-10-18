@@ -1,6 +1,6 @@
 ---
 title: Content format
-description: How posts, pages, tags and custom content are stored in content/.
+description: How posts, pages, categories, tags, custom content and media are stored in content/.
 ---
 
 # Content format
@@ -9,25 +9,35 @@ Everything on your website is a Markdown file in `content/`. You can create and
 edit these files with any text editor, upload them via FTP or keep them in Git.
 Wake notices changes on the next page view.
 
+**Every entry is a folder**: pages, posts, categories, tags and custom types.
+Folder names are lowercase words joined by hyphens, without numbers or dates,
+and the folder name is the address
+([decision 0011](../decisions/0011-one-folder-per-entry.md)).
+
 ```
 content/
-  site.en.md                     site title and description per language
-  site.de.md
-  posts/
-    2026-10-17-hello-world/      one folder per post
-      index.en.md                one file per language
-      index.de.md
-      cover.jpg                  media, shared by all languages
+  website.md                     site title and description (default language)
+  website.de.md                  … and per further language
   pages/
-    home/index.en.md             the start page (/)
-    1_about/                     /about, listed in the menu as no. 1
-      index.en.md
-      1_team/index.en.md         /about/team
-    imprint/index.en.md          /imprint, not in the menu
+    home/content.md              the start page (/)
+    about/                       /about
+      content.md                 front matter and text, default language
+      content.de.md              the German translation
+      style.css                  optional design for this page only
+      team/content.md            a sub-page: /about/team
+    imprint/content.md           /imprint
+  posts/
+    hello-world/content.md       /hello-world
+  categories/
+    events/content.md            a category, see below
   tags/
-    travel.en.md                 optional details for the tag "travel"
+    travel/content.md            optional details for the tag "travel"
   events/                        a custom content type (see below)
-    2026-05-01-spring-fair/index.en.md
+    type.yml                     its fields and address pattern
+    spring-fair/content.md
+  media/                         all images and documents, see below
+    posts/hello-world/cover.jpg
+    documents/statutes.pdf
 ```
 
 ## A file
@@ -39,7 +49,7 @@ slug: hello-world
 status: published
 published: 2026-10-17 09:00
 tags: [travel, ruhr]
-cover: cover.jpg
+cover: media/posts/hello-world/cover.jpg
 excerpt: Why I built my own CMS.
 ---
 
@@ -54,12 +64,14 @@ The part between the `---` lines is the **front matter** in
 | Field | Description |
 |---|---|
 | `title` | Title of the entry. Without it, Wake uses the folder name. |
-| `slug` | Last part of the address. Without it, Wake uses the folder name without date or number. Each language can have its own slug. |
+| `slug` | Last part of the address. Without it, Wake uses the folder name. Each language can have its own slug. |
 | `status` | `draft` (only visible in the panel), `scheduled` (visible from `published` on) or `published` (default). |
-| `published` | Date and time of publication, e.g. `2026-10-17 09:00`, in the site's [time zone](configuration.md). Posts without it use the date from the folder name. |
+| `published` | Date and time of publication, e.g. `2026-10-17 09:00`, in the site's [time zone](configuration.md). The panel fills it in when you publish. |
 | `tags` | List of tags. Written in any spelling, `Ruhr Area` and `ruhr-area` are the same tag. |
-| `cover` | File name of the header image in the same folder, shown large at the top. |
-| `thumbnail` | File name of the preview image for lists, cards and social media. Without it, the header image is used. |
+| `cover` | The header image, shown large at the top: `media/…`, or a file name in the entry's own media folder. |
+| `thumbnail` | The preview image for lists, cards and social media. Without it, the header image is used. |
+| `order` | Pages: position among their siblings in the page tree (1, 2, 3 …). Pages without it come after, by name. The panel writes it when you drag pages. |
+| `menu` | Pages: `true` puts the page into the automatic main menu. |
 | `excerpt` | Short summary for lists, feeds and search engines. Without it, Wake takes the start of the text. |
 | `template` | Render this entry with another template of the theme, e.g. `template: landing`. |
 | `seo.title`, `seo.description` | Override title and description for search engines. |
@@ -68,27 +80,55 @@ The part between the `---` lines is the **front matter** in
 Any other field is available in templates as well: `location: Town hall` is
 `$entry->location`.
 
-## Folder names
+## Folders and files
 
-| Type | Folder name | Meaning |
-|---|---|---|
-| Posts | `2026-10-17-hello-world` | Date (optional) and name. The date is used when `published` is missing. |
-| Pages | `1_about` | Number (optional) and name. Pages with a number are *listed*, in that order. Unless `site/menus.yml` has a main menu, listed top-level pages and their listed sub-pages make up `$site->menu()`. |
-| Pages | `home` | The start page, shown at `/`. |
+- A folder with a `content.md` (or `content.<lang>.md`) is an entry. The id of
+  the entry is its path below `content/`, e.g. `pages/about/team`.
+- Folder names: `a-z`, `0-9` and hyphens. Write `annual-meeting-2026` rather
+  than a date in front; the date of a post is `published:`.
+- `pages/home` is the start page, shown at `/`.
+- Sub-folders of a page are its sub-pages. Posts, tags and custom entries have
+  no sub-entries.
+- The order of pages and the automatic main menu come from `order:` and
+  `menu: true` in `content.md`. Unless `settings/menus.yml` has a main menu,
+  top-level pages with `menu: true` and their sub-pages with `menu: true` make
+  up `$site->menu()`.
+- Moving a page in the panel writes `order:`; only moving it under another
+  page renames the folder, and Wake then writes a redirect from the old address.
+- Other files in an entry's folder are ignored, apart from `style.css`.
 
-Only folders with an `index.*.md` file count as entries. Other folders, such as
-an `images/` folder inside a post, are ignored.
+### Design of a single page: `style.css`
+
+A `style.css` next to `content.md` applies to that entry only. Everyone who may
+edit the text may edit it, in the editor under *Design* or by FTP. Wake loads
+it only on that page and limits it with `@scope (main)` to the content, so the
+header, menu and footer of the theme stay as they are. Wake cleans it on saving
+and again on output:
+
+- `@import`, `@charset` and `@namespace` are removed,
+- `url()` works only for the media library: `url(media/posts/x/wave.svg)`
+  becomes the address of that file; anything else becomes `none`,
+- `image-set()`, `expression()`, `behavior` and `-moz-binding` are removed,
+- `<` is escaped and braces are balanced, so nothing ends the `<style>` element
+  or escapes the scope,
+- at most 64 KB are read.
+
+```css
+/* content/pages/about/style.css */
+h2 { letter-spacing: .02em; }
+.callout { background: url(media/pages/about/wave.svg) no-repeat right; }
+```
 
 ## Menus
 
-`site/menus.yml` holds menus arranged in the panel (*Menus*). Wake knows
+`settings/menus.yml` holds menus arranged in the panel (*Menus*). Wake knows
 `main` and `footer`. Without `main`, the main menu follows the page tree.
 
 ```yaml
 main:
-  - page: pages/1_about
+  - page: pages/about
     children:
-      - page: pages/1_about/1_team
+      - page: pages/about/team
   - page: pages/contact
     label: { en: Write to us, de: Schreib uns }
   - label: Shop
@@ -110,9 +150,10 @@ See [Arrange pages and menus](../guides/pages-and-menus.md).
 
 ## Languages
 
-Each language is one file: `index.en.md`, `index.de.md`. The codes are the ones
-from the `languages` [setting](configuration.md). A single-language site may
-simply use `index.md`.
+Each language is one file in the entry's folder: `content.md` for the default
+language and `content.<code>.md` for the others, e.g. `content.de.md`. The codes
+are the ones from the `languages` [setting](configuration.md). The folder,
+`style.css` and the media are shared by all languages.
 
 - The default language has no prefix in the URL (`/about`), the others do
   (`/de/ueber-uns`).
@@ -123,15 +164,26 @@ simply use `index.md`.
 
 ## Media
 
-Images and other files sit next to the text files and are shared by all
-languages. Refer to them by file name:
+All images and documents live in one library, `content/media/`, with
+sub-folders as you like (`media/documents/`, `media/summer-fest-2026/`). The
+editor uploads to `media/<entry id>/`, e.g. `media/posts/harbour/`. Refer to a
+file with its path starting at `media/`, or, for files in the entry's own media
+folder, by its name:
 
 ```markdown
-![The harbour at night](harbour.jpg)
-[Download the programme](programme.pdf)
+![The harbour at night](media/posts/harbour/harbour.jpg)
+[Download the statutes](media/documents/statutes.pdf)
+![](boats.jpg)          same as media/posts/harbour/boats.jpg in posts/harbour
 ```
 
-Wake turns these into public URLs. Images are resized on first use to the
+- Uploading a name that is taken in that folder gives it `-2`.
+- The media library in the panel shows which entries use a file, lists unused
+  files and warns before deleting one in use. Only people who may delete every
+  entry may delete a file that is used.
+- Media of drafts are not hidden; their addresses carry a hash and are hard to
+  guess.
+
+Wake turns these references into public URLs. Images are resized on first use to the
 widths in `images.widths` and converted to WebP for browsers that support it.
 
 ### File details
@@ -141,7 +193,7 @@ next to it, named after the file plus `.yml`. The panel writes it under
 *Media* when you click a file; you can also write it by hand.
 
 ```yaml
-# content/posts/2026-10-17-harbour/harbour.jpg.yml
+# content/media/posts/harbour/harbour.jpg.yml
 alt:
   en: Fishing boats in the harbour at night
   de: Fischerboote nachts im Hafen
@@ -203,13 +255,17 @@ location: Park
 ---
 ```
 
-Categories are defined in `site/categories/{key}.yml` (or in the panel under
-*Categories*):
+Each category is a folder in `content/categories/` (or made in the panel under
+*Categories*). The folder name is its key. `content.md` holds the fields in the
+default language, `content.<lang>.md` the translated title, slug and
+description:
 
 ```yaml
-title: { de: Termine, en: Events }       # name per language
-slug: { de: termine, en: events }        # address of the category page
-description: { de: Was wann und wo stattfindet., en: What happens when and where. }
+# content/categories/termine/content.md
+---
+title: Events                            # name in the default language
+slug: events                             # address of the category page
+description: What happens when and where.
 icon: calendar
 template: event                          # post-event and category-event templates
 url: '{category}/{slug}'                 # optional: addresses below the category
@@ -226,6 +282,16 @@ fields:
     options:
       scheduled: { de: Findet statt, en: Takes place }
       cancelled: { de: Abgesagt, en: Cancelled }
+---
+```
+
+```yaml
+# content/categories/termine/content.de.md
+---
+title: Termine
+slug: termine
+description: Was wann und wo stattfindet.
+---
 ```
 
 A field with `list: true` (type `textarea`) is edited one item per line and
@@ -261,17 +327,18 @@ posts with the same address win.
 ## Tags
 
 A tag exists as soon as a published post uses it, and gets a page at
-`/tag/{slug}`. A file `content/tags/{slug}.{lang}.md` is optional and adds a
-nicer title, a description in its body or another slug.
+`/tag/{slug}`. A folder `content/tags/{slug}/` with a `content.md` is optional
+and adds a nicer title, a description in its body or another slug.
 
 ## Custom content types
 
-A blueprint in `site/blueprints/` with a `folder` creates a new content type:
+A folder in `content/` with a `type.yml` is a new content type. The folder is
+where its entries live:
 
 ```yaml
-# site/blueprints/event.yml
+# content/events/type.yml
+name: event               # optional, the folder name otherwise
 title: Events
-folder: events
 url: events/{slug}
 fields:
   start:    { type: datetime, required: true }
@@ -282,5 +349,5 @@ Entries then live in `content/events/` exactly like posts, and are available as
 `$site->entries('event')` in templates. `url` accepts the same placeholders as
 `post_url`. Without `url`, the address is `{folder}/{slug}`.
 
-The `fields` describe the form in the panel (phase 3). Blueprints named `post`,
-`page` or `tag` add fields to the built-in types.
+The `fields` describe the form in the panel. A `type.yml` in `content/posts/`,
+`content/pages/` or `content/tags/` adds fields to the built-in types.

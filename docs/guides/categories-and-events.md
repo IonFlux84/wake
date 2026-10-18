@@ -68,7 +68,7 @@ Owners and administrators manage categories under *Categories* in the panel:
   (`/reports/my-post`) and the order of the category page (newest first, or by
   a date field with upcoming entries first).
 
-Each category is a file in `site/categories/`, so you can also write or copy
-one by hand. The format is described in
+Each category is a folder in `content/categories/`, so you can also write or
+copy one by hand. The format is described in
 [content format](../reference/content-format.md#categories), the templates in
 [templates](../reference/templates.md#categories).

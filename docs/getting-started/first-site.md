@@ -27,7 +27,7 @@ everything:
 ## 2. Name your site
 
 Open *Settings*. Under **Website** set the time zone and how post addresses
-look. The site title and description live in the file `content/site.en.md`
+look. The site title and description live in the file `content/website.md`
 (one per language):
 
 ```markdown

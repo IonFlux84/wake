@@ -1,5 +1,10 @@
 <?php
 
+use Livewire\Livewire;
+use Wake\Accounts\Accounts;
+use Wake\Accounts\Role;
+use Wake\Livewire\EntryEditor;
+
 it('renders the home page from pages/home', function () {
     $this->get('/')->assertOk()->assertSee('Home: Welcome')->assertSee('Second post');
 });
@@ -85,4 +90,29 @@ it('shows changes made to files without any further step', function () {
     $this->writeContent('posts/first/content.md', "---\ntitle: Edited by FTP\npublished: 2026-01-10 09:00\n---\n");
 
     $this->get('/first')->assertSee('Edited by FTP');
+});
+
+it('loads the design of a page only on that page, cleaned and scoped', function () {
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+
+    Livewire::withQueryParams(['id' => 'pages/about'])->actingAs($owner)
+        ->test(EntryEditor::class, ['type' => 'page'])
+        ->set('tab', 'design')
+        ->assertSee('style.css')
+        ->set('style', "@import url(https://evil.example/x.css);\nh2 { color: red; background: url(https://evil.example/p.gif) }\n.hero { background: url(media/posts/first/photo.png) }\n} body { display: none }\n</style><script>alert(1)</script>")
+        ->call('saveStyle')
+        ->assertHasNoErrors();
+
+    $css = file_get_contents($this->content('pages/about/style.css'));
+
+    expect($css)->not->toContain('@import')->not->toContain('evil.example')->not->toContain('</style')
+        ->and(substr_count($css, '{'))->toBe(substr_count($css, '}'));
+
+    $this->get('/about')->assertOk()
+        ->assertSee('@scope (main)', false)
+        ->assertSee('color: red', false)
+        ->assertSee('/media/', false)
+        ->assertDontSee('<script>alert(1)', false);
+
+    $this->get('/contact')->assertOk()->assertDontSee('@scope (main)', false);
 });

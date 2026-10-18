@@ -13,24 +13,30 @@ contributors.
 
 ```
 wake/       Laravel application (namespace Wake\), replaced on update
-site/       config.php, blueprints/, themes/
-content/    Markdown files
-storage/    runtime data, never public
+content/    texts, pages, posts and media (editors)
+themes/     looks (designers)
+plugins/    extensions (developers)
+settings/   config.php, general.yml, menus, redirects, roles, consent
+data/       accounts, statistics, versions, trash, backups: back it up
+temp/       caches, locks, logs: may be deleted at any time
 public/     document root: index.php, media/, assets/
-.env        application key, mail credentials
+.env        application key
 ```
 
-`wake/bootstrap/app.php` tells Laravel that its public folder, storage folder
-and `.env` sit next to `wake/`, not inside it. That is why an update can replace
+`wake/bootstrap/app.php` tells Laravel that its public folder, its storage
+folder (`temp/`) and `.env` sit next to `wake/`, not inside it.
+`Wake\Support\Paths` knows the other folders; each can be moved with a
+`WAKE_*_PATH` variable ([configuration](../reference/configuration.md)). That is why an update can replace
 `wake/` without touching anything that belongs to the site
-([decision 0008](../decisions/0008-application-in-its-own-folder.md)).
+([decisions 0008](../decisions/0008-application-in-its-own-folder.md) and
+[0011](../decisions/0011-one-folder-per-entry.md)).
 
 ## A request
 
 ```
 browser ─► public/index.php
              │
-             ├─ cached page in storage/cache/pages?  ──► send it, done (Laravel never starts)
+             ├─ cached page in temp/cache/pages?  ──► send it, done (Laravel never starts)
              │
              ▼
            Laravel ─► SiteController
@@ -44,12 +50,12 @@ browser ─► public/index.php
 
 ### The page cache
 
-`public/index.php` looks for `storage/cache/pages/{path}/index.html` before it
+`public/index.php` looks for `temp/cache/pages/{path}/index.html` before it
 loads anything else. If the file exists and is younger than `page_cache.ttl`
 seconds, it is sent straight away. Such a request costs about as much as
 serving a static file.
 
-Pages are cached per scheme and host (`storage/cache/pages/https_example.org/…`),
+Pages are cached per scheme and host (`temp/cache/pages/https_example.org/…`),
 so the `http://` or `www.` version of a site never hands out links of another.
 At most ten hosts are kept, so forged `Host` headers cannot fill the disk.
 
@@ -72,28 +78,33 @@ built from its translated `slug`.
 
 A database answers "the five newest posts tagged *travel*" without reading
 every post. Wake gets the same from its **index**: one PHP file,
-`storage/cache/index.php`, that returns an array with every entry, every
+`temp/cache/index.php`, that returns an array with every entry, every
 language and every front matter field, but no body text.
 
 ```php
-'posts/2026-10-17-hello-world' => [
+'posts/hello-world' => [
     'type' => 'post',
     'name' => 'hello-world',
-    'date' => '2026-10-17',
+    'order' => null,
+    'menu' => false,
+    'style' => null,               // mtime of style.css, if there is one
     'languages' => [
-        'en' => ['file' => 'posts/…/index.en.md', 'mtime' => 1792220000, 'fields' => [...]],
+        'en' => ['file' => 'posts/hello-world/content.md', 'mtime' => 1792220000, 'fields' => [...]],
         'de' => [...],
     ],
-    'media' => ['cover.jpg' => 1792220000],
 ],
 ```
+
+Next to the entries, the index keeps the **media library**: every file below
+`content/media/` with its modification time and details, and which entries
+use it (found in `cover`, `thumbnail` and the links of the text).
 
 Because it is a PHP file, OPcache keeps it compiled in memory. Loading it takes
 microseconds, and queries are plain array operations. The body of an entry is
 read from its file only when a template calls `content()`.
 
 The index also holds an **address table** per language (`'about/team' =>
-'pages/1_about/1_team'`), so finding the entry for a URL is a single array
+'pages/about/team'`), so finding the entry for a URL is a single array
 lookup.
 
 ### Noticing changes
@@ -121,7 +132,7 @@ Many cheap hosts offer no cron. Wake therefore uses Laravel's `terminating`
 hook, which runs after the response has been sent to the visitor:
 
 1. At most once per `maintenance.interval` seconds (a timestamp file in
-   `storage/locks/`), and never twice at the same time (a non-blocking lock).
+   `temp/locks/`), and never twice at the same time (a non-blocking lock).
 2. Each task gets a deadline (`maintenance.budget`) and stops early when it is
    reached. The rest happens on the next run.
 
@@ -168,7 +179,7 @@ addresses.
 | `Markdown/` | Markdown rendering and cards |
 | `Maintenance/` | maintenance runner and tasks |
 | `Theme/` | theme templates and assets |
-| `Plugins/` | loading plugins from `site/plugins` ([plugins](../reference/plugins.md)) |
+| `Plugins/` | loading plugins from `plugins` ([plugins](../reference/plugins.md)) |
 | `Backup/` | backup ZIPs and restoring them |
 | `Localization/` | languages |
 | `Support/` | atomic file writes, paths |

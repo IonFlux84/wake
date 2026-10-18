@@ -36,7 +36,7 @@ Title, description, address, languages and content types.
 ```json
 {
   "data": [{
-    "id": "posts/2026-10-17-hello-world",
+    "id": "posts/hello-world",
     "title": "Hello world",
     "url": "https://example.org/hello-world",
     "status": "published",

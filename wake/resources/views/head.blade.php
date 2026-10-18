@@ -71,6 +71,9 @@
     ]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
 @endif
     <meta name="generator" content="Wake">
+@if ($entry && ($pageStyle = \Wake\Content\PageStyle::scoped($entry->style())) !== '')
+    <style data-wake-style>{!! $pageStyle !!}</style>
+@endif
 @php($consent = app(\Wake\Consent\ConsentSettings::class))
 @php($consentTexts = $consent->texts(app()->getLocale()))
     <link rel="stylesheet" href="{{ app(\Wake\Panel\Panel::class)->asset('consent.css') }}">

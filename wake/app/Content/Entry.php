@@ -401,6 +401,17 @@ class Entry implements JsonSerializable
     }
 
     /**
+     * The design of this entry only: style.css in its folder, as written
+     * (clean it with PageStyle before output). Empty without one.
+     */
+    public function style(): string
+    {
+        $file = $this->directory().'/style.css';
+
+        return ($this->row['style'] ?? null) !== null && is_file($file) ? (string) file_get_contents($file) : '';
+    }
+
+    /**
      * The folder of this entry on disk.
      */
     public function directory(): string

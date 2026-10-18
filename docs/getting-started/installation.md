@@ -54,19 +54,22 @@ composer -V
 
 6. **Create your account.** Open <http://localhost:8000/wake>. On the first
    visit Wake asks for your name, email address and a password, and makes you
-   the owner of the site. Accounts are stored as files in `storage/accounts/`.
+   the owner of the site. Accounts are stored as files in `data/accounts/`.
 
 ## What is where
 
 | Folder | Contents |
 |---|---|
 | `wake/` | the application. Don't change anything here, an update replaces it |
-| `site/` | your settings (`config.php`), blueprints and theme |
-| `content/` | your posts and pages |
-| `storage/` | accounts, statistics and caches, never public |
+| `content/` | your pages, posts, categories, tags and media, one folder per entry |
+| `themes/` | the looks of the website, e.g. Tide |
+| `plugins/` | extensions |
+| `settings/` | `config.php`, the settings from the panel (`general.yml`), menus, redirects, roles, consent |
+| `data/` | accounts, statistics, versions, trash and backups. Back it up; never public |
+| `temp/` | caches, locks and logs. Wake makes them again, you may delete them |
 | `public/` | the folder your web server serves |
 
 Continue with [Your first site](first-site.md). Read
 [Architecture](../concepts/architecture.md) to see how these fit together,
 and [Configuration](../reference/configuration.md) for everything you can set
-in `site/config.php`.
+in `settings/config.php`.

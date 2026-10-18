@@ -8,7 +8,7 @@ cover: media/posts/hello-world/cover.jpg
 ---
 
 This post is a folder with one Markdown file per language. Open
-`content/posts/2026-10-17-hello-world/index.en.md` in any editor and change
+`content/posts/hello-world/content.md` in any editor and change
 this sentence. Wake notices the change on the next page view.
 
 ::: callout 💡
@@ -16,10 +16,12 @@ Cards like this one are written as `::: callout` blocks and stay readable in
 the file.
 :::
 
-## What else is in this folder
+## Where the images are
 
-Images and downloads live next to the text files and are shared by all
-languages.
+Images and downloads live in the media library, `content/media/`. The header
+image of this post is `media/posts/hello-world/cover.jpg`, shared by all
+languages. A `style.css` next to `content.md` would change the design of this
+post only.
 
 ::: embed https://www.youtube.com/watch?v=aqz-KE-bpKQ
 Embeds load only after a click or consent.

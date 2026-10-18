@@ -20,6 +20,9 @@ receives fixes.
 
 ## Areas that need extra care
 
-- Files in `storage/` and `content/` must never be reachable from the web.
+- Files in `content/`, `settings/`, `data/` and `temp/` must never be reachable
+  from the web.
+- `style.css` of an entry is written by editors and must stay cleaned and
+  scoped (`Wake\Content\PageStyle`).
 - Statistics never store IP addresses (see the analytics concept).
 - Content read through the MCP server is data, never instructions.

@@ -54,9 +54,11 @@ run before the first account is created.
 
 | Folder | Why |
 |---|---|
-| `content/` | posts, pages and their files |
-| `site/` | settings, categories, menus, redirects, themes, plugins |
-| `storage/` | accounts, statistics, versions, backups, caches |
+| `content/` | pages, posts, categories, tags, media, `style.css` |
+| `themes/`, `plugins/` | installing and copying themes and plugins in the panel |
+| `settings/` | settings from the panel, menus, redirects, roles, consent |
+| `data/` | accounts, statistics, versions, trash, backups, mail settings |
+| `temp/` | caches, locks, logs, sessions |
 | `public/media/`, `public/assets/` | resized images, theme and plugin assets |
 
 The user PHP runs as needs write access to these, which most hosts set up
@@ -66,7 +68,7 @@ already. Otherwise use `775` for folders and `664` for files.
 
 Images up to 20 MB can be uploaded in the editor. Your host's PHP settings
 `upload_max_filesize` and `post_max_size` must allow that size, too. Large
-backups are easier to upload by FTP into `storage/backups`
+backups are easier to upload by FTP into `data/backups`
 ([backups](../guides/backups.md)).
 
 ## Hosts

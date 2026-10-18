@@ -8,4 +8,5 @@ return [
     'unpublish' => 'Unpublished',
     'trash' => 'Deleted',
     'restore' => 'Restored',
+    'style' => 'Design changed',
 ];

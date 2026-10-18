@@ -3,5 +3,5 @@ title: Über uns
 slug: ueber-uns
 ---
 
-Auch Seiten sind Ordner. Die Zahl vor dem Ordnernamen (`1_about`) bestimmt die
-Reihenfolge im Menü.
+Auch Seiten sind Ordner. `order: 1` in der Datei `content.md` bestimmt den
+Platz im Seitenbaum, `menu: true` nimmt die Seite ins Hauptmenü.

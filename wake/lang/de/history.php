@@ -7,5 +7,6 @@ return [
     'schedule' => 'Eingeplant',
     'unpublish' => 'Zurückgezogen',
     'trash' => 'Gelöscht',
+    'style' => 'Design geändert',
     'restore' => 'Wiederhergestellt',
 ];

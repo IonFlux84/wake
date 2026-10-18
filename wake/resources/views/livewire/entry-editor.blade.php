@@ -130,9 +130,19 @@
                 <button type="button" role="tab" wire:click="$set('tab', 'entry')" @class(['on' => $tab === 'entry']) aria-selected="{{ $tab === 'entry' ? 'true' : 'false' }}">{{ __('Entry') }}</button>
                 <button type="button" role="tab" wire:click="$set('tab', 'stats')" @class(['on' => $tab === 'stats']) aria-selected="{{ $tab === 'stats' ? 'true' : 'false' }}" @disabled(! $entry)>{{ __('Statistics') }}</button>
                 <button type="button" role="tab" wire:click="$set('tab', 'history')" @class(['on' => $tab === 'history']) aria-selected="{{ $tab === 'history' ? 'true' : 'false' }}" @disabled(! $entry)>{{ __('Versions') }}</button>
+                <button type="button" role="tab" wire:click="$set('tab', 'design')" @class(['on' => $tab === 'design']) aria-selected="{{ $tab === 'design' ? 'true' : 'false' }}" @disabled(! $entry)>{{ __('Design') }}</button>
             </div>
 
-            @if ($tab === 'history')
+            @if ($tab === 'design' && $entry)
+                <form class="card" style="gap:10px" wire:submit="saveStyle">
+                    <h2 class="h2">{{ __('Design of this page') }}</h2>
+                    <p class="muted" style="margin:0;font-size:13px">{{ __('CSS that applies only to the content of this page, stored as style.css in its folder. Images from the media library work with url(media/…); addresses of other sites and @import are removed.') }}</p>
+                    <div class="field"><label for="entry-style" class="mono">style.css</label>
+                        <textarea id="entry-style" class="input mono" rows="16" spellcheck="false" wire:model="style" placeholder="h2 { letter-spacing: .02em; }&#10;.callout { background: #f4f4f4; }" style="font-size:12px;line-height:1.5;resize:vertical" @disabled(! $mayEdit)></textarea>
+                        @error('style')<span class="error">{{ $message }}</span>@enderror</div>
+                    <div class="actions"><button type="submit" class="btn btn-primary">{{ __('Save design') }}</button><span class="muted mono" style="font-size:12px">{{ $entry->id() }}/style.css</span></div>
+                </form>
+            @elseif ($tab === 'history')
                 <div class="card" style="gap:10px">
                     <h2 class="h2">{{ __('Earlier versions') }}</h2>
                     @forelse ($revisions as $revision)

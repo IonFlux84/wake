@@ -29,7 +29,7 @@ description: Create a post in the panel, add images and cards, translate it and 
 5. **Fill in the details.** The side panel has the address (slug), tags, a short
    excerpt for lists and search engines, and, under *Search engines*, a separate
    title and description. Custom content types show the fields of their
-   blueprint here.
+   `type.yml` here.
 
 6. **Translate.** On a multilingual site, the language switcher at the top shows
    every language. A `+` marks languages without a translation. Switch, write
@@ -54,7 +54,7 @@ Once published, *Save* becomes *Update*, and every update is live immediately.
 - Every save keeps the previous version as a revision. The *Versions* tab in
   the side panel lists them and puts an earlier one back with one click.
 - Changing the address of a published post adds a redirect from the old one.
-- *Delete* moves the post with all languages and files to `storage/trash/`.
+- *Delete* moves the post with all languages and files to `data/trash/`.
 - If someone else has the post open, the editor says so.
 
 The details are in [Editing](../concepts/editing.md). Who may do what is listed

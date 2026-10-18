@@ -47,7 +47,7 @@ Look and extensions:
 
 ## Reference
 
-- [Configuration](reference/configuration.md): every setting in `site/config.php`
+- [Configuration](reference/configuration.md): every setting in `settings/config.php`
 - [Content format](reference/content-format.md): folders, files, front matter, menus
 - [Templates](reference/templates.md): what a theme can use
 - [Tide](reference/tide.md): the default theme

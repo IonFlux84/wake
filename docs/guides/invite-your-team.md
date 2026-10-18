@@ -11,7 +11,7 @@ description: Give other people access to the panel with the right role.
    provider has these details; they are often the same as in your mail
    program. Then click **Send a test mail to me**.
 
-   The settings are stored in `storage/mail.yml`, the password encrypted with
+   The settings are stored in `data/secrets/mail.yml`, the password encrypted with
    the application key. They replace the `MAIL_*` values in `.env`, which
    still work if you prefer to set mail there. Many shared hosts also offer
    *sendmail*, which needs no details.
@@ -35,7 +35,7 @@ team and settings. The full table is in [Roles](../reference/roles.md).
 ## Removing someone
 
 The bin icon next to a member removes their access. Their account folder, with
-their tokens for assistants, moves to `storage/trash/`. Their posts stay.
+their tokens for assistants, moves to `data/trash/`. Their posts stay.
 
 ## Forgotten passwords
 

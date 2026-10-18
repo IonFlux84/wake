@@ -5,11 +5,11 @@ description: How a theme is built and what its Blade templates can use.
 
 # Templates
 
-A theme is a folder in `site/themes/`. The active one is set with the `theme`
+A theme is a folder in `themes/`. The active one is set with the `theme`
 [setting](configuration.md).
 
 ```
-site/themes/tide/
+themes/tide/
   theme.yml              name, version, author
   templates/             Blade templates
     layouts/default.blade.php
@@ -111,13 +111,14 @@ page. `$entry->template()` returns the `template` field, else the type.
 | `$site->menu($name = 'main')` | a [menu](#menus): `main` or `footer` |
 | `$site->tags()` | all tags used by published posts, most used first |
 | `$site->entries('event')` | a query for any content type |
-| `$site->find('posts/2026-10-17-hello')` | one entry by its folder |
+| `$site->find('posts/hello-world')` | one entry by its folder |
 
 ## Menus
 
 `$site->menu()` returns the main menu, `$site->menu('footer')` the footer
 menu, as a collection of menu items. Without a hand-made main menu, the main
-menu shows the listed top-level pages with their listed sub-pages.
+menu shows the top-level pages with `menu: true`, with their sub-pages that
+have `menu: true`.
 
 | Method | Returns |
 |---|---|
@@ -176,7 +177,7 @@ Queries work like Laravel's query builder and can be looped over directly:
 | `published()`, `drafts()`, `scheduled()`, `any()` | by status |
 | `tag('travel')`, `author('dennis')` | by tag or author |
 | `where('location', 'Bochum')`, `where('price', '>', 10)` | by field. Operators: `=`, `!=`, `>`, `>=`, `<`, `<=`, `in`, `contains` |
-| `listed()`, `childrenOf($id)` | page tree |
+| `listed()` (pages with `menu: true`), `childrenOf($id)` | page tree, in `order` |
 | `latest()`, `oldest()`, `orderBy('title')` | order |
 | `limit(5)`, `offset(10)` | slice |
 | `in('de')`, `withFallback()` | language |
@@ -273,7 +274,7 @@ and `@wakeHead` adds schema.org `Event` data for it.
 `/search?q=…` (and `/de/search?q=…` per language) renders the theme's
 `search.blade.php` with `$query` and `$results`, a list of published entries
 that contain every word of the query, best matches first. Wake keeps a small
-search index per language in `storage/cache/search-{lang}.php` and rebuilds it
+search index per language in `temp/cache/search-{lang}.php` and rebuilds it
 when content changes. Search pages are never cached and carry `noindex`.
 The address `search` is therefore reserved; a page with the slug `search` is
 not reachable.

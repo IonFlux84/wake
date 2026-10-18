@@ -8,7 +8,7 @@ description: Roles and the capabilities they grant, and how to adjust them or ad
 A role is a name and a set of **capabilities**. Every account has exactly one
 role. Wake comes with five roles modelled on Ghost; you can change what they
 may do and add your own under *Team → Roles and rights* (owners and anyone with
-`team.manage`). The settings are stored in `site/roles.yml`.
+`team.manage`). The settings are stored in `settings/roles.yml`.
 
 ## Capabilities
 
@@ -57,7 +57,7 @@ out.
 People without `content.edit_all` or `content.publish` see only their own
 entries in the lists. Menu entries for things a role may not do are hidden.
 
-## `site/roles.yml`
+## `settings/roles.yml`
 
 ```yaml
 author:

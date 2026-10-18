@@ -14,12 +14,12 @@ SSH nor Composer, and no database.
    on your computer.
 
 2. **Upload** the contents of the `wake-x.y.z` folder to your web space, for
-   example with FTP. You now have `wake/`, `site/`, `content/`, `storage/`,
-   `public/` and a few files next to each other.
+   example with FTP. You now have `wake/`, `content/`, `themes/`, `plugins/`,
+   `settings/`, `data/`, `temp/`, `public/` and a few files next to each other.
 
 3. **Point the document root to `public/`.** In your hosting control panel, set
    the folder your domain serves to `…/public`. This keeps `content/`,
-   `storage/` and `.env` out of reach of the web.
+   `settings/`, `data/` and `.env` out of reach of the web.
 
    If your host does not let you change the document root, leave it on the
    main folder: the `.htaccess` that comes with Wake then sends every request
@@ -27,8 +27,8 @@ SSH nor Composer, and no database.
    panel as a reminder; the document root on `public/` is still the better
    choice.
 
-4. **Allow writing.** Wake writes to `content/`, `storage/`, `site/` and
-   `public/media/`. Most hosts allow this already; otherwise set the folders to
+4. **Allow writing.** Wake writes to `content/`, `themes/`, `plugins/`,
+   `settings/`, `data/`, `temp/` and `public/`. Most hosts allow this already; otherwise set the folders to
    `775`.
 
 5. **Open `/wake`** on your domain. On the first visit Wake creates the file

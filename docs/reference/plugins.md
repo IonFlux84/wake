@@ -7,7 +7,7 @@ description: How a plugin is built, every method a plugin can use, and an exampl
 
 A plugin adds something to Wake that it does not do by itself: a card, a field
 type for categories, an address, a maintenance task. Plugins live in
-`site/plugins/`, one folder each. To install one, copy its folder there by FTP
+`plugins/`, one folder each. To install one, copy its folder there by FTP
 or Git. Under *Plugins* in the panel (people with `settings.manage`) you see
 all plugins, switch them on and off and change their settings.
 
@@ -17,7 +17,7 @@ all plugins, switch them on and off and change their settings.
 ## A plugin folder
 
 ```
-site/plugins/opening-hours/
+plugins/opening-hours/
   plugin.yml      name, description, version, author, settings
   plugin.php      registers what the plugin adds
   views/          Blade views, used as opening-hours::name
@@ -49,7 +49,7 @@ options:
 Options work like [theme options](templates.md): `text`, `textarea`,
 `toggle`, `select` and `color`, each with `label`, `default` and optionally
 `placeholder` and `hint`. Values are stored in `plugins.options` in
-`site/settings.yml` ([configuration](configuration.md#site)).
+`settings/general.yml` ([configuration](configuration.md#site)).
 
 ### `plugin.php`
 
@@ -144,7 +144,7 @@ use Wake\Content\Query;
 use Wake\Content\Site;
 
 $latest = Post::published()->tag('events')->latest()->limit(3)->get();
-$page = Page::find('pages/1_about');                    // by folder, or null
+$page = Page::find('pages/about');                      // by folder, or null
 $events = (new Query('post'))->published()->category('events')->upcoming()->get();
 $site = app(Site::class);                                // the same as $site in templates
 ```
@@ -179,7 +179,7 @@ directly from a plugin.
 |---|---|
 | `Wake\Support\Files::write($path, $contents)` | write a file atomically (never `file_put_contents()`) |
 | `Wake\Support\Files::lock($name, $callback)` | run code while holding a lock, e.g. when two requests could write the same file |
-| `Wake\Support\Paths::site()`, `content()`, `theme()`, `root()` | folders of the site; your own data belongs in `storage_path('your-plugin/…')` |
+| `Wake\Support\Paths::content()`, `settings()`, `themes()`, `plugins()`, `data()`, `theme()`, `root()` | folders of the site; data you keep belongs in `Paths::data('your-plugin/…')`, caches in `storage_path('your-plugin/…')` (`temp/`) |
 | `config('wake.…')` | every [setting](configuration.md), e.g. `config('wake.closed')` |
 | `$plugin->option($key)` | your plugin's settings from the panel |
 | `app(Wake\Cache\PageCache::class)->flush()` | throw away all cached pages, e.g. when your output changes |
@@ -196,7 +196,7 @@ Laravel's own events work as well, for example
 ## When something goes wrong
 
 If `plugin.php` throws an exception or has a syntax error, Wake skips the
-plugin, writes the error to `storage/logs/laravel.log` and shows it in the
+plugin, writes the error to `temp/logs/laravel.log` and shows it in the
 panel. The rest of the site keeps working. Switching the plugin off in the
 panel stops Wake from loading it at all.
 

@@ -17,15 +17,16 @@ default).
   its last sub-page.
 - The **arrow buttons** do the same without a mouse: up, down, one level
   higher, and into the page above.
-- **Add to menu order** / **Remove from menu order** decides whether a page is
-  *listed*. Listed pages have a place in the order; the others (such as an
-  imprint) follow at the end in alphabetical order.
+- **Add to menu** / **Remove from menu** decides whether a page appears in the
+  automatic main menu (`menu: true`). Pages outside the menu, such as an
+  imprint, keep their place in the tree.
 - The home page stays where it is.
 
-Behind the scenes, Wake renames the folders in `content/pages`
-(`1_about` becomes `2_about`), so the order stays visible in any file manager
-and in Git. Wake keeps versions, menus and redirects pointing at the moved
-pages. When the address of a published page changes because it got another
+Behind the scenes, Wake writes the position as `order: 1`, `order: 2` … into
+the `content.md` of the pages; folder names never change for a new order.
+Only a new parent page moves the folder (`pages/team` becomes
+`pages/about/team`). Wake keeps versions, menus and redirects pointing at the
+moved pages. When the address of a published page changes because it got another
 parent page, the old address redirects to the new one
 ([redirects](../concepts/editing.md#redirects)).
 
@@ -36,11 +37,12 @@ parent page, the old address redirects to the new one
 *Menus* has two menus: the **main menu** and the **footer**.
 
 The main menu **follows the page tree** until you arrange it by hand: it
-shows the listed top-level pages in order, with their listed sub-pages. That
+shows the top-level pages with `menu: true` in order, with their sub-pages
+that have `menu: true`. That
 is often all a site needs.
 
 **Arrange by hand** turns it into a menu of its own, stored in
-`site/menus.yml`:
+`settings/menus.yml`:
 
 - Add **pages** and **links** (any address starting with `https://`, a path
   like `/search`, `mailto:` or `tel:`).

@@ -4,5 +4,5 @@ order: 1
 menu: true
 ---
 
-Pages are folders, too. The number in front of the folder name (`1_about`)
-sets the order in the menu.
+Pages are folders, too. `order: 1` in this file sets the place in the page
+tree, and `menu: true` puts the page into the main menu.

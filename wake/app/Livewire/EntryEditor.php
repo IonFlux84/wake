@@ -17,6 +17,7 @@ use Wake\Content\ContentTypes;
 use Wake\Content\Entry;
 use Wake\Content\History;
 use Wake\Content\Index;
+use Wake\Content\PageStyle;
 use Wake\Content\Query;
 use Wake\Content\Recurrence;
 use Wake\Content\Revisions;
@@ -82,6 +83,9 @@ class EntryEditor extends Component
 
     public string $tab = 'entry';
 
+    /** The design of this entry only (style.css in its folder). */
+    public string $style = '';
+
     /** @var mixed an image dropped into the text, stored by storeUpload() */
     public $upload = null;
 
@@ -125,6 +129,7 @@ class EntryEditor extends Component
 
         $this->title = (string) ($fields['title'] ?? '');
         $this->body = $translated ? $entry->body() : '';
+        $this->style = $entry->style();
         $this->slug = (string) ($fields['slug'] ?? '');
         $this->tags = implode(', ', (array) ($fields['tags'] ?? ($translated ? [] : $entry->get('tags', []))));
         $this->excerpt = (string) ($fields['excerpt'] ?? '');
@@ -324,6 +329,22 @@ class EntryEditor extends Component
     }
 
     /**
+     * Saves style.css of the entry. Same rights as the text; Wake cleans it
+     * and limits it to the content of this page.
+     */
+    public function saveStyle(): void
+    {
+        $entry = $this->entry();
+        abort_unless($entry && $this->mayEdit($entry), 403);
+
+        $this->validate(['style' => 'nullable|string|max:'.PageStyle::MAX_BYTES]);
+
+        app(Writer::class)->saveStyle($entry->id(), $this->style);
+        $this->style = (string) $this->entry()?->style();
+        session()->flash('status', __('Design saved.'));
+    }
+
+    /**
      * Save and open the preview in a new tab.
      */
     public function preview(): void
@@ -386,6 +407,7 @@ class EntryEditor extends Component
             'occurrences' => $this->previewOccurrences(),
             'categoryFields' => $this->type === 'post' ? (app(Categories::class)->get($this->category)?->fields() ?? []) : [],
             'mayPublish' => $this->mayPublish(),
+            'mayEdit' => $entry !== null && $this->mayEdit($entry),
             'otherEditor' => $this->otherEditor(),
             'stats' => $this->tab === 'stats' && $entry ? $this->stats($entry) : null,
             'revisions' => $this->tab === 'history' && $entry?->hasTranslation($this->language)

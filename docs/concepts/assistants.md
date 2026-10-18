@@ -54,7 +54,7 @@ See [approval mode](../reference/mcp.md#approval-mode).
 
 - Entries created by an assistant carry `via: mcp` and show an *MCP* badge in
   the panel.
-- The history (`storage/history/`) records every change with the person and
+- The history (`data/history/`) records every change with the person and
   the token's name.
 - The panel shows when each token was last used.
 

@@ -14,7 +14,7 @@ every decision.
 The banner appears on its own only when the site actually needs consent up
 front:
 
-- the statistics cookie is offered (`statistics: true` in `site/consent.yml`),
+- the statistics cookie is offered (`statistics: true` in `settings/consent.yml`),
 - marketing scripts are used (`marketing: true`),
 - level-1 statistics wait for consent (`tracking.level1: 'consent'`), or
 - you force it with `always: true`.
@@ -72,7 +72,7 @@ point, not legal advice.
 ## Records
 
 Every decision is sent to `public/hit.php` and appended to
-`storage/consent/{year}-{month}.log`:
+`data/consent/{year}-{month}.log`:
 
 ```json
 {"time":"2026-10-17T09:41:00+00:00","id":"3f9c…","categories":["necessary","statistics"],"action":"custom","version":2,"language":"de"}
@@ -85,7 +85,7 @@ enough to prove that a given consent was given with a given text (Art. 7 GDPR).
 
 ## Versions
 
-Changing the banner texts raises the version in `site/consent.yml`. Visitors
+Changing the banner texts raises the version in `settings/consent.yml`. Visitors
 whose stored choice has an older version are asked again.
 
 ## In the panel
@@ -96,7 +96,7 @@ there, with a live preview per language.
 
 ## Settings file
 
-`site/consent.yml` is written by the panel. All keys are optional:
+`settings/consent.yml` is written by the panel. All keys are optional:
 
 ```yaml
 version: 2

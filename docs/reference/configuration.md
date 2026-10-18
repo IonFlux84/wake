@@ -1,11 +1,11 @@
 ---
 title: Configuration
-description: Every setting you can put in site/config.php, with its default.
+description: Every setting you can put in settings/config.php, with its default.
 ---
 
 # Configuration
 
-Settings live in `site/config.php`, which returns a PHP array. Only write down
+Settings live in `settings/config.php`, which returns a PHP array. Only write down
 what you want to change, everything else keeps its default.
 
 ```php
@@ -27,14 +27,15 @@ Nested settings are written as nested arrays:
 ## Settings changed in the panel
 
 Owners and administrators can change some settings under *Settings* in the
-panel. Wake stores them in `site/settings.yml`, which overrides
-`site/config.php`, so the panel always shows what is in effect. These are
+panel. Wake stores them in `settings/general.yml`, which overrides
+`settings/config.php`, so the panel always shows what is in effect. These are
 `timezone`, `post_url`, `missing_translation`, `prefix_default_language`, the
 `tracking.*` settings, `mcp.approval`, `panel.accent`, `panel.language`, `closed`, `security.require_two_factor`, `theme`, `theme_options`, `plugins.disabled` and `plugins.options`. Everything else is
-only set in `site/config.php`.
+only set in `settings/config.php`.
 
 Secrets such as the application key and mail passwords belong in `.env`, not
-here, so `site/` can be committed to Git safely.
+here, so `settings/` can be committed to Git safely. Mail settings made in the
+panel are stored encrypted in `data/secrets/mail.yml`.
 
 ## Site
 
@@ -46,9 +47,9 @@ here, so `site/` can be committed to Git safely.
 | `prefix_default_language` | `false` | `true` puts the default language in the URL too (`/en/about` instead of `/about`). Requests without the prefix are redirected. |
 | `missing_translation` | `'hide'` | What happens when an entry has no translation in the requested language. `'hide'` answers with 404. `'fallback'` shows the default language with a notice and `noindex`, under the default language's slug. |
 | `timezone` | `'UTC'` | Time zone for dates in your content and for scheduled publishing, e.g. `'Europe/Berlin'`. Also settable as `WAKE_TIMEZONE` in `.env`. |
-| `theme` | `'tide'` | Folder in `site/themes/` that renders the website. |
+| `theme` | `'tide'` | Folder in `themes/` that renders the website. |
 | `theme_options` | `[]` | Options of the active theme as declared in its `theme.yml`, usually set in the panel under *Themes*. See [Tide](tide.md). |
-| `plugins.disabled` | `[]` | Folders in `site/plugins/` that are switched off. Usually changed in the panel under *Plugins*. See [plugins](plugins.md). |
+| `plugins.disabled` | `[]` | Folders in `plugins/` that are switched off. Usually changed in the panel under *Plugins*. See [plugins](plugins.md). |
 | `plugins.options` | `[]` | Settings of each plugin as declared in its `plugin.yml`, folder → option → value. Usually changed in the panel under *Plugins*. |
 
 ## Addresses
@@ -59,8 +60,8 @@ here, so `site/` can be committed to Git safely.
 | `tag_url` | `'tag'` | Segment in front of tag pages: `/tag/travel`. |
 | `per_page` | `10` | Posts per page in lists (`$site->posts()->paginate()`). |
 
-Pages always follow their folder structure (`pages/1_about/2_team` → `/about/team`),
-and custom content types use the `url` of their [blueprint](content-format.md#custom-content-types).
+Pages always follow their folder structure (`pages/about/team` → `/about/team`),
+and custom content types use the `url` of their [`type.yml`](content-format.md#custom-content-types).
 
 ## Images
 
@@ -80,7 +81,7 @@ and custom content types use the `url` of their [blueprint](content-format.md#cu
 | Setting | Default | Description |
 |---|---|---|
 | `index.check` | `'always'` | `'always'` compares file times on every uncached request and updates the [index](../concepts/architecture.md#the-index) when files changed via FTP or Git. `'never'` skips the check; then run `php wake/artisan wake:index` after changing files by hand. |
-| `page_cache.enabled` | `true` | Serve finished pages from `storage/cache/pages` without starting Laravel. Also settable as `WAKE_PAGE_CACHE` in `.env`. |
+| `page_cache.enabled` | `true` | Serve finished pages from `temp/cache/pages` without starting Laravel. Also settable as `WAKE_PAGE_CACHE` in `.env`. |
 | `page_cache.ttl` | `300` | Seconds a cached page is served before Wake looks again. Changes made via FTP and posts that become due show up after at most this long. |
 
 ## Statistics
@@ -93,7 +94,7 @@ How Wake counts visits is explained in [analytics](../concepts/analytics.md).
 | `tracking.level1` | `'always'` | Level 1 counts without cookies. `'always'` counts every visitor, `'consent'` only those who agreed to statistics in the banner. Level 2 (with a cookie) always needs consent. |
 | `tracking.respect_privacy_signals` | `false` | `true` ignores visitors whose browser sends Do Not Track or Global Privacy Control. |
 | `tracking.retention` | `30` | Days to keep raw data. Daily and monthly sums are kept. |
-| `tracking.geo` | `storage/stats/geo/country.mmdb` | Optional IP-to-country database in MaxMind format, e.g. [DB-IP Lite](https://db-ip.com/db/lite.php) (free, CC BY 4.0). Without it, countries stay empty. |
+| `tracking.geo` | `data/stats/geo/country.mmdb` | Optional IP-to-country database in MaxMind format, e.g. [DB-IP Lite](https://db-ip.com/db/lite.php) (free, CC BY 4.0). Without it, countries stay empty. |
 
 ## Assistants (MCP)
 

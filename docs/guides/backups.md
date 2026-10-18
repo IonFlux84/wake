@@ -12,22 +12,24 @@ panel (owners, administrators and anyone with `settings.manage`).
 
 | In the ZIP | What it is |
 |---|---|
-| `content/` | posts, pages, images and other files |
-| `site/` | settings, categories, menus, redirects, roles, consent settings, themes |
-| `storage/accounts/` | accounts and tokens for AI assistants |
-| `storage/consent/` | anonymous consent records |
-| `storage/revisions/`, `storage/history/` | versions and the history of changes |
-| `storage/stats/` | statistics, only when you tick *Include the statistics* |
+| `content/` | pages, posts, categories, tags, the media library |
+| `settings/` | settings, menus, redirects, roles, consent settings |
+| `themes/`, `plugins/` | themes and plugins |
+| `data/secrets/` | the mail settings, password encrypted with the application key |
+| `data/accounts/` | accounts and tokens for AI assistants |
+| `data/consent/` | anonymous consent records |
+| `data/versions/`, `data/history/` | versions and the history of changes |
+| `data/stats/` | statistics, only when you tick *Include the statistics* |
 | `wake-backup.json` | Wake version, date and what is inside |
 
-Not included: caches, the trash, resized images (Wake makes them again on the
-first request) and `.env`. `.env` holds the application key and the mail
-password; keep a copy of it in a password manager. Without the old key, people
+Not included: `temp/` (caches), the trash, resized images (Wake makes them again on the
+first request) and `.env`. `.env` holds the application key, which also
+unlocks the mail password; keep a copy of it in a password manager. Without the old key, people
 only have to sign in again.
 
 ## Write a backup
 
-Click **Write backup**, then **Download**. Backups stay in `storage/backups`
+Click **Write backup**, then **Download**. Backups stay in `data/backups`
 until you delete them, so keep an eye on the disk space of your host. On the
 command line: `php wake/artisan wake:backup` ([CLI](../reference/cli.md#wakebackup)).
 
@@ -36,7 +38,7 @@ for a schedule of your own, a cron job can run `wake:backup`.
 
 ## Restore a backup
 
-1. Upload the ZIP under *Upload a backup*, or put it into `storage/backups` by
+1. Upload the ZIP under *Upload a backup*, or put it into `data/backups` by
    FTP (easier for large files).
 2. Click **Restore** next to it.
 

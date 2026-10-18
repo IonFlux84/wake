@@ -53,13 +53,17 @@ Claude answer questions about your stats and read, draft and publish posts.
 
 ```
 wake/       the Laravel application (replaced on update)
-site/       your configuration, blueprints and theme
-content/    your posts and pages as Markdown files
-storage/    accounts, statistics, caches (never public)
+content/    your pages, posts and media as Markdown files and folders
+themes/     looks of the website
+plugins/    extensions
+settings/   configuration, menus, redirects, roles
+data/       accounts, statistics, versions, backups (never public)
+temp/       caches (may be deleted)
 public/     the document root
 ```
 
-A post is a folder with one file per language:
+A post is a folder, `content/posts/hello-world/`, with a `content.md` per
+language:
 
 ```markdown
 ---

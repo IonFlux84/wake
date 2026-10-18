@@ -32,7 +32,7 @@ entries with the same address, are listed after the summary.
 
 ## `wake:backup`
 
-Writes a backup ZIP to `storage/backups`, the same as *Backups* in the panel.
+Writes a backup ZIP to `data/backups`, the same as *Backups* in the panel.
 With `--stats`, the statistics are included. See
 [backups](../guides/backups.md).
 
@@ -44,7 +44,7 @@ php wake/artisan wake:backup --stats
 ## `wake:restore`
 
 Replaces content, settings and accounts with a backup: a path, or the name of
-a file in `storage/backups`. The current state is saved as a backup first, and
+a file in `data/backups`. The current state is saved as a backup first, and
 the replaced folders go to the trash. Asks before it starts, unless you pass
 `--force`.
 

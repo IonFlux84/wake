@@ -29,7 +29,7 @@ footer menu is empty, and adds the RSS feed and the cookie settings link.
 
 ## Options
 
-Under *Themes* in the panel (or `theme_options` in `site/config.php`):
+Under *Themes* in the panel (or `theme_options` in `settings/config.php`):
 
 | Option | Default | Effect |
 |---|---|---|
@@ -40,8 +40,8 @@ Under *Themes* in the panel (or `theme_options` in `site/config.php`):
 
 ## Changing Tide
 
-Click *Duplicate* under *Themes* in the panel (or copy `site/themes/tide` by
-hand), change the copy and activate it. Updates of Wake never touch `site/`. See
+Click *Duplicate* under *Themes* in the panel (or copy `themes/tide` by
+hand), change the copy and activate it. Updates of Wake never touch `themes/`. See
 [templates](templates.md) for everything a theme can use.
 
 Archivo (SIL Open Font License) is bundled in `assets/fonts/`.

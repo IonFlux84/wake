@@ -7,8 +7,11 @@ description: Install a new version of Wake from the panel or by hand.
 
 An update replaces the `wake/` folder and the few files Wake keeps in
 `public/` (`index.php`, `hit.php`, `.htaccess`) and the main folder
-(`.htaccess`). Your `site/`, `content/`, `storage/` and `.env` are never
-touched ([decision 0008](../decisions/0008-application-in-its-own-folder.md)).
+(`.htaccess`). Your `content/`, `themes/`, `plugins/`, `settings/`,
+`data/` and `.env` are never touched
+([decision 0008](../decisions/0008-application-in-its-own-folder.md)). A site
+from Wake 0.1 moves to the current folder layout once with
+[`wake:layout`](../reference/cli.md#wakelayout).
 
 ## In the panel
 
@@ -17,11 +20,11 @@ touched ([decision 0008](../decisions/0008-application-in-its-own-folder.md)).
    servers on its own.
 2. If there is a newer version, read what changed and click *Install*.
 3. Wake downloads the ZIP, checks its SHA-256 checksum, unpacks it, keeps the
-   current `wake/` folder as a backup in `storage/updates/` and switches to the
+   current `wake/` folder as a backup in `temp/updates/` and switches to the
    new version.
 
 If anything goes wrong before the switch, nothing changes. If the new version
-does not start, move the backup folder from `storage/updates/` back to `wake/`.
+does not start, move the backup folder from `temp/updates/` back to `wake/`.
 
 ## By hand
 

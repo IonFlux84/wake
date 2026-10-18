@@ -17,8 +17,11 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first. Everything there applies to you.
 ## Layout
 
 - `wake/` is the Laravel application (namespace `Wake\`, tests in `wake/tests`).
-- `site/`, `content/`, `storage/`, `public/` and `.env` belong to the site and
-  live next to it ([decision 0008](docs/decisions/0008-application-in-its-own-folder.md)).
+- `content/`, `themes/`, `plugins/`, `settings/`, `data/`, `temp/`, `public/`
+  and `.env` belong to the site and live next to it
+  ([decisions 0008](docs/decisions/0008-application-in-its-own-folder.md) and
+  [0011](docs/decisions/0011-one-folder-per-entry.md)). Every entry is a folder
+  with `content.md`; media are in `content/media/`.
 - `docs/internal/konzept.md` is the German founding concept. Decision records in
   `docs/decisions/` take precedence over it.
 - `design/` holds the design prototypes. Panel and website follow the "Hairline"

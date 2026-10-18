@@ -205,6 +205,10 @@ All notable changes to Wake are documented here. The format follows
     as `media/<path>`; the editor uploads to `media/<entry id>/`.
   - `php wake/artisan wake:layout --apply` moves an existing site, with a
     backup first.
+- Design of a single page: a `style.css` next to `content.md`, edited in the
+  editor under *Design* with the same rights as the text. Wake loads it only on
+  that page, limits it to `<main>` with `@scope`, and cleans it: no `@import`,
+  no addresses outside the media library, balanced braces.
 - The media library shows where a file is used, filters by folder and unused
   files, uploads into any folder and only lets people who may delete
   everything delete files that are in use.

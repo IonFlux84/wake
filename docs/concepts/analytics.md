@@ -6,7 +6,7 @@ description: How Wake counts visits without sending data anywhere, and what it s
 # Analytics
 
 Wake counts visits itself. Nothing is sent to another company, and the data
-stays in `storage/stats/` on your server.
+stays in `data/stats/` on your server.
 
 ## Two levels
 
@@ -28,7 +28,7 @@ hmac_sha256(IP address | user agent | host, salt of the day)
 ```
 
 and keeps the first 16 characters. The salt is a random value created each day
-in `storage/stats/salt/` and deleted the next day by maintenance. Once it is
+in `data/stats/salt/` and deleted the next day by maintenance. Once it is
 gone, nobody can work out who a hash belonged to, not even you. The IP address
 itself is never written to disk.
 
@@ -66,13 +66,13 @@ file.
 Crawlers of AI companies (GPTBot, ClaudeBot, PerplexityBot, Google-Extended and
 others) never run the tracking script, so `public/index.php` recognises them by
 their user agent and appends a line with the crawler's name and the path to
-`storage/stats/ai/{day}.log`. The statistics page shows them in the card
+`data/stats/ai/{day}.log`. The statistics page shows them in the card
 *AI is reading along*. They are kept as long as raw data.
 
 ## Storage
 
 ```
-storage/stats/
+data/stats/
   raw/2026-10-17.log       one line per hit, tab-separated, appended with a lock
   daily/2026-10-16.json    summary of a finished day
   monthly/2026-10.json     summary of a month

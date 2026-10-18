@@ -7,7 +7,7 @@ description: Turn a single-language site into a multilingual one, step by step.
 
 This guide adds German to an English site. It works the same for any language.
 
-1. **Add the language** in `site/config.php`. The first language stays the
+1. **Add the language** in `settings/config.php`. The first language stays the
    default language and keeps its addresses without a prefix.
 
    ```php
@@ -17,11 +17,11 @@ This guide adds German to an English site. It works the same for any language.
    ],
    ```
 
-2. **Translate the site title.** Copy `content/site.en.md` to
-   `content/site.de.md` and translate it.
+2. **Translate the site title.** Copy `content/website.md` to
+   `content/website.de.md` and translate it.
 
-3. **Translate entries one by one.** Next to `index.en.md`, create
-   `index.de.md` and give it its own `slug`:
+3. **Translate entries one by one.** Next to `content.md`, create
+   `content.de.md` and give it its own `slug`:
 
    ```markdown
    ---

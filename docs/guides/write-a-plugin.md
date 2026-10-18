@@ -20,7 +20,7 @@ Blade.
 ## What we build
 
 ```
-site/plugins/opening-hours/
+plugins/opening-hours/
   plugin.yml                  name, description, settings
   plugin.php                  registers everything
   src/Hours.php               works out today's hours
@@ -41,7 +41,7 @@ On public holidays we open at noon.
 ## 1. Create the folder and `plugin.yml`
 
 The folder name is the plugin's key. Use lowercase letters, digits, `-` and
-`_`; Wake ignores other folders. Create `site/plugins/opening-hours/plugin.yml`:
+`_`; Wake ignores other folders. Create `plugins/opening-hours/plugin.yml`:
 
 ```yaml
 name: Opening hours
@@ -70,7 +70,7 @@ options:
 
 Everything under `options` appears as a form under *Plugins* in the panel.
 Labels and hints can be one text or one per language. The values end up in
-`site/settings.yml` under `plugins.options.opening-hours`.
+`settings/general.yml` under `plugins.options.opening-hours`.
 
 ## 2. Write `plugin.php`
 
@@ -99,7 +99,8 @@ Put a namespace of your own around them, so they cannot clash with other
 plugins.
 
 `src/Hours.php` works out today's answer from the settings. It also keeps the
-answer in a small file below `storage/`, so a page view only reads that file:
+answer in a small file in `temp/` (Laravel's `storage_path()`), so a page view
+only reads that file:
 
 ```php
 <?php
@@ -112,7 +113,7 @@ use Wake\Support\Files;
 
 /**
  * Works out today's opening hours from the plugin settings and keeps the
- * answer in storage/opening-hours/today.json.
+ * answer in temp/opening-hours/today.json.
  */
 final class Hours
 {
@@ -196,7 +197,10 @@ Three things worth copying from this class:
   the whole application.
 - Files are written with `Wake\Support\Files::write()`, never with
   `file_put_contents()`. It writes atomically, so a visitor never reads half a
-  file. Plugin data belongs below `storage/`, which is never public.
+  file. A cache like this belongs in `temp/` (`storage_path()`), which may be
+  deleted at any time. Data you must keep belongs in
+  `Wake\Support\Paths::data('opening-hours')`, which is backed up. Neither
+  is public.
 
 Now load the class and share one instance. Tasks and views get it from
 Laravel's container:
@@ -422,7 +426,7 @@ return function (Plugin $plugin) {
 3. Open `/opening-hours.json`.
 4. Change the settings under *Plugins* and reload.
 5. Run `php wake/artisan wake:maintenance` and look at
-   `storage/opening-hours/today.json`.
+   `temp/opening-hours/today.json`.
 
 Signed-in team members bypass the page cache, so if a change does not show
 up, open the page in a private window or run `php wake/artisan wake:clear`.
@@ -437,7 +441,7 @@ php wake/artisan tinker --execute 'echo app(Wake\Markdown\Markdown::class)->rend
 
 Wake's own tests run in a sandbox: every test gets a fresh copy of
 `wake/tests/Fixtures/content` and `wake/tests/Fixtures/site`. In a local clone
-of Wake, copy your plugin to `wake/tests/Fixtures/site/plugins/opening-hours`
+of Wake, copy your plugin to `wake/tests/Fixtures/plugins/opening-hours`
 (do not commit it) and write a test in `wake/tests/Feature`, like Wake's own
 `PluginTest.php`:
 
@@ -502,11 +506,12 @@ account. Site owners trust you with that, so:
   field. Use `Route::middleware('web')` (session and CSRF protection) only
   for routes that signed-in team members use from the panel, and check their
   rights with `auth()->user()?->can('settings.manage')`.
-- **Write safely.** Use `Wake\Support\Files::write()`, keep data below
-  `storage/`, never in `public/` or `content/` unless it is meant to be
+- **Write safely.** Use `Wake\Support\Files::write()`, keep data in
+  `data/` (`Paths::data()`) or caches in `temp/` (`storage_path()`), never in
+  `public/` or `content/` unless it is meant to be
   public or to be content. To change content, use `Wake\Content\Writer`, which
   keeps versions and the history.
-- **No secrets in `plugin.yml` defaults** and none in `site/`, which people
+- **No secrets in `plugin.yml` defaults** and none in `settings/`, which people
   commit to Git. Ask for API keys as a setting, or read them from `.env` with
   `env('OPENING_HOURS_KEY')`.
 - **Keep dependencies few.** There is no Composer for plugins. If you bundle a
@@ -532,16 +537,16 @@ account. Site owners trust you with that, so:
 A plugin is shared as a ZIP of its folder, with the folder at the top:
 
 ```bash
-cd site/plugins && zip -r opening-hours-1.0.0.zip opening-hours
+cd plugins && zip -r opening-hours-1.0.0.zip opening-hours
 ```
 
 Add to the folder:
 
-- a `README.md`: what it does, how to install (*unzip into `site/plugins`*),
+- a `README.md`: what it does, how to install (*unzip into `plugins`*),
   its settings and cards, the Wake versions it works with;
 - a `LICENSE` file. MIT matches Wake.
 
-Site owners install it by copying the folder into `site/plugins` by FTP or
+Site owners install it by copying the folder into `plugins` by FTP or
 Git; the panel has no upload for plugins.
 
 ## When something goes wrong
@@ -560,7 +565,7 @@ Git; the panel has no upload for plugins.
 - **A task never runs.** Maintenance runs after page views at most once a
   minute (or by cron, see `maintenance.mode`). Run it by hand with
   `php wake/artisan wake:maintenance`; errors from tasks are written to
-  `storage/logs/laravel.log`.
-- **Errors in views or routes** appear in `storage/logs/laravel.log`. With
+  `temp/logs/laravel.log`.
+- **Errors in views or routes** appear in `temp/logs/laravel.log`. With
   `APP_DEBUG=true` in `.env` (only on your computer), Laravel shows them in
   the browser.

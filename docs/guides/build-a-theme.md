@@ -20,14 +20,14 @@ work as you would expect.
 
 **Copy Tide** when you want to change an existing look. In the panel, open
 *Themes* and click **Duplicate** next to Tide. Wake copies it to a new folder
-named after the copy, for example `site/themes/tide-copy/`. Wake updates never
+named after the copy, for example `themes/tide-copy/`. Wake updates never
 touch your copy.
 
 **Begin empty** when you want to learn how a theme works, as this tutorial
-does. Create the folder `site/themes/harbour/` with this layout:
+does. Create the folder `themes/harbour/` with this layout:
 
 ```
-site/themes/harbour/
+themes/harbour/
   theme.yml                 name, description, options
   screenshot.jpg            optional, shown in the panel
   templates/
@@ -382,7 +382,7 @@ Tide.
 
 The options from `theme.yml` appear under *Themes* in the panel. Templates
 read them with `theme_option('name')`: the value chosen in the panel, else the
-default from `theme.yml`. Values are stored in `site/settings.yml` under
+default from `theme.yml`. Values are stored in `settings/general.yml` under
 `theme_options`; switching themes keeps them, but each theme only reads its
 own keys.
 
@@ -414,7 +414,7 @@ Treat option values like any input. A colour is checked by the panel
 ## 11. Try it locally
 
 1. Select the theme: in the panel, *Themes* → **Activate** next to Harbour.
-   Or set `'theme' => 'harbour'` in `site/config.php`.
+   Or set `'theme' => 'harbour'` in `settings/config.php`.
 2. Run `php wake/artisan serve` and open http://localhost:8000.
 3. Wake caches finished pages. While signed in to the panel you always see
    fresh pages; in a private window, run `php wake/artisan wake:clear` after
@@ -428,7 +428,7 @@ Treat option values like any input. A colour is checked by the panel
 Zip the theme folder:
 
 ```bash
-cd site/themes && zip -r harbour.zip harbour -x '*.DS_Store'
+cd themes && zip -r harbour.zip harbour -x '*.DS_Store'
 ```
 
 Others install it under *Themes* → **Install a theme (ZIP)**. Wake checks the

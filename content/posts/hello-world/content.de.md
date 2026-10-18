@@ -9,7 +9,7 @@ cover: media/posts/hello-world/cover.jpg
 ---
 
 Dieser Beitrag ist ein Ordner mit einer Markdown-Datei pro Sprache. Öffnen Sie
-`content/posts/2026-10-17-hello-world/index.de.md` in einem beliebigen Editor
+`content/posts/hello-world/content.de.md` in einem beliebigen Editor
 und ändern Sie diesen Satz. Wake bemerkt die Änderung beim nächsten Aufruf.
 
 ::: callout 💡
@@ -17,6 +17,9 @@ Karten wie diese werden als `::: callout`-Block geschrieben und bleiben in der
 Datei lesbar.
 :::
 
-## Was noch in diesem Ordner liegt
+## Wo die Bilder liegen
 
-Bilder und Downloads liegen neben den Textdateien und gelten für alle Sprachen.
+Bilder und Downloads liegen in der Mediathek, `content/media/`. Das Titelbild
+dieses Beitrags ist `media/posts/hello-world/cover.jpg` und gilt für alle
+Sprachen. Eine `style.css` neben `content.md` würde nur das Design dieses
+Beitrags ändern.

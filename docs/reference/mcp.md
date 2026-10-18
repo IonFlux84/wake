@@ -42,7 +42,7 @@ their own tokens in the panel under *Assistants*.
 - A token looks like `wake_` followed by 40 letters and digits. Wake shows it
   once, right after creating it.
 - Wake stores only a SHA-256 hash of it, in
-  `storage/accounts/{account}/tokens/{id}.yml`, with the name, the scopes, the
+  `data/accounts/{account}/tokens/{id}.yml`, with the name, the scopes, the
   creation date and when it was last used (updated at most once a minute).
 - Revoking a token in the panel deletes that file; the next request with it
   fails.
@@ -91,7 +91,7 @@ example "There is no entry with this id. content_list shows the ids."
 
 Dates are `YYYY-MM-DD`, times `YYYY-MM-DD HH:MM` in the site's time zone
 (`site_info` returns it). Entry ids are the folders below `content/`, for
-example `posts/2026-10-17-hello-world` or `pages/1_about`.
+example `posts/hello-world` or `pages/about/team`.
 
 ### `site_info`
 
@@ -138,7 +138,7 @@ Scope `stats:read`. Everything about one entry or address.
 
 | Parameter | Type | Required | Meaning |
 |---|---|---|---|
-| `id` | string | one of `id` or `path` | entry id, e.g. `posts/2026-10-17-hello-world` |
+| `id` | string | one of `id` or `path` | entry id, e.g. `posts/hello-world` |
 | `path` | string | one of `id` or `path` | URL path, e.g. `/hello-world`; used when no id is given |
 | `period` | string | no | `7d`, `30d` (default), `90d` or `12m` |
 
@@ -200,8 +200,9 @@ Scope `content:read`. One entry in one language.
 | `language` | string | no | language code, default the site's default language |
 
 Returns `id`, `type`, `language`, `requested_language_missing`, `status`,
-`url`, `fields` (all front matter), `files`, `translations` and `body` (the
-Markdown, marked as data).
+`url`, `fields` (all front matter), `files` (references of the files in the
+entry's media folder, e.g. `media/posts/harbour/boats.jpg`), `translations` and
+`body` (the Markdown, marked as data).
 
 ### `content_create`
 
@@ -264,7 +265,8 @@ Returns `id` and `status: draft`.
 
 ### `media_upload`
 
-Scope `content:write`. Add an image to an entry's folder.
+Scope `content:write`. Add an image to the entry's folder in the media
+library, `content/media/<entry id>/`.
 
 | Parameter | Type | Required | Meaning |
 |---|---|---|---|
@@ -274,8 +276,9 @@ Scope `content:write`. Add an image to an entry's folder.
 
 Only images are accepted: `jpg`, `jpeg`, `png`, `gif`, `webp`, `avif`. Wake
 checks that the data really is an image and picks a free file name. Returns
-`id`, `name` and `markdown`, the snippet to put into the body
-(`![](harbour.jpg)`).
+`id`, `file` (the reference, e.g. `media/posts/harbour/harbour.jpg`) and
+`markdown`, the snippet to put into the body
+(`![](media/posts/harbour/harbour.jpg)`).
 
 ## Resources
 
@@ -292,7 +295,7 @@ checks that the data really is an image and picks a free file name. Returns
 
 ## Approval mode
 
-With `mcp.approval` set to `true` in `site/config.php` (or under *Settings*
+With `mcp.approval` set to `true` in `settings/config.php` (or under *Settings*
 in the panel), assistants can prepare everything but publish nothing:
 
 - `content_publish` writes `review: requested` into the entry, or
@@ -308,7 +311,7 @@ in the panel), assistants can prepare everything but publish nothing:
 - Entries created by an assistant carry `via: mcp` in their front matter. The
   lists in the panel show an *MCP* badge, and `content_list` returns
   `created_by_assistant`.
-- Every change is written to `storage/history/{year}-{month}.log` with the
+- Every change is written to `data/history/{year}-{month}.log` with the
   person, the action, `via: mcp` and the name of the token, so you can see
   which assistant changed what.
 

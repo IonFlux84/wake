@@ -179,6 +179,30 @@ class Writer
     }
 
     /**
+     * Saves the design of one entry (style.css in its folder), cleaned by
+     * PageStyle. Empty CSS removes the file. The previous design is kept as
+     * a version.
+     */
+    public function saveStyle(string $id, string $css): void
+    {
+        $row = $this->existing($id);
+        $file = $row['id'].'/style.css';
+        $path = Paths::content($file);
+        $css = PageStyle::clean($css);
+
+        Files::lock('entry-'.md5($row['id']), function () use ($file, $path, $css) {
+            if (is_file($path)) {
+                $this->revisions->keep($file, (string) file_get_contents($path));
+            }
+
+            $css === '' ? @unlink($path) : Files::write($path, $css."\n");
+        });
+
+        $this->index->refresh();
+        $this->history->record('style', $row['id']);
+    }
+
+    /**
      * Store a file in a folder of the media library ("documents", "posts/x").
      * Names become lowercase with dashes; a taken name gets "-2".
      */
