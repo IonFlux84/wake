@@ -26,7 +26,9 @@ reachable over HTTPS.
      images.
    - **Publish** (`content:publish`): to publish and unpublish. Only offered if
      your role may publish.
-4. Click **Create token** and copy the token. It starts with `wake_` and is shown
+4. Choose how long it is valid: 30 days, **90 days** (the default), a year or
+   without end. After that the assistant has to get a new token.
+5. Click **Create token** and copy the token. It starts with `wake_` and is shown
    **only once**. Keep it like a password.
 
 Use one token per assistant and device, so you can revoke one without

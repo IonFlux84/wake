@@ -41,6 +41,15 @@
                 @endforeach
                 @error('scopes')<span class="error">{{ $message }}</span>@enderror
             </fieldset>
+            <div class="field">
+                <label for="token-days">{{ __('Valid for') }}</label>
+                <select id="token-days" class="input" wire:model="days">
+                    <option value="30">{{ __('30 days') }}</option>
+                    <option value="90">{{ __('90 days') }}</option>
+                    <option value="365">{{ __('1 year') }}</option>
+                    <option value="never">{{ __('No end (not recommended)') }}</option>
+                </select>
+            </div>
             <p class="muted" style="margin:0;font-size:13px">{{ __('Assistants never delete anything. New posts always start as drafts.') }}</p>
             <div class="actions"><button class="btn btn-primary" type="submit"><x-wake::icon name="key" />{{ __('Create token') }}</button></div>
         </form>
@@ -60,17 +69,18 @@
         <h2 class="h2">{{ __('Your tokens') }}</h2>
         <div class="table-wrap">
             <table class="table">
-                <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Rights') }}</th><th>{{ __('Last used') }}</th><th></th></tr></thead>
+                <thead><tr><th>{{ __('Name') }}</th><th>{{ __('Rights') }}</th><th>{{ __('Last used') }}</th><th>{{ __('Valid until') }}</th><th></th></tr></thead>
                 <tbody>
                 @forelse ($tokens as $token)
                     <tr wire:key="token-{{ $token['id'] }}">
                         <td><b>{{ $token['name'] }}</b><br><span class="muted mono" style="font-size:12px">{{ __('created :date', ['date' => \Carbon\CarbonImmutable::parse($token['created_at'])->locale(app()->getLocale())->isoFormat('D. MMM YYYY')]) }}</span></td>
                         <td>@foreach ($token['scopes'] as $scope)<span class="badge" style="margin:2px">{{ $scopeLabels[$scope] ?? $scope }}</span>@endforeach</td>
                         <td class="mono" style="font-size:13px">{{ $token['last_used_at'] ? \Carbon\CarbonImmutable::parse($token['last_used_at'])->locale(app()->getLocale())->diffForHumans() : __('never') }}</td>
+                        <td class="mono" style="font-size:13px">@if (empty($token['expires_at'])){{ __('no end') }}@elseif (\Wake\Accounts\Tokens::isExpired($token))<span class="badge">{{ __('expired') }}</span>@else{{ \Carbon\CarbonImmutable::parse($token['expires_at'])->locale(app()->getLocale())->isoFormat('D. MMM YYYY') }}@endif</td>
                         <td style="text-align:right"><button type="button" class="btn btn-small btn-danger" wire:click="revoke('{{ $token['id'] }}')" wire:confirm="{{ __('Revoke this token? Assistants using it lose access immediately.') }}">{{ __('Revoke') }}</button></td>
                     </tr>
                 @empty
-                    <tr><td colspan="4" class="muted">{{ __('No tokens yet.') }}</td></tr>
+                    <tr><td colspan="5" class="muted">{{ __('No tokens yet.') }}</td></tr>
                 @endforelse
                 </tbody>
             </table>

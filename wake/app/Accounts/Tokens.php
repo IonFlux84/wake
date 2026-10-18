@@ -19,13 +19,17 @@ class Tokens
 
     public const PREFIX = 'wake_';
 
+    /** How long a new token is valid, in days, unless chosen otherwise. */
+    public const DEFAULT_DAYS = 90;
+
     public function __construct(protected Accounts $accounts) {}
 
     /**
      * @param  list<string>  $scopes
+     * @param  int|null  $days  valid for this many days; null for a token that never expires
      * @return array{0: string, 1: array<string, mixed>} the plain token and its record
      */
-    public function create(Account $account, string $name, array $scopes): array
+    public function create(Account $account, string $name, array $scopes, ?int $days = self::DEFAULT_DAYS): array
     {
         $scopes = array_values(array_intersect(self::SCOPES, $scopes));
 
@@ -42,6 +46,7 @@ class Tokens
             'hash' => $hash,
             'scopes' => $scopes,
             'created_at' => now()->toIso8601String(),
+            'expires_at' => $days !== null ? now()->addDays(max(1, $days))->toIso8601String() : null,
             'last_used_at' => null,
         ];
 
@@ -79,6 +84,10 @@ class Tokens
             $record = Yaml::parseFile($file);
 
             if (is_array($record) && hash_equals($record['hash'] ?? '', $hash)) {
+                if (self::isExpired($record)) {
+                    return null;
+                }
+
                 $account = $this->accounts->find(basename(dirname($file, 2)));
 
                 return $account ? [$account, $record] : null;
@@ -86,6 +95,14 @@ class Tokens
         }
 
         return null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     */
+    public static function isExpired(array $record): bool
+    {
+        return ! empty($record['expires_at']) && now()->greaterThanOrEqualTo($record['expires_at']);
     }
 
     public function touch(Account $account, array $record): void

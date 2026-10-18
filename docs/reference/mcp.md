@@ -43,10 +43,13 @@ their own tokens in the panel under *Assistants*.
   once, right after creating it.
 - Wake stores only a SHA-256 hash of it, in
   `data/accounts/{account}/tokens/{id}.yml`, with the name, the scopes, the
-  creation date and when it was last used (updated at most once a minute).
+  creation date, the expiry date and when it was last used (updated at most
+  once a minute).
 - Revoking a token in the panel deletes that file; the next request with it
   fails.
-- Tokens do not expire. Revoke the ones you no longer use.
+- Tokens expire: after 90 days unless you choose 30 days, a year or no end
+  when creating one. An expired token is refused like a revoked one; the panel
+  marks it *expired*. Create a new one and revoke the old one.
 - Tokens for AI assistants never need the password and are not affected by
   [two-factor sign-in](../guides/two-factor.md).
 

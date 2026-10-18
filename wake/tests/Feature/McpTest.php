@@ -218,3 +218,25 @@ it('hides drafts of others from contributors', function () {
         ->and(Permissions::mayRead($author, $draft))->toBeTrue()
         ->and(Permissions::mayRead(null, Post::find('posts/first')))->toBeTrue();
 });
+
+it('lets tokens expire', function () {
+    [$plain] = app(Tokens::class)->create($this->account, 'Short', ['stats:read'], 30);
+    [$forever] = app(Tokens::class)->create($this->account, 'Forever', ['stats:read'], null);
+
+    expect(app(Tokens::class)->find($plain))->not->toBeNull();
+
+    $this->travel(31)->days();
+
+    expect(app(Tokens::class)->find($plain))->toBeNull()
+        ->and(app(Tokens::class)->find($forever))->not->toBeNull();
+
+    mcp(['jsonrpc' => '2.0', 'id' => 1, 'method' => 'tools/list'], $plain)->assertUnauthorized();
+});
+
+it('offers 90 days for new tokens in the panel', function () {
+    Livewire::actingAs($this->account)->test(Assistants::class)
+        ->assertSet('days', '90')
+        ->set('name', 'Laptop')->set('scopes', ['stats:read'])->call('create');
+
+    expect(app(Tokens::class)->of($this->account)->first()['expires_at'])->toStartWith(now()->addDays(90)->toDateString());
+});

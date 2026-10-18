@@ -17,6 +17,9 @@ class Assistants extends Component
     /** @var list<string> */
     public array $scopes = ['stats:read', 'content:read'];
 
+    /** Days the new token is valid; "never" for no end. */
+    public string $days = '90';
+
     /** Shown once after creating a token. */
     public ?string $plain = null;
 
@@ -26,9 +29,10 @@ class Assistants extends Component
             'name' => 'required|string|max:60',
             'scopes' => 'required|array|min:1',
             'scopes.*' => 'in:'.implode(',', $this->allowedScopes()),
+            'days' => 'required|in:30,90,365,never',
         ]);
 
-        [$this->plain] = $tokens->create(auth()->user(), $this->name, $this->scopes);
+        [$this->plain] = $tokens->create(auth()->user(), $this->name, $this->scopes, $this->days === 'never' ? null : (int) $this->days);
         $this->name = '';
     }
 
