@@ -19,8 +19,12 @@
     RewriteCond %{THE_REQUEST} ^\S+\s(/[^?\s]*?)/+(\?\S*)?\s
     RewriteRule ^ %1 [L,R=301]
 
-    # Send Requests To Front Controller...
+    # Send Requests To Front Controller, as an absolute address (see the
+    # .htaccess one folder up): the folder of this file is taken from the
+    # request, so no document root is needed.
+    RewriteCond %{REQUEST_URI}::$0 ^(/.+)/(.*)::\2$
+    RewriteRule .* - [E=WAKE_PUBLIC_BASE:%1]
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+    RewriteRule ^ %{ENV:WAKE_PUBLIC_BASE}/index.php [L]
 </IfModule>

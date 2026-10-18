@@ -192,8 +192,11 @@ All notable changes to Wake are documented here. The format follows
 - The `.htaccess` in the main folder no longer relies on `DOCUMENT_ROOT`. On
   hosts that report a different document root (found on IONOS Deploy Now) it
   did nothing, so files outside `public/` could be fetched. It now maps every
-  address into `public/` with paths relative to its folder, and switches off
-  MultiViews, which answered `/changelog` with `300 Multiple Choices`.
+  address into `public/` without needing the document root, and switches off
+  MultiViews, which answered `/changelog` with `300 Multiple Choices`. Both
+  `.htaccess` files write absolute rewrite targets with the installation
+  folder taken from the request: relative targets resolve against a wrong path
+  on IONOS and ended in `500`.
 - Privacy by default: level-1 statistics now wait for consent
   (`tracking.level1: 'consent'`), and the consent banner is shown on every site
   (`always: true`). Both can be switched back in the panel. While level 1 waits

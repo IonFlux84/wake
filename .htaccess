@@ -23,10 +23,16 @@
     # Hidden files such as .env are never served.
     RewriteRule (^|/)\.(?!well-known/) - [F,L]
 
-    # Everything goes into public/. The paths here are relative to this
-    # folder, so it works without knowing the document root (some hosts
-    # report one that does not match): when the document root already is
+    # Everything goes into public/. When the document root already is
     # public/, the path seen here starts with public/ and nothing changes.
     RewriteRule ^public/ - [L]
-    RewriteRule ^(.*)$ public/$1 [L,E=WAKE_ROOT_REWRITE:1]
+
+    # The target is written as an absolute address, with the folder Wake is
+    # installed in taken from the request (WAKE_BASE, empty at the top). A
+    # relative target would need the document root, and hosts with mass
+    # virtual hosting (IONOS) report one that does not match the real path:
+    # Apache then loops and answers 500.
+    RewriteCond %{REQUEST_URI}::$0 ^(/.+)/(.*)::\2$
+    RewriteRule .* - [E=WAKE_BASE:%1]
+    RewriteRule ^(.*)$ %{ENV:WAKE_BASE}/public/$1 [L,E=WAKE_ROOT_REWRITE:1]
 </IfModule>
