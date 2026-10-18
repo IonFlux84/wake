@@ -1,5 +1,7 @@
 <?php
 
+use MaxMind\Db\Reader;
+
 /*
  * Wake's statistics endpoint. The tracking script sends page views, reading
  * signals and events here with navigator.sendBeacon().
@@ -98,7 +100,7 @@ if ($userAgent === '' || preg_match($config['bots'], $userAgent)) {
     wake_done();
 }
 
-$path ='/'.ltrim($clean(parse_url((string) ($data['p'] ?? '/'), PHP_URL_PATH) ?: '/', 300), '/');
+$path = '/'.ltrim($clean(parse_url((string) ($data['p'] ?? '/'), PHP_URL_PATH) ?: '/', 300), '/');
 parse_str((string) (parse_url((string) ($data['p'] ?? ''), PHP_URL_QUERY) ?? ''), $query);
 
 // Level 1 (no cookie) may require consent on some sites; level 2 always does.
@@ -163,7 +165,7 @@ if (! empty($config['geo']) && is_file($config['geo'])) {
     require_once $root.'/wake/vendor/autoload.php';
 
     try {
-        $record = (new MaxMind\Db\Reader($config['geo']))->get($_SERVER['REMOTE_ADDR'] ?? '');
+        $record = (new Reader($config['geo']))->get($_SERVER['REMOTE_ADDR'] ?? '');
         $country = (string) ($record['country']['iso_code'] ?? '');
     } catch (Throwable) {
         $country = '';

@@ -27,6 +27,6 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first. Everything there applies to you.
 
 ```bash
 composer --working-dir=wake test       # all tests, including documentation checks
-wake/vendor/bin/pint --config=wake/pint.json   # code style
+wake/vendor/bin/pint --config=wake/pint.json   # code style (run from the repository root)
 php wake/artisan serve                 # local server
 ```

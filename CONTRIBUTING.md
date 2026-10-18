@@ -42,7 +42,7 @@ php artisan serve
 ```bash
 cd wake
 composer test          # Pest, including the documentation checks
-vendor/bin/pint        # code style
+vendor/bin/pint --config=pint.json ..   # code style, including public/
 ```
 
 - One topic per pull request. Small is better.
