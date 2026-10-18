@@ -9,7 +9,7 @@
             <p class="auth-ink-lead">{{ __('Everything you write is a file on your own web space.') }}</p>
 
             <figure class="auth-window" aria-hidden="true">
-                <div class="auth-window-bar mono"><span>content/posts/</span><span>index.md</span></div>
+                <div class="auth-window-bar mono"><span>content/posts/</span><span>content.md</span></div>
                 <svg class="auth-wake" viewBox="0 0 400 236">
                     <path class="axis" d="M200 22V236"/>
                     <path class="arm" pathLength="1" d="M200 22 124.3 236"/>

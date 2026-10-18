@@ -13,9 +13,9 @@ use Wake\Support\Paths;
  * The menus of the site, kept in settings/menus.yml:
  *
  *     main:
- *       - page: pages/1_about
+ *       - page: pages/about
  *         children:
- *           - page: pages/1_about/1_team
+ *           - page: pages/about/team
  *       - label: { en: Shop, de: Laden }
  *         url: https://shop.example.org
  *     footer:
