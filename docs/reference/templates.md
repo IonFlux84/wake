@@ -289,6 +289,32 @@ not reachable.
 `@wakeHead` already loads the consent manager and the tracking script. See
 [consent](../concepts/consent.md).
 
+## Forms
+
+Pages are cached and run without a session, so a form on the website cannot
+use Laravel's CSRF token. Wake protects public forms without one:
+
+```blade
+<form method="post" action="{{ url('contact') }}">
+    @wakeForm('contact')
+    <input name="email" type="email" required>
+    <button>Send</button>
+</form>
+```
+
+```php
+Route::post('contact', ContactController::class)->middleware('wake.form:contact');
+```
+
+`@wakeForm('name')` adds a stamp signed with the application key (the form's
+name and when the page was made) and a hidden honeypot field. The middleware
+`wake.form:name` refuses the request with 422 when the honeypot is filled, the
+stamp is forged or belongs to another form, or the form was sent within two
+seconds of loading or more than seven days later; and with 429 after ten
+submissions of that form from one visitor (hashed IP address) within ten
+minutes. Validate the fields themselves as usual. Forms are added by
+[plugins](plugins.md), which register the route.
+
 ## Assets
 
 `theme_asset('tide.css')` returns the public address of a file in `assets/`.

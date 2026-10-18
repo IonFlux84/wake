@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Wake\Http\Middleware\CachePages;
 use Wake\Http\Middleware\ClosedSite;
+use Wake\Http\Middleware\GuardForm;
 use Wake\Http\Middleware\PanelLocale;
 use Wake\Http\Middleware\RequireTwoFactor;
 use Wake\Plugins\Plugins;
@@ -39,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'wake.cache' => CachePages::class,
             'wake.closed' => ClosedSite::class,
             'wake.two-factor' => RequireTwoFactor::class,
+            'wake.form' => GuardForm::class,
         ]);
         $middleware->appendToGroup('wake.panel', [PanelLocale::class]);
         $middleware->redirectGuestsTo(fn () => route('wake.login'));

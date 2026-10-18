@@ -196,6 +196,8 @@ All notable changes to Wake are documented here. The format follows
   `track.js` sends nothing until the visitor agrees; the page view is counted
   as soon as they do. Before, any decision, even "Decline", counted as consent.
 - `wake:clear` also clears the compiled templates.
+- Public forms on cached pages: `@wakeForm('name')` and the route middleware
+  `wake.form:name` check a signed stamp and a honeypot and limit submissions.
 - Plugins load their classes through `autoload` in `plugin.yml` (PSR-4) and a
   bundled `vendor/autoload.php`; no more `require_once`.
 - Tokens for assistants and the API expire, after 90 days by default (30 days,

@@ -121,6 +121,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->make(Theme::class)->register();
         $this->app->make(Plugins::class)->boot();
 
+        Blade::directive('wakeForm', fn (string $form) => "<?php echo \\Wake\\Forms\\FormGuard::fields({$form}); ?>");
         Blade::directive('wakeConsentLink', fn () => "<?php echo view('wake::consent-link')->render(); ?>");
         Blade::directive('wakeServices', fn () => "<?php echo view('wake::services')->render(); ?>");
         Blade::directive('wakeHead', fn () => "<?php echo view('wake::head', ['site' => \$site ?? app(\\Wake\\Content\\Site::class), 'entry' => \$entry ?? null])->render(); ?>");

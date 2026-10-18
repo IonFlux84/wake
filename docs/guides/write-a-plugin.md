@@ -510,9 +510,11 @@ account. Site owners trust you with that, so:
   hostile. Use `request()->validate([...])` or check values against a fixed
   list, as `closed_on` does.
 - **Forms on the website.** Website pages have no session and are cached, so
-  they cannot carry a CSRF token. Send public forms to a stateless route and
-  protect it with `->middleware('throttle:10,1')`, validation and a honeypot
-  field. Use `Route::middleware('web')` (session and CSRF protection) only
+  they cannot carry a CSRF token. Put `@wakeForm('contact')` into the form and
+  `->middleware('wake.form:contact')` on its route: Wake then checks a signed
+  stamp and a honeypot and limits submissions
+  ([forms](../reference/templates.md#forms)). Validate the fields as well.
+  Use `Route::middleware('web')` (session and CSRF protection) only
   for routes that signed-in team members use from the panel, and check their
   rights with `auth()->user()?->can('settings.manage')`.
 - **Write safely.** Use `Wake\Support\Files::write()`, keep data in
