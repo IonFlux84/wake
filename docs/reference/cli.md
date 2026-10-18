@@ -15,3 +15,42 @@ php wake/artisan <command>
 All Laravel commands work as usual. Wake adds the following.
 
 <!-- One section per command. A test checks that every wake: command appears here. -->
+
+## `wake:index`
+
+Updates the content index. Only needed when the setting `index.check` is
+`'never'` and you changed files by hand. With `--force`, every file is parsed
+again, even unchanged ones.
+
+```bash
+php wake/artisan wake:index
+php wake/artisan wake:index --force
+```
+
+Problems found while reading content, such as broken front matter or two
+entries with the same address, are listed after the summary.
+
+## `wake:clear`
+
+Removes all cached pages. Wake does this by itself whenever content changes,
+so you need it mainly after changing a theme.
+
+```bash
+php wake/artisan wake:clear
+```
+
+## `wake:maintenance`
+
+Runs the maintenance tasks right away: publishes scheduled entries whose date
+has passed, and later also builds statistics and cleans up old data.
+
+```bash
+php wake/artisan wake:maintenance
+```
+
+If your host offers cron, set `maintenance.mode` to `'cron'` and run Laravel's
+scheduler every minute instead:
+
+```bash
+* * * * * php /path/to/site/wake/artisan schedule:run
+```

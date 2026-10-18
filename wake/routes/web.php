@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+// The panel lives under /wake. These routes use sessions and CSRF protection.
+
+Route::prefix('wake')->name('wake.')->group(function () {
+    //
 });

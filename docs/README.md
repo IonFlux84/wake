@@ -21,6 +21,10 @@ The documentation is split by what you want to do, following the
 
 - [Installation](getting-started/installation.md)
 
+## Guides
+
+- [Add a second language](guides/second-language.md)
+
 ## Reference
 
 - [Configuration](reference/configuration.md): every setting in `site/config.php`

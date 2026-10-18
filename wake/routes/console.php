@@ -1,8 +1,12 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
+use Wake\Maintenance\Maintenance;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// With "maintenance.mode" set to "cron", a cron job calling
+// `php wake/artisan schedule:run` every minute runs maintenance instead of
+// page views.
+
+if (config('wake.maintenance.mode') === 'cron') {
+    Schedule::call(fn () => app(Maintenance::class)->run())->everyMinute()->name('wake:maintenance');
+}

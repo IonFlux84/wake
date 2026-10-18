@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Wake\Http\Middleware\CachePages;
 
 // The Laravel application lives in wake/. Everything a site owner touches
 // (site/, content/, storage/, public/ and .env) sits one level above it,
@@ -15,9 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        // The website comes last, because it answers every remaining address.
+        then: fn () => Route::group([], __DIR__.'/../routes/site.php'),
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'wake.cache' => CachePages::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

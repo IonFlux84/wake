@@ -24,6 +24,9 @@ return [
     // "hide" answers with 404, "fallback" shows the default language.
     'missing_translation' => 'hide',
 
+    // Time zone for dates in content and for scheduled publishing.
+    'timezone' => env('WAKE_TIMEZONE', 'UTC'),
+
     // Name of the folder in site/themes/ that renders the website.
     'theme' => 'tide',
 
@@ -35,6 +38,19 @@ return [
 
     // Posts per page on lists and in feeds.
     'per_page' => 10,
+
+    'images' => [
+        // Widths Wake may create. Requests for other widths use the next larger one.
+        'widths' => [320, 640, 960, 1280, 1920],
+
+        // JPEG, WebP and AVIF quality from 1 to 100.
+        'quality' => 82,
+    ],
+
+    'feed' => [
+        // Number of posts in the RSS feed.
+        'limit' => 20,
+    ],
 
     'index' => [
         // "always" checks file times on every uncached request and rebuilds
