@@ -269,7 +269,7 @@ class Query implements Countable, IteratorAggregate
     }
 
     /**
-     * Order by "date", "title", "num" (the number prefix of pages) or any field.
+     * Order by "date", "title", "order" (the place in the page tree) or any field.
      */
     public function orderBy(string $field, string $direction = 'asc'): static
     {
