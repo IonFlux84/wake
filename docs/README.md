@@ -36,6 +36,7 @@ The documentation is split by what you want to do, following the
 
 - [Architecture](concepts/architecture.md)
 - [Analytics](concepts/analytics.md)
+- [Consent](concepts/consent.md)
 
 ## Project
 

@@ -56,7 +56,20 @@
     ]), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
 @endif
     <meta name="generator" content="Wake">
-@if (config('wake.tracking.enabled'))
+@php($consent = app(\Wake\Consent\ConsentSettings::class))
+@php($consentTexts = $consent->texts(app()->getLocale()))
+    <link rel="stylesheet" href="{{ app(\Wake\Panel\Panel::class)->asset('consent.css') }}">
+    <script type="application/json" id="wake-consent-config">{!! json_encode([
+        'version' => (int) $consent->get('version'),
+        'banner' => $consent->bannerNeeded(),
+        'categories' => $consent->categories(),
+        'position' => $consent->get('position'),
+        'privacy' => $consent->get('privacy_url'),
+        'endpoint' => url('hit.php'),
+        'texts' => $consentTexts,
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
+    <script defer src="{{ app(\Wake\Panel\Panel::class)->asset('consent.js') }}"></script>
 @php(app(\Wake\Stats\TrackingConfig::class)->sync())
+@if (config('wake.tracking.enabled'))
     <script defer src="{{ app(\Wake\Panel\Panel::class)->asset('track.js') }}" data-endpoint="{{ url('hit.php') }}"></script>
 @endif

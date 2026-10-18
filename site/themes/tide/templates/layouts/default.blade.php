@@ -25,7 +25,7 @@
 
     <footer class="site-footer">
         <span>© {{ date('Y') }} {{ $site->title() }}</span>
-        <a href="{{ app(\Wake\Localization\Languages::class)->url('feed.xml') }}">RSS</a>
+        <span class="footer-links">@wakeConsentLink · <a href="{{ app(\Wake\Localization\Languages::class)->url('feed.xml') }}">RSS</a></span>
     </footer>
 </body>
 </html>

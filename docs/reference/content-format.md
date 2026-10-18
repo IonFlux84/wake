@@ -130,6 +130,7 @@ Cards cannot be nested.
 | `callout` | an emoji or icon | highlighted box |
 | `button` | `href`, label as text | link styled as a button |
 | `divider` | | horizontal line |
+| `embed` | the address of a video, map or post, caption as text | two-click embed, see [consent](../concepts/consent.md#two-click-embeds) |
 
 Any other name becomes `<div class="card card-{name}">`, and a theme can give it
 its own look with a template in `templates/cards/{name}.blade.php`

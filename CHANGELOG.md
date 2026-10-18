@@ -41,3 +41,8 @@ All notable changes to Wake are documented here. The format follows
   salted visitor hashes (level 1) and an optional consent cookie (level 2),
   daily and monthly summaries, real-time visitors, reading time, scroll depth,
   campaigns, events and next pages. Raw data is deleted after 30 days.
+- Consent manager: a banner that only appears when consent is needed, with
+  "Decline" as prominent as "Accept", categories, anonymous consent records,
+  versioned texts in `site/consent.yml`, two-click embeds (`::: embed`) with
+  privacy-friendly players, consent-gated scripts and `@wakeServices` for the
+  privacy policy.

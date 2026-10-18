@@ -20,3 +20,7 @@ the file.
 
 Images and downloads live next to the text files and are shared by all
 languages.
+
+::: embed https://www.youtube.com/watch?v=aqz-KE-bpKQ
+Embeds load only after a click or consent.
+:::

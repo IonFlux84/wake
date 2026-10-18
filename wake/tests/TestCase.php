@@ -22,10 +22,11 @@ abstract class TestCase extends BaseTestCase
         $this->sandbox = sys_get_temp_dir().'/wake-tests/'.bin2hex(random_bytes(6));
 
         $this->copyDirectory(__DIR__.'/Fixtures/content', $this->sandbox.'/content');
+        $this->copyDirectory(__DIR__.'/Fixtures/site', $this->sandbox.'/site');
         mkdir($this->sandbox.'/storage/framework/views', 0775, true);
         mkdir($this->sandbox.'/public', 0775, true);
 
-        foreach (['WAKE_SITE_PATH' => __DIR__.'/Fixtures/site', 'WAKE_CONTENT_PATH' => $this->sandbox.'/content', 'WAKE_PAGE_CACHE' => 'true'] as $key => $value) {
+        foreach (['WAKE_SITE_PATH' => $this->sandbox.'/site', 'WAKE_CONTENT_PATH' => $this->sandbox.'/content', 'WAKE_PAGE_CACHE' => 'true'] as $key => $value) {
             putenv("{$key}={$value}");
             $_ENV[$key] = $_SERVER[$key] = $value;
         }

@@ -6,6 +6,7 @@ use DateTimeInterface;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Wake\Consent\Services;
 use Wake\Localization\Languages;
 use Wake\Support\Files;
 use Wake\Support\Paths;
@@ -21,7 +22,7 @@ use Wake\Support\Paths;
  */
 class Index
 {
-    public const VERSION = 1;
+    public const VERSION = 2;
 
     /** @var array<string, mixed>|null */
     protected ?array $data = null;
@@ -85,6 +86,26 @@ class Index
         $site = $this->load()['site'];
 
         return $site[$language] ?? $site[$this->languages->default()] ?? [];
+    }
+
+    /**
+     * External services embedded anywhere in the content, e.g. ["youtube"].
+     * They are listed for the privacy policy.
+     *
+     * @return list<string>
+     */
+    public function services(): array
+    {
+        $services = [];
+
+        foreach ($this->load()['docs'] as $doc) {
+            array_push($services, ...($doc['services'] ?? []));
+        }
+
+        $services = array_values(array_unique($services));
+        sort($services);
+
+        return $services;
     }
 
     /**
@@ -284,8 +305,8 @@ class Index
             }
 
             try {
-                [$fields] = FrontMatter::parse((string) file_get_contents(Paths::content($path)), $path);
-                $docs[$path] = ['mtime' => $mtime, 'fields' => $this->normalize($fields)];
+                [$fields, $body] = FrontMatter::parse((string) file_get_contents(Paths::content($path)), $path);
+                $docs[$path] = ['mtime' => $mtime, 'fields' => $this->normalize($fields), 'services' => $this->servicesIn($body)];
             } catch (InvalidContentException $e) {
                 $warnings[] = $e->getMessage();
             }
@@ -489,6 +510,16 @@ class Index
         $code = strtolower($code);
 
         return $this->languages->exists($code) ? $code : null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function servicesIn(string $body): array
+    {
+        preg_match_all('/^:::[ \t]*embed[ \t]+(?:url=)?["\']?(\S+?)["\']?[ \t]*$/mi', $body, $matches);
+
+        return array_values(array_unique(array_map(Services::detect(...), $matches[1])));
     }
 
     /**

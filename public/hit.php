@@ -27,18 +27,7 @@ function wake_done(int $status = 204): never
     exit;
 }
 
-if (! is_array($config) || empty($config['enabled']) || ($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-    wake_done();
-}
-
-// Team members signed in to the panel are not counted.
-if (isset($_COOKIE[$config['session_cookie']])) {
-    wake_done();
-}
-
-$userAgent = substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 512);
-
-if ($userAgent === '' || preg_match($config['bots'], $userAgent)) {
+if (! is_array($config) || ($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     wake_done();
 }
 
@@ -79,7 +68,37 @@ if ($type === 'consent') {
     wake_done();
 }
 
-$path = '/'.ltrim($clean(parse_url((string) ($data['p'] ?? '/'), PHP_URL_PATH) ?: '/', 300), '/');
+if (empty($config['enabled'])) {
+    wake_done();
+}
+
+// Team members signed in to the panel are not counted.
+if (isset($_COOKIE[$config['session_cookie']])) {
+    wake_done();
+}
+
+$userAgent = substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 512);
+
+if ($userAgent === '' || preg_match($config['bots'], $userAgent)) {
+    wake_done();
+}
+
+if (empty($config['enabled'])) {
+    wake_done();
+}
+
+// Team members signed in to the panel are not counted.
+if (isset($_COOKIE[$config['session_cookie']])) {
+    wake_done();
+}
+
+$userAgent = substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 512);
+
+if ($userAgent === '' || preg_match($config['bots'], $userAgent)) {
+    wake_done();
+}
+
+$path ='/'.ltrim($clean(parse_url((string) ($data['p'] ?? '/'), PHP_URL_PATH) ?: '/', 300), '/');
 parse_str((string) (parse_url((string) ($data['p'] ?? ''), PHP_URL_QUERY) ?? ''), $query);
 
 // Level 1 (no cookie) may require consent on some sites; level 2 always does.

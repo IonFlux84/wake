@@ -142,6 +142,16 @@ JSON-LD for posts.
 </head>
 ```
 
+## Consent and privacy
+
+| Directive | Output |
+|---|---|
+| `@wakeConsentLink` | a "Cookie settings" link that opens the consent settings. Put it in the footer |
+| `@wakeServices` | a section for the privacy policy listing Wake's statistics, cookies and embedded services |
+
+`@wakeHead` already loads the consent manager and the tracking script. See
+[consent](../concepts/consent.md).
+
 ## Assets
 
 `theme_asset('tide.css')` returns the public address of a file in `assets/`.

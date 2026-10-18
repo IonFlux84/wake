@@ -110,7 +110,7 @@ it('includes the tracking script and writes the rules for hit.php', function () 
 it('leaves the script out when tracking is off', function () {
     config(['wake.tracking.enabled' => false]);
 
-    $this->get('/first')->assertDontSee('hit.php');
+    $this->get('/first')->assertDontSee('track.js');
 });
 
 describe('public/hit.php', function () {
@@ -153,6 +153,17 @@ describe('public/hit.php', function () {
 
         expect(beacon($this->port, ['t' => 'nonsense']))->toBe(400)
             ->and(is_file($this->sandbox.'/storage/stats/raw/'.date('Y-m-d').'.log'))->toBeFalse();
+    });
+
+    it('stores consent proofs even with statistics switched off', function () {
+        config(['wake.tracking.enabled' => false]);
+        app(TrackingConfig::class)->sync();
+
+        beacon($this->port, ['t' => 'pageview', 'p' => '/']);
+        beacon($this->port, ['t' => 'consent', 'id' => str_repeat('b2', 10), 'c' => ['necessary'], 'a' => 'decline']);
+
+        expect(is_file($this->sandbox.'/storage/stats/raw/'.date('Y-m-d').'.log'))->toBeFalse()
+            ->and(file_get_contents($this->sandbox.'/storage/consent/'.gmdate('Y-m').'.log'))->toContain('"decline"');
     });
 
     it('stores consent decisions as proof', function () {
