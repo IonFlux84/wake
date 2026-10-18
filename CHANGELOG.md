@@ -50,3 +50,7 @@ All notable changes to Wake are documented here. The format follows
   against the previous period, a chart of the last 7, 30 or 90 days, most read
   posts with read-through rate, sources, live visitors, drafts, scheduled and
   recent posts, and a sentence about what stands out today.
+- Statistics page with periods from today to 12 months, a pages table with
+  reading time and read-through rate, sources, campaigns, countries, devices,
+  languages, browsers, events and visits of AI crawlers.
+- The wake of a page: where its readers came from and what they opened next.

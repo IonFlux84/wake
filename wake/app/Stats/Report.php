@@ -111,6 +111,10 @@ class Report implements JsonSerializable
     public function page(string $path): array
     {
         $page = $this->summary['pages'][$path] ?? ['pageviews' => 0, 'visitors' => 0, 'duration' => 0, 'leaves' => 0, 'scroll' => 0, 'read' => 0];
+        $sources = $this->summary['page_sources'][$path] ?? [];
+        $next = $this->summary['next'][$path] ?? [];
+        arsort($sources);
+        arsort($next);
 
         return [
             'path' => $path,
@@ -119,8 +123,8 @@ class Report implements JsonSerializable
             'duration' => $page['leaves'] > 0 ? (int) round($page['duration'] / $page['leaves']) : 0,
             'scroll' => $page['leaves'] > 0 ? (int) round($page['scroll'] / $page['leaves']) : 0,
             'read_rate' => $page['leaves'] > 0 ? round($page['read'] / $page['leaves'], 2) : null,
-            'sources' => $this->summary['page_sources'][$path] ?? [],
-            'next' => $this->summary['next'][$path] ?? [],
+            'sources' => $sources,
+            'next' => $next,
         ];
     }
 

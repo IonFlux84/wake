@@ -18,7 +18,9 @@ use Wake\Content\ContentTypes;
 use Wake\Content\Index;
 use Wake\Content\Site;
 use Wake\Livewire\Dashboard;
+use Wake\Livewire\Journey;
 use Wake\Livewire\LiveVisitors;
+use Wake\Livewire\Statistics;
 use Wake\Localization\Languages;
 use Wake\Maintenance\Maintenance;
 use Wake\Markdown\Markdown;
@@ -28,6 +30,14 @@ use Wake\Theme\Theme;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /** Livewire components of the panel, used as <livewire:wake.{name} />. */
+    public const COMPONENTS = [
+        'dashboard' => Dashboard::class,
+        'live-visitors' => LiveVisitors::class,
+        'statistics' => Statistics::class,
+        'journey' => Journey::class,
+    ];
+
     public function register(): void
     {
         $this->mergeSiteConfig();
@@ -48,8 +58,9 @@ class AppServiceProvider extends ServiceProvider
         // Livewire answers under /wake, so the website's catch-all route never sees it.
         Livewire::setUpdateRoute(fn ($handle) => Route::post('wake/livewire/update', $handle)->middleware(['web', 'wake.panel']));
         Livewire::setScriptRoute(fn ($handle) => Route::get('wake/livewire/livewire.js', $handle));
-        Livewire::component('wake.dashboard', Dashboard::class);
-        Livewire::component('wake.live-visitors', LiveVisitors::class);
+        foreach (self::COMPONENTS as $name => $component) {
+            Livewire::component('wake.'.$name, $component);
+        }
 
         Auth::provider('wake', fn ($app) => new AccountUserProvider($app->make(Accounts::class)));
         $this->app->make(Theme::class)->register();

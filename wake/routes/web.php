@@ -19,5 +19,7 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
     Route::middleware('auth')->group(function () {
         Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
         Route::get('/', DashboardController::class)->name('dashboard');
+        Route::view('stats', 'wake::panel.stats')->name('stats');
+        Route::view('stats/journey', 'wake::panel.journey')->name('stats.journey');
     });
 });

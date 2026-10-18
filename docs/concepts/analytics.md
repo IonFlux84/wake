@@ -61,6 +61,14 @@ database. It skips
 `hit.php` does not start Laravel. A hit costs about as much as serving a small
 file.
 
+## AI crawlers
+
+Crawlers of AI companies (GPTBot, ClaudeBot, PerplexityBot, Google-Extended and
+others) never run the tracking script, so `public/index.php` recognises them by
+their user agent and appends a line with the crawler's name and the path to
+`storage/stats/ai/{day}.log`. The statistics page shows them in the card
+*AI is reading along*. They are kept as long as raw data.
+
 ## Storage
 
 ```
@@ -69,6 +77,7 @@ storage/stats/
   daily/2026-10-16.json    summary of a finished day
   monthly/2026-10.json     summary of a month
   salt/2026-10-17          today's salt
+  ai/2026-10-17.log        visits of AI crawlers
   .config.php              rules for hit.php, written by Wake
 ```
 

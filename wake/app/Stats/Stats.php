@@ -83,6 +83,51 @@ class Stats
     }
 
     /**
+     * Visits of AI crawlers (GPTBot, ClaudeBot, …), counted by public/index.php.
+     *
+     * @return array{total: int, bots: array<string, int>, pages: array<string, int>}
+     */
+    public function aiCrawlers(CarbonImmutable|string $from, CarbonImmutable|string $to): array
+    {
+        $result = ['total' => 0, 'bots' => [], 'pages' => []];
+
+        foreach (CarbonPeriod::create(CarbonImmutable::parse($from)->startOfDay(), CarbonImmutable::parse($to)->startOfDay()) as $date) {
+            $handle = @fopen(storage_path('stats/ai/'.$date->toDateString().'.log'), 'r');
+
+            while ($handle && ($line = fgets($handle)) !== false) {
+                [, $bot, $path] = array_pad(explode("\t", rtrim($line, "\n"), 3), 3, '');
+                $result['total']++;
+                $result['bots'][$bot] = ($result['bots'][$bot] ?? 0) + 1;
+                $result['pages'][$path] = ($result['pages'][$path] ?? 0) + 1;
+            }
+
+            $handle && fclose($handle);
+        }
+
+        arsort($result['bots']);
+        arsort($result['pages']);
+
+        return $result;
+    }
+
+    /**
+     * Visitors and page views of one path per day.
+     *
+     * @return array<string, array{pageviews: int, visitors: int}>
+     */
+    public function pageSeries(string $path, CarbonImmutable|string $from, CarbonImmutable|string $to): array
+    {
+        $series = [];
+
+        foreach (CarbonPeriod::create(CarbonImmutable::parse($from)->startOfDay(), CarbonImmutable::parse($to)->startOfDay()) as $date) {
+            $page = $this->day($date->toDateString())['pages'][$path] ?? [];
+            $series[$date->toDateString()] = ['pageviews' => $page['pageviews'] ?? 0, 'visitors' => $page['visitors'] ?? 0];
+        }
+
+        return $series;
+    }
+
+    /**
      * Visitors right now: everyone seen in the last five minutes.
      *
      * @return array{visitors: int, pages: array<string, int>}
@@ -144,6 +189,12 @@ class Stats
         foreach ($this->raw->days() as $day) {
             if ($day < $limit && is_file($this->dailyFile($day))) {
                 @unlink($this->raw->file($day));
+            }
+        }
+
+        foreach (glob(storage_path('stats/ai/*.log')) ?: [] as $file) {
+            if (basename($file, '.log') < $limit) {
+                @unlink($file);
             }
         }
 
