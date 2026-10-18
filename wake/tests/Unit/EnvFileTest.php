@@ -38,3 +38,15 @@ it('reads the scheme behind a proxy and keeps ports', function () {
         ->and(EnvFile::address(['HTTP_HOST' => 'example.org', 'HTTP_X_FORWARDED_PROTO' => 'https']))->toBe('https://example.org')
         ->and(EnvFile::address(['HTTP_HOST' => '[::1]:8080']))->toBe('http://[::1]:8080');
 });
+
+it('fills in the address on the first request when a command wrote .env first', function () {
+    EnvFile::create($this->root, []);
+    expect(file_get_contents($this->root.'/.env'))->toContain('APP_URL=http://localhost:8000');
+
+    EnvFile::create($this->root, ['HTTP_HOST' => 'home-1.app-ionos.space', 'HTTPS' => 'on']);
+    expect(file_get_contents($this->root.'/.env'))->toContain('APP_URL=https://home-1.app-ionos.space');
+
+    // Once set, it stays: a later request under another address changes nothing.
+    EnvFile::create($this->root, ['HTTP_HOST' => 'getwake.dev', 'HTTPS' => 'on']);
+    expect(file_get_contents($this->root.'/.env'))->toContain('APP_URL=https://home-1.app-ionos.space');
+});

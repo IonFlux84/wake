@@ -16,7 +16,13 @@ class EnvFile
      */
     public static function create(string $root, array $server): bool
     {
-        if (is_file($root.'/.env') || ! is_file($root.'/.env.example') || ! is_writable($root)) {
+        if (is_file($root.'/.env')) {
+            self::fillAddress($root, $server);
+
+            return false;
+        }
+
+        if (! is_file($root.'/.env.example') || ! is_writable($root)) {
             return false;
         }
 
@@ -31,6 +37,29 @@ class EnvFile
         @chmod($root.'/.env', 0640);
 
         return is_file($root.'/.env');
+    }
+
+    /**
+     * When a command ran first (as on Deploy Now, where commands run after
+     * every deployment), .env was written without an address and still has
+     * the one from .env.example. The first request then fills in its own.
+     *
+     * @param  array<string, mixed>  $server
+     */
+    public static function fillAddress(string $root, array $server): void
+    {
+        $url = self::address($server);
+        $example = is_file($root.'/.env.example') && preg_match('/^APP_URL=(.*)$/m', (string) file_get_contents($root.'/.env.example'), $m) ? trim($m[1]) : null;
+
+        if ($url === null || $example === null || ! is_writable($root.'/.env')) {
+            return;
+        }
+
+        $env = (string) file_get_contents($root.'/.env');
+
+        if (preg_match('/^APP_URL=(.*)$/m', $env, $current) && trim($current[1]) === $example && $url !== $example) {
+            @file_put_contents($root.'/.env', (string) preg_replace('/^APP_URL=.*$/m', 'APP_URL='.$url, $env), LOCK_EX);
+        }
     }
 
     /**

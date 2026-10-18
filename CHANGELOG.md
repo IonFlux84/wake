@@ -231,7 +231,7 @@ All notable changes to Wake are documented here. The format follows
 - Tokens for assistants and the API expire, after 90 days by default (30 days,
   a year or no end can be chosen); expired tokens are refused.
 - On the first visit Wake writes the site's address to `APP_URL` in the new
-  `.env`; *Settings* warns when `APP_URL` differs from the address in use.
+  `.env` (also when a command created `.env` before, as on Deploy Now); *Settings* warns when `APP_URL` differs from the address in use.
 - Files of the media library that only drafts or scheduled entries use stay
   private: only team members who may read such an entry see them, and no
   public copy is made. Public copies are removed when the last published entry
