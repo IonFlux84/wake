@@ -11,6 +11,7 @@ use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Support\Files;
 use Wake\Support\Health;
+use Wake\Support\Settings;
 
 /**
  * The first visit to /wake: create the owner account.
@@ -43,7 +44,10 @@ class SetupController
                 return null;
             }
 
-            return $this->accounts->create([...$data, 'role' => Role::Owner]);
+            // The owner's language becomes the panel language of the site.
+            Settings::save(['panel.language' => $data['language']]);
+
+            return $this->accounts->create([...array_diff_key($data, ['language' => 1]), 'role' => Role::Owner]);
         });
 
         if ($account === null) {

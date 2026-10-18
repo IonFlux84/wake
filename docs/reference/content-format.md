@@ -58,7 +58,8 @@ The part between the `---` lines is the **front matter** in
 | `status` | `draft` (only visible in the panel), `scheduled` (visible from `published` on) or `published` (default). |
 | `published` | Date and time of publication, e.g. `2026-10-17 09:00`, in the site's [time zone](configuration.md). Posts without it use the date from the folder name. |
 | `tags` | List of tags. Written in any spelling, `Ruhr Area` and `ruhr-area` are the same tag. |
-| `cover` | File name of the cover image in the same folder. |
+| `cover` | File name of the header image in the same folder, shown large at the top. |
+| `thumbnail` | File name of the preview image for lists, cards and social media. Without it, the header image is used. |
 | `excerpt` | Short summary for lists, feeds and search engines. Without it, Wake takes the start of the text. |
 | `template` | Render this entry with another template of the theme, e.g. `template: landing`. |
 | `seo.title`, `seo.description` | Override title and description for search engines. |

@@ -32,7 +32,9 @@ class EntryEditor extends Component
     use WithFileUploads;
 
     /** Fields every entry has; anything else comes from the blueprint. */
-    public const BASE_FIELDS = ['title', 'slug', 'status', 'published', 'author', 'tags', 'excerpt', 'cover', 'template', 'seo', 'noindex', 'via', 'review'];
+    public const BASE_FIELDS = ['title', 'slug', 'status', 'published', 'author', 'tags', 'excerpt', 'cover', 'thumbnail', 'category', 'template', 'seo', 'noindex', 'via', 'review'];
+
+    public const IMAGE_RULE = 'required|file|max:20480|mimes:jpg,jpeg,png,gif,webp,avif';
 
     public string $type = 'post';
 
@@ -54,7 +56,11 @@ class EntryEditor extends Component
 
     public string $excerpt = '';
 
+    /** Header image: shown large at the top of the post. */
     public string $cover = '';
+
+    /** Preview image: used in lists, cards and when shared; falls back to the header image. */
+    public string $thumbnail = '';
 
     public string $template = '';
 
@@ -69,8 +75,15 @@ class EntryEditor extends Component
 
     public string $tab = 'entry';
 
-    /** @var mixed an uploaded file waiting to be stored */
+    /** @var mixed an image dropped into the text, stored by storeUpload() */
     public $upload = null;
+
+    /** @var mixed uploads for header image, preview image and other files */
+    public $coverUpload = null;
+
+    public $thumbnailUpload = null;
+
+    public $fileUpload = null;
 
     public function mount(string $type = 'post'): void
     {
@@ -109,6 +122,7 @@ class EntryEditor extends Component
         $this->tags = implode(', ', (array) ($fields['tags'] ?? ($translated ? [] : $entry->get('tags', []))));
         $this->excerpt = (string) ($fields['excerpt'] ?? '');
         $this->cover = (string) ($fields['cover'] ?? $entry->get('cover', ''));
+        $this->thumbnail = (string) ($fields['thumbnail'] ?? $entry->get('thumbnail', ''));
         $this->template = (string) ($fields['template'] ?? '');
         $this->seoTitle = (string) data_get($fields, 'seo.title', '');
         $this->seoDescription = (string) data_get($fields, 'seo.description', '');
@@ -201,9 +215,77 @@ class EntryEditor extends Component
      */
     public function storeUpload(): ?array
     {
-        $this->validate(['upload' => 'required|file|max:20480|mimes:jpg,jpeg,png,gif,webp,avif,svg,pdf,zip,mp3,mp4']);
+        $this->validate(['upload' => self::IMAGE_RULE]);
 
+        $name = $this->storeFile($this->upload);
+        $this->upload = null;
+        $file = $name ? $this->entry()?->file($name) : null;
+
+        return $file ? ['name' => $name, 'url' => $file->url(1280)] : null;
+    }
+
+    public function updatedCoverUpload(): void
+    {
+        $this->validate(['coverUpload' => self::IMAGE_RULE]);
+
+        if ($name = $this->storeFile($this->coverUpload)) {
+            $this->cover = $name;
+            $this->save();
+        }
+
+        $this->coverUpload = null;
+    }
+
+    public function updatedThumbnailUpload(): void
+    {
+        $this->validate(['thumbnailUpload' => self::IMAGE_RULE]);
+
+        if ($name = $this->storeFile($this->thumbnailUpload)) {
+            $this->thumbnail = $name;
+            $this->save();
+        }
+
+        $this->thumbnailUpload = null;
+    }
+
+    public function updatedFileUpload(): void
+    {
+        $this->validate(['fileUpload' => 'required|file|max:51200|mimes:jpg,jpeg,png,gif,webp,avif,svg,pdf,zip,mp3,mp4,docx,xlsx,pptx,odt,ods,txt,csv,epub']);
+        $this->storeFile($this->fileUpload);
+        $this->fileUpload = null;
+    }
+
+    /**
+     * Use an image of the entry as header image or preview image, or remove it
+     * with an empty name.
+     */
+    public function setImage(string $slot, string $name): void
+    {
+        abort_unless(in_array($slot, ['cover', 'thumbnail'], true), 400);
+
+        if ($name !== '' && ! $this->entry()?->file($name)?->isImage()) {
+            return;
+        }
+
+        $this->{$slot} = $name;
+
+        if ($this->id !== null) {
+            $this->save();
+        }
+    }
+
+    /**
+     * Store an uploaded file in the entry's folder. A new entry is saved as a
+     * draft first, with a placeholder title if it has none yet, so nothing
+     * uploaded gets lost.
+     */
+    protected function storeFile(mixed $upload): ?string
+    {
         if ($this->id === null) {
+            if (trim($this->title) === '') {
+                $this->title = __('Untitled');
+            }
+
             $this->save();
 
             if ($this->id === null) {
@@ -211,11 +293,9 @@ class EntryEditor extends Component
             }
         }
 
-        $name = app(Writer::class)->addMedia($this->id, $this->upload->getClientOriginalName(), $this->upload->getRealPath());
-        $this->upload = null;
-        $file = $this->entry()?->file($name);
+        abort_unless($this->mayEdit($this->entry()), 403);
 
-        return $file ? ['name' => $name, 'url' => $file->url()] : null;
+        return app(Writer::class)->addMedia($this->id, $upload->getClientOriginalName(), $upload->getRealPath());
     }
 
     public function restore(string $revision): void
@@ -226,11 +306,6 @@ class EntryEditor extends Component
         $this->loadEntry($entry);
         $this->dispatch('wake-editor-load', markdown: $this->body);
         session()->flash('status', __('The earlier version is back. The version before is kept as a revision.'));
-    }
-
-    public function setCover(string $name): void
-    {
-        $this->cover = $name;
     }
 
     /**
@@ -309,6 +384,7 @@ class EntryEditor extends Component
             'tags' => $this->tags !== '' ? array_values(array_filter(array_map('trim', explode(',', $this->tags)))) : null,
             'excerpt' => $this->excerpt !== '' ? $this->excerpt : null,
             'cover' => $this->cover !== '' ? $this->cover : null,
+            'thumbnail' => $this->thumbnail !== '' ? $this->thumbnail : null,
             'template' => $this->template !== '' ? $this->template : null,
             'seo' => array_filter(['title' => $this->seoTitle, 'description' => $this->seoDescription]) ?: null,
         ];

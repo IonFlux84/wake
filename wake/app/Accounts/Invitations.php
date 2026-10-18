@@ -22,7 +22,7 @@ class Invitations
 
     public function invite(string $name, string $email, Role $role, Account $inviter): Account
     {
-        $account = $this->accounts->create(['name' => $name, 'email' => $email, 'role' => $role, 'language' => $inviter->language()]);
+        $account = $this->accounts->create(['name' => $name, 'email' => $email, 'role' => $role]);
 
         return $this->send($account, $inviter);
     }

@@ -42,11 +42,20 @@ class Account implements Authenticatable, AuthorizableContract, CanResetPassword
     }
 
     /**
-     * Language of the panel for this person.
+     * Language of the panel for this person: their own choice, or else the
+     * panel language of the site.
      */
     public function language(): string
     {
-        return (string) ($this->attributes['language'] ?? config('app.locale'));
+        return (string) ($this->attributes['language'] ?? config('wake.panel.language', 'de'));
+    }
+
+    /**
+     * The language this person chose explicitly, or null to follow the site.
+     */
+    public function chosenLanguage(): ?string
+    {
+        return $this->attributes['language'] ?? null;
     }
 
     public function initials(): string

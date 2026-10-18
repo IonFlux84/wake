@@ -341,6 +341,18 @@ class Entry implements JsonSerializable
     }
 
     /**
+     * The preview image for lists, cards and social media: the "thumbnail"
+     * field, or else the header image.
+     */
+    public function thumbnail(): ?Media
+    {
+        $name = $this->get('thumbnail');
+        $file = is_string($name) ? $this->file($name) : null;
+
+        return $file?->isImage() ? $file : $this->image();
+    }
+
+    /**
      * The folder of this entry on disk.
      */
     public function directory(): string

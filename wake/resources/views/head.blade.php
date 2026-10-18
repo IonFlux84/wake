@@ -5,7 +5,7 @@
     $title = $entry ? ($entry->get('seo.title') ?: $entry->title().' · '.$site->title()) : $site->title();
     $description = $entry ? ($entry->get('seo.description') ?: $entry->excerpt(30)) : $site->description();
     $canonical = $entry ? $entry->url() : $site->url();
-    $image = $entry?->image();
+    $image = $entry?->thumbnail();
 @endphp
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

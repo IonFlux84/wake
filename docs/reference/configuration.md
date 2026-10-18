@@ -30,7 +30,7 @@ Owners and administrators can change some settings under *Settings* in the
 panel. Wake stores them in `site/settings.yml`, which overrides
 `site/config.php`, so the panel always shows what is in effect. These are
 `timezone`, `post_url`, `missing_translation`, `prefix_default_language`, the
-`tracking.*` settings, `mcp.approval` and `panel.accent`. Everything else is
+`tracking.*` settings, `mcp.approval`, `panel.accent` and `panel.language`. Everything else is
 only set in `site/config.php`.
 
 Secrets such as the application key and mail passwords belong in `.env`, not
@@ -107,6 +107,7 @@ How Wake counts visits is explained in [analytics](../concepts/analytics.md).
 
 | Setting | Default | Description |
 |---|---|---|
+| `panel.language` | `'de'` | Language of the panel: `'de'` or `'en'`. Everyone can choose their own language under *Settings → Your account*; this is the language for everyone else. The language chosen during setup is stored here. |
 | `panel.accent` | `'#C6FF3D'` | The one neon colour of the panel. Text on it turns black or white by itself, so any colour stays readable. The design suggests lime, blue `#3D5AFE`, pink `#FF2D87` and orange `#FF6A1A`. |
 
 ## Maintenance

@@ -100,6 +100,10 @@ return [
     ],
 
     'panel' => [
+        // Language of the panel ("de" or "en"). Everyone can choose their own
+        // under Settings; this is the language for everyone else.
+        'language' => 'de',
+
         // The one neon colour of the panel. Text on it turns black or white by itself.
         'accent' => '#C6FF3D',
     ],

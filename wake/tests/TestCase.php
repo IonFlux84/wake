@@ -50,6 +50,9 @@ abstract class TestCase extends BaseTestCase
         // Maintenance after requests would publish the due fixture post and
         // clear caches in the middle of unrelated tests.
         config(['wake.maintenance.mode' => 'cron']);
+
+        // Tests read the panel in English; German is checked where it matters.
+        config(['wake.panel.language' => 'en']);
     }
 
     protected function tearDown(): void

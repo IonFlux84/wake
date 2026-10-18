@@ -5,6 +5,7 @@ use Livewire\Livewire;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Livewire\Settings;
+use Wake\Support\Files;
 use Wake\Support\Settings as SiteSettings;
 
 beforeEach(function () {
@@ -21,7 +22,7 @@ it('saves site settings to site/settings.yml and the site files', function () {
         ->call('saveSite')
         ->assertHasNoErrors();
 
-    expect(SiteSettings::read())->toMatchArray(['post_url' => '{year}/{slug}', 'tracking' => ['enabled' => true, 'level1' => 'always', 'respect_privacy_signals' => false, 'retention' => 60], 'mcp' => ['approval' => true], 'panel' => ['accent' => '#FF2D87']])
+    expect(SiteSettings::read())->toMatchArray(['post_url' => '{year}/{slug}', 'tracking' => ['enabled' => true, 'level1' => 'always', 'respect_privacy_signals' => false, 'retention' => 60], 'mcp' => ['approval' => true], 'panel' => ['accent' => '#FF2D87', 'language' => 'en']])
         ->and(file_get_contents($this->content('site.en.md')))->toContain('title: New Title');
 
     $this->get('/2026/first')->assertOk();
@@ -55,4 +56,25 @@ it('only writes keys the panel may change', function () {
     SiteSettings::save(['paths.content' => '/etc', 'tracking.retention' => 9]);
 
     expect(SiteSettings::read())->toBe(['tracking' => ['retention' => 9]]);
+});
+
+it('uses German in the panel unless chosen otherwise', function () {
+    config(['wake.panel.language' => 'de']);
+
+    $this->actingAs($this->owner)->get('/wake')->assertSee('Beiträge');
+
+    app(Accounts::class)->save($this->owner->with(['language' => 'en']));
+    $this->actingAs(app(Accounts::class)->find('dana'))->get('/wake')->assertSee('Posts');
+});
+
+it('stores the setup language as the panel language of the site', function () {
+    Files::deleteDirectory(storage_path('accounts'));
+    app()->forgetInstance(Accounts::class);
+    app()->singleton(Accounts::class);
+    auth()->logout();
+
+    $this->post('/wake/setup', ['name' => 'Eve', 'email' => 'eve@example.com', 'password' => 'a long password', 'language' => 'de']);
+
+    expect(SiteSettings::read()['panel']['language'])->toBe('de')
+        ->and(app(Accounts::class)->find('eve')->chosenLanguage())->toBeNull();
 });

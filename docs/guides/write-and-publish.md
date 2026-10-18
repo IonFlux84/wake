@@ -14,21 +14,29 @@ description: Create a post in the panel, add images and cards, translate it and 
    of an empty line for blocks: headings, lists, quotes, code, a divider, an
    image, a callout, a button or an embed.
 
-3. **Add images.** Drop an image into the text, paste it, or choose *Image* in
-   the `/` menu. Wake stores it in the post's folder. Under *Files* in the side
-   panel, click an image to make it the cover.
+3. **Add images to the text.** Click *Image* in the toolbar: upload a new image
+   or pick one the post already has, and describe it for people who cannot see
+   it. Dropping or pasting an image into the text works as well, and so does
+   *Image* in the `/` menu. Wake stores every image in the post's folder.
 
-4. **Fill in the details.** The side panel has the address (slug), tags, a short
+4. **Choose a header image and a preview image.** In the side panel, the
+   *header image* appears large at the top of the post. The *preview image* is
+   used in lists of posts and when the post is shared; without one, Wake uses
+   the header image. Upload a new image or pick one from the post's files.
+   You can upload before the post has a title; Wake then saves it as a draft
+   called "Untitled".
+
+5. **Fill in the details.** The side panel has the address (slug), tags, a short
    excerpt for lists and search engines, and, under *Search engines*, a separate
    title and description. Custom content types show the fields of their
    blueprint here.
 
-5. **Translate.** On a multilingual site, the language switcher at the top shows
+6. **Translate.** On a multilingual site, the language switcher at the top shows
    every language. A `+` marks languages without a translation. Switch, write
    the translation, save. The post list shows each language as current,
    outdated (the original changed afterwards) or missing.
 
-6. **Publish.** Click *Publish*. To publish later, pick a date and time under
+7. **Publish.** Click *Publish*. To publish later, pick a date and time under
    *Later, at* first; the button turns into *Schedule*. Scheduled posts go live
    on their own, no cron needed.
 

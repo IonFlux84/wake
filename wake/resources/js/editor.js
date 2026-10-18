@@ -147,9 +147,9 @@ export function create(element, { markdown, media = {}, labels = {}, placeholder
     input.click()
   }
 
-  function upload(file) {
-    if (!onUpload) return
-    onUpload(file).then(result => result && editor.chain().focus().setImage({ src: result.url, alt: '' }).run())
+  function upload(file, alt = '') {
+    if (!onUpload || !file) return
+    onUpload(file).then(result => result && editor.chain().focus().setImage({ src: result.url, alt }).run())
   }
 
   function slash() {
@@ -208,6 +208,7 @@ export function create(element, { markdown, media = {}, labels = {}, placeholder
       editor.commands.setContent(joinSoftBreaks(editor.getJSON()), { emitUpdate: false })
     },
     getMarkdown: () => editor.getMarkdown(),
+    upload,
     command: name => {
       const c = editor.chain().focus()
       ;({ bold: () => c.toggleBold(), italic: () => c.toggleItalic(), link: () => {

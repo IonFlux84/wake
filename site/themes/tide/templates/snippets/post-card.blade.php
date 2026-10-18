@@ -1,6 +1,6 @@
 <article class="card {{ ($large ?? false) ? 'card-large' : '' }}">
-    @if ($post->image()?->isImage())
-        <a href="{{ $post->url() }}" class="card-image" tabindex="-1" aria-hidden="true">{{ $post->image()->picture('', ($large ?? false) ? '(min-width: 960px) 60vw, 100vw' : '(min-width: 960px) 33vw, (min-width: 640px) 50vw, 100vw') }}</a>
+    @if ($post->thumbnail())
+        <a href="{{ $post->url() }}" class="card-image" tabindex="-1" aria-hidden="true">{{ $post->thumbnail()->picture('', ($large ?? false) ? '(min-width: 960px) 60vw, 100vw' : '(min-width: 960px) 33vw, (min-width: 640px) 50vw, 100vw') }}</a>
     @endif
     <div class="card-body">
         @if ($post->tags()->isNotEmpty())<a class="kicker" href="{{ $post->tags()->first()->url() }}">{{ $post->tags()->first()->title() }}</a>@endif

@@ -81,7 +81,7 @@ class Accounts
             'email' => mb_strtolower(trim($data['email'])),
             'password' => isset($data['password']) ? Hash::make($data['password']) : null,
             'role' => $role instanceof Role ? $role->value : $role,
-            'language' => $data['language'] ?? config('app.locale'),
+            'language' => $data['language'] ?? null,
             'created_at' => now()->toIso8601String(),
         ], fn ($value) => $value !== null));
 

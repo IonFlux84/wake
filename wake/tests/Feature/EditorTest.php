@@ -156,3 +156,42 @@ it('restores an earlier version from the history tab', function () {
 it('shows all media in the library', function () {
     $this->actingAs(member(Role::Owner))->get('/wake/media')->assertOk()->assertSee('photo.png')->assertSee('First post');
 });
+
+it('keeps images uploaded to a new post without a title', function () {
+    $component = Livewire::actingAs(member(Role::Owner))->test(EntryEditor::class, ['type' => 'post'])
+        ->set('upload', UploadedFile::fake()->image('harbour.jpg', 40, 30))
+        ->call('storeUpload');
+
+    $post = Post::find($component->get('id'));
+
+    expect($post)->not->toBeNull()
+        ->and($post->title())->toBe('Untitled')
+        ->and($post->isDraft())->toBeTrue()
+        ->and($post->file('harbour.jpg'))->not->toBeNull();
+});
+
+it('sets a header image and a preview image', function () {
+    $component = Livewire::withQueryParams(['id' => 'posts/2026-02-01-second'])->actingAs(member(Role::Owner))
+        ->test(EntryEditor::class, ['type' => 'post'])
+        ->set('coverUpload', UploadedFile::fake()->image('Header.jpg', 80, 45));
+
+    $post = Post::find('posts/2026-02-01-second');
+    expect($post->get('cover'))->toBe('header.jpg')
+        ->and($post->thumbnail()->name())->toBe('header.jpg');
+
+    $component->set('thumbnailUpload', UploadedFile::fake()->image('square.png', 40, 40));
+    expect(Post::find('posts/2026-02-01-second')->thumbnail()->name())->toBe('square.png');
+
+    $component->call('setImage', 'thumbnail', '');
+    expect(Post::find('posts/2026-02-01-second')->get('thumbnail'))->toBeNull();
+
+    $component->call('setImage', 'cover', 'missing.jpg');
+    expect(Post::find('posts/2026-02-01-second')->get('cover'))->toBe('header.jpg');
+});
+
+it('rejects files that are not images as header image', function () {
+    Livewire::actingAs(member(Role::Owner))->test(EntryEditor::class, ['type' => 'post'])
+        ->set('id', 'posts/2026-02-01-second')
+        ->set('coverUpload', UploadedFile::fake()->create('notes.pdf', 10, 'application/pdf'))
+        ->assertHasErrors('coverUpload');
+});

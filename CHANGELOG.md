@@ -106,3 +106,15 @@ All notable changes to Wake are documented here. The format follows
   verifies the SHA-256 checksum, swaps the `wake/` folder atomically and keeps
   the previous version as a backup in `storage/updates/`.
 - README with screenshots, guides for hosting and updating.
+- The panel speaks German by default. The panel language of the site is set
+  under *Settings* (`panel.language`); everyone can still choose their own.
+- Header image and preview image (`thumbnail`) for every entry, each with
+  upload, choice from the entry's files and removal. The preview image is used
+  in lists, the API and for social media, and falls back to the header image.
+- An *Image* button in the editor toolbar inserts uploaded or existing images
+  with a description.
+
+### Fixed
+
+- Images uploaded to a new post without a title were lost. Wake now saves the
+  post as a draft called "Untitled" first.

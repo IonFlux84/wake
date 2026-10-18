@@ -32,8 +32,8 @@
         <div class="field">
             <label for="language">{{ __('Language of the panel') }}</label>
             <select class="select" id="language" name="language">
-                <option value="en" @selected(old('language', app()->getLocale()) === 'en')>English</option>
                 <option value="de" @selected(old('language', app()->getLocale()) === 'de')>Deutsch</option>
+                <option value="en" @selected(old('language', app()->getLocale()) === 'en')>English</option>
             </select>
         </div>
         <button class="btn btn-primary" type="submit">{{ __('Create account') }}</button>

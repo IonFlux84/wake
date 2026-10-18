@@ -30,7 +30,10 @@
                             <select id="missing" class="select" wire:model="missingTranslation"><option value="hide">{{ __('Show nothing (404)') }}</option><option value="fallback">{{ __('Show the default language with a notice') }}</option></select></div>
                     @endif
                     <p class="muted" style="margin:0;font-size:13px">{{ __('Languages are set in site/config.php.') }}</p>
-                    <h2 class="h2" style="margin-top:8px">{{ __('Look of the panel') }}</h2>
+                    <h2 class="h2" style="margin-top:8px">{{ __('Panel') }}</h2>
+                    <div class="field"><label for="panel-lang">{{ __('Language of the panel') }}</label>
+                        <select id="panel-lang" class="select" wire:model="panelLanguage"><option value="de">Deutsch</option><option value="en">English</option></select>
+                        <span class="hint">{{ __('For everyone who has not chosen their own language.') }}</span></div>
                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
                         @foreach (['#C6FF3D', '#3D5AFE', '#FF2D87', '#FF6A1A'] as $color)
                             <button type="button" wire:click="$set('accent', '{{ $color }}')" aria-label="{{ $color }}" style="width:36px;height:36px;border-radius:10px;border:{{ strtoupper($accent) === $color ? '3px solid var(--ink)' : '1px solid var(--line)' }};background:{{ $color }};cursor:pointer"></button>
@@ -100,7 +103,7 @@
             <h2 class="h2">{{ __('Your account') }}</h2>
             <div class="field"><label for="me-name">{{ __('Name') }}</label><input id="me-name" class="input" wire:model="name">@error('name')<span class="error">{{ $message }}</span>@enderror</div>
             <div class="field"><label for="me-email">{{ __('Email address') }}</label><input id="me-email" type="email" class="input" wire:model="email">@error('email')<span class="error">{{ $message }}</span>@enderror</div>
-            <div class="field"><label for="me-lang">{{ __('Language of the panel') }}</label><select id="me-lang" class="select" wire:model="language"><option value="en">English</option><option value="de">Deutsch</option></select></div>
+            <div class="field"><label for="me-lang">{{ __('Language of the panel') }}</label><select id="me-lang" class="select" wire:model="language"><option value="">{{ __('Like the site (:language)', ['language' => config('wake.panel.language') === 'en' ? 'English' : 'Deutsch']) }}</option><option value="de">Deutsch</option><option value="en">English</option></select></div>
             <div class="grid grid-2" style="gap:12px">
                 <div class="field"><label for="pw-old">{{ __('Current password') }}</label><input id="pw-old" type="password" class="input" wire:model="currentPassword" autocomplete="current-password">@error('currentPassword')<span class="error">{{ $message }}</span>@enderror</div>
                 <div class="field"><label for="pw-new">{{ __('New password') }}</label><input id="pw-new" type="password" class="input" wire:model="newPassword" autocomplete="new-password">@error('newPassword')<span class="error">{{ $message }}</span>@enderror</div>

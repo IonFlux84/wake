@@ -111,6 +111,7 @@ class ContentApiController
             'excerpt' => $entry->excerpt(),
             'tags' => $entry->tags()->map(fn ($t) => ['slug' => $t->slug(), 'title' => $t->title()])->values()->all(),
             'cover' => $image?->isImage() ? ['url' => $image->url(), 'srcset' => $image->srcset(), 'width' => $image->width(), 'height' => $image->height()] : null,
+            'thumbnail' => ($thumb = $entry->thumbnail()) ? ['url' => $thumb->url(), 'srcset' => $thumb->srcset(), 'width' => $thumb->width(), 'height' => $thumb->height()] : null,
             'translations' => collect($entry->translations())->mapWithKeys(fn ($code) => [$code => $entry->translation($code)->url()])->all(),
             'fields' => $entry->fields(),
             'markdown' => $withBody ? $entry->body() : null,

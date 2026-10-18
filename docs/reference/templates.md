@@ -81,7 +81,8 @@ of the theme with the `theme::` prefix:
 | `modifiedAt()` | last change of the file |
 | `status()`, `isPublished()`, `isDraft()`, `isScheduled()` | publication state |
 | `tags()` | the entry's tags |
-| `image($name = null)` | the cover image, or the named file |
+| `image($name = null)` | the header image (`cover`), or the named file |
+| `thumbnail()` | the preview image (`thumbnail`), or else the header image |
 | `file('name.pdf')`, `media()` | files in the entry's folder |
 | `language()`, `translations()`, `translation('de')` | languages |
 | `isFallback()` | `true` when shown in the default language because a translation is missing |

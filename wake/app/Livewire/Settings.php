@@ -60,6 +60,8 @@ class Settings extends Component
 
     public string $accent = '#C6FF3D';
 
+    public string $panelLanguage = 'de';
+
     public string $name = '';
 
     public string $email = '';
@@ -86,11 +88,12 @@ class Settings extends Component
         $this->retention = (int) config('wake.tracking.retention');
         $this->approval = (bool) config('wake.mcp.approval');
         $this->accent = (string) config('wake.panel.accent');
+        $this->panelLanguage = (string) config('wake.panel.language', 'de');
 
         $me = auth()->user();
         $this->name = $me->name();
         $this->email = $me->email();
-        $this->language = $me->language();
+        $this->language = $me->chosenLanguage() ?? '';
     }
 
     public function saveSite(Index $index): void
@@ -106,6 +109,7 @@ class Settings extends Component
             'level1' => 'in:always,consent',
             'retention' => 'integer|min:1|max:3650',
             'accent' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'panelLanguage' => 'in:de,en',
         ]);
 
         foreach ($this->site as $code => $values) {
@@ -125,6 +129,7 @@ class Settings extends Component
             'tracking.retention' => $this->retention,
             'mcp.approval' => $this->approval,
             'panel.accent' => strtoupper($this->accent),
+            'panel.language' => $this->panelLanguage,
         ]);
 
         app(ContentTypes::class)->flush();
@@ -147,11 +152,11 @@ class Settings extends Component
                     $fail(__('There is already an account with this address.'));
                 }
             }],
-            'language' => 'in:en,de',
+            'language' => 'nullable|in:en,de',
             'newPassword' => ['nullable', Password::min(10)],
         ]);
 
-        $changes = ['name' => $this->name, 'email' => mb_strtolower($this->email), 'language' => $this->language];
+        $changes = ['name' => $this->name, 'email' => mb_strtolower($this->email), 'language' => $this->language !== '' ? $this->language : null];
 
         if ($this->newPassword !== '') {
             if (! Hash::check($this->currentPassword, $me->getAuthPassword())) {

@@ -74,7 +74,9 @@
                         window.WakeEditor ? start() : document.addEventListener('wake-editor-ready', start, { once: true })
                     },
                  }"
-                 x-on:wake-editor-load.window="api && api.load($event.detail.markdown)">
+                 x-on:wake-editor-load.window="api && api.load($event.detail.markdown)"
+                 x-on:wake-insert-image.window="api && api.editor.chain().focus().setImage({ src: $event.detail.url, alt: $event.detail.alt || '' }).run()"
+                 x-on:wake-upload-image.window="api && api.upload($event.detail.file, $event.detail.alt)">
                 <div class="editor-toolbar" role="toolbar" aria-label="{{ __('Formatting') }}">
                     <button type="button" @click="api.command('bold')" title="{{ __('Bold') }}"><b>B</b></button>
                     <button type="button" @click="api.command('italic')" title="{{ __('Italic') }}"><i>I</i></button>
@@ -82,8 +84,31 @@
                     <button type="button" @click="api.command('quote')" title="{{ __('Quote') }}">“</button>
                     <button type="button" @click="api.command('ul')" title="{{ __('List') }}">•</button>
                     <button type="button" @click="api.command('link')" title="{{ __('Link') }}">🔗</button>
+                    <button type="button" @click="$dispatch('wake-image-dialog')" title="{{ __('Image') }}" style="display:inline-flex;align-items:center;gap:6px;padding:0 10px"><x-wake::icon name="media" size="16" />{{ __('Image') }}</button>
                 </div>
                 <div x-ref="editor"></div>
+            </div>
+        </div>
+
+        <div x-data="{ open: false, alt: '' }" x-on:wake-image-dialog.window="open = true; alt = ''" x-show="open" x-cloak
+             style="position:fixed;inset:0;z-index:60;background:rgba(10,10,10,.45);overflow:auto" @keydown.escape.window="open = false">
+            <div style="min-height:100%;display:flex;align-items:center;justify-content:center;padding:16px" @click.self="open = false">
+            <div class="card" style="width:100%;max-width:640px;animation:slidein .25s ease-out both" role="dialog" aria-modal="true" aria-label="{{ __('Insert an image') }}">
+                <div class="card-head"><h2 class="h2">{{ __('Insert an image') }}</h2><button type="button" class="btn btn-small" @click="open = false">{{ __('Close') }}</button></div>
+                <div class="field"><label for="img-alt">{{ __('Description for people who cannot see the image') }}</label><input id="img-alt" class="input" x-model="alt" placeholder="{{ __('e.g. The harbour at night') }}"></div>
+                <label class="empty" style="cursor:pointer;display:block">
+                    <x-wake::icon name="upload" size="22" style="margin:0 auto 6px" />{{ __('Upload a new image') }}
+                    <input type="file" accept="image/*" hidden @change="$dispatch('wake-upload-image', { file: $event.target.files[0], alt }); open = false">
+                </label>
+                @if ($media->contains(fn ($f) => $f->isImage()))
+                    <div class="label">{{ __('Or choose one of this post') }}</div>
+                    <div class="media-grid">
+                        @foreach ($media->filter(fn ($f) => $f->isImage()) as $file)
+                            <button type="button" title="{{ $file->name() }}" @click="$dispatch('wake-insert-image', { url: @js($file->url(1280)), alt }); open = false"><img src="{{ $file->url(320) }}" alt="" loading="lazy"></button>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
             </div>
         </div>
 
@@ -171,18 +196,59 @@
                     @endforeach
                 </div>
 
-                @if ($entry && $type !== 'tag')
-                    <div class="card" style="gap:12px">
-                        <div class="card-head"><h2 class="h2">{{ __('Files') }}</h2><span class="muted" style="font-size:12px">{{ __('click an image to make it the cover') }}</span></div>
-                        <div class="media-grid">
-                            @foreach ($media as $file)
-                                <button type="button" wire:click="setCover('{{ $file->name() }}')" @class(['is-cover' => $cover === $file->name()]) title="{{ $file->name() }}">
-                                    @if ($file->isImage())<img src="{{ $file->url(320) }}" alt="" loading="lazy">@else<span>{{ $file->name() }}</span>@endif
-                                </button>
-                            @endforeach
+                @if ($type !== 'tag')
+                    @foreach (['cover' => [__('Header image'), __('Shown large at the top of the post.')], 'thumbnail' => [__('Preview image'), __('Used in lists and when the post is shared. Without it, Wake uses the header image.')]] as $slot => [$label, $hint])
+                        @php($current = $entry && $$slot !== '' ? $entry->file($$slot) : null)
+                        <div class="card" style="gap:10px" x-data="{ pick: false }" wire:key="slot-{{ $slot }}">
+                            <div class="card-head"><h2 class="h2">{{ $label }}</h2>
+                                @if ($current)<button type="button" class="btn btn-small btn-danger" wire:click="setImage('{{ $slot }}', '')" title="{{ __('Remove') }}"><x-wake::icon name="trash" /></button>@endif
+                            </div>
+                            @if ($current)
+                                <img src="{{ $current->url(640) }}" alt="" style="width:100%;aspect-ratio:{{ $slot === 'cover' ? '16/9' : '4/3' }};object-fit:cover;border-radius:12px">
+                            @elseif ($slot === 'thumbnail' && $cover !== '' && $entry?->file($cover))
+                                <div style="position:relative">
+                                    <img src="{{ $entry->file($cover)->url(640) }}" alt="" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;opacity:.45">
+                                    <span class="badge" style="position:absolute;left:10px;top:10px">{{ __('uses the header image') }}</span>
+                                </div>
+                            @else
+                                <label class="empty" style="cursor:pointer;display:block">
+                                    <x-wake::icon name="media" size="22" style="margin:0 auto 6px" />{{ __('Choose an image') }}
+                                    <input type="file" accept="image/*" wire:model="{{ $slot }}Upload" hidden>
+                                </label>
+                            @endif
+                            <p class="muted" style="margin:0;font-size:12px">{{ $hint }}</p>
+                            <div class="actions">
+                                <label class="btn btn-small" style="cursor:pointer"><x-wake::icon name="upload" />{{ __('Upload') }}<input type="file" accept="image/*" wire:model="{{ $slot }}Upload" hidden></label>
+                                @if ($media->contains(fn ($f) => $f->isImage()))
+                                    <button type="button" class="btn btn-small" @click="pick = ! pick">{{ __('From files') }}</button>
+                                @endif
+                                <span wire:loading wire:target="{{ $slot }}Upload" class="muted" style="font-size:12px">{{ __('Uploading …') }}</span>
+                            </div>
+                            @error($slot.'Upload')<span class="error">{{ $message }}</span>@enderror
+                            <div class="media-grid" x-show="pick" x-cloak>
+                                @foreach ($media->filter(fn ($f) => $f->isImage()) as $file)
+                                    <button type="button" wire:click="setImage('{{ $slot }}', '{{ $file->name() }}')" @click="pick = false" @class(['is-cover' => $$slot === $file->name()]) title="{{ $file->name() }}"><img src="{{ $file->url(320) }}" alt="" loading="lazy"></button>
+                                @endforeach
+                            </div>
                         </div>
-                        <label class="btn btn-small" style="cursor:pointer"><x-wake::icon name="upload" />{{ __('Upload') }}<input type="file" wire:model="upload" x-on:change="$nextTick(() => setTimeout(() => $wire.storeUpload(), 400))" hidden></label>
-                        @error('upload')<span class="error">{{ $message }}</span>@enderror
+                    @endforeach
+
+                    <div class="card" style="gap:12px">
+                        <h2 class="h2">{{ __('Files') }}</h2>
+                        @if ($media->isNotEmpty())
+                            <div class="media-grid">
+                                @foreach ($media as $file)
+                                    <span title="{{ $file->name() }}" style="position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--hover)">
+                                        @if ($file->isImage())<img src="{{ $file->url(320) }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">@else<span style="display:flex;align-items:center;justify-content:center;height:100%;font:600 11px var(--mono);color:var(--muted);padding:4px;word-break:break-all">{{ $file->name() }}</span>@endif
+                                    </span>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="muted" style="margin:0;font-size:13px">{{ __('Images, PDFs and downloads of this post.') }}</p>
+                        @endif
+                        <label class="btn btn-small" style="cursor:pointer"><x-wake::icon name="upload" />{{ __('Upload a file') }}<input type="file" wire:model="fileUpload" hidden></label>
+                        <span wire:loading wire:target="fileUpload" class="muted" style="font-size:12px">{{ __('Uploading …') }}</span>
+                        @error('fileUpload')<span class="error">{{ $message }}</span>@enderror
                     </div>
                 @endif
 

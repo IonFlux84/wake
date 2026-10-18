@@ -7,15 +7,18 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * The panel speaks the language each team member chose for themselves.
+ * The panel speaks the language each team member chose for themselves, or
+ * the panel language of the site.
  */
 class PanelLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $language = $request->user()?->language() ?? $request->getPreferredLanguage(['en', 'de']) ?? 'en';
+        // The account's own choice, else the panel language of the site
+        // (German unless changed in the settings).
+        $language = $request->user()?->language() ?? config('wake.panel.language', 'de');
 
-        app()->setLocale(in_array($language, ['en', 'de'], true) ? $language : 'en');
+        app()->setLocale(in_array($language, ['en', 'de'], true) ? $language : 'de');
 
         return $next($request);
     }
