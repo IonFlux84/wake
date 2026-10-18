@@ -84,3 +84,5 @@ All notable changes to Wake are documented here. The format follows
 - Earlier versions of every translation in the editor, with one-click restore
   (the current text is kept), and the changes of the entry.
 - Media page with every file of every entry.
+- Read-only content API at `/wake/api/v1/` (site, entries, entry, stats):
+  published content is public with CORS, drafts and statistics need a token.

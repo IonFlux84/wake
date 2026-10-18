@@ -137,3 +137,15 @@ it('documents every MCP tool, resource and prompt', function () {
 
     expect($missing)->toBe([], 'MCP primitives missing from docs/reference/mcp.md');
 });
+
+it('documents every API endpoint', function () {
+    $reference = file_get_contents(repository('docs/reference/api.md'));
+    $missing = collect(app('router')->getRoutes()->getRoutes())
+        ->map(fn ($route) => '/'.$route->uri())
+        ->filter(fn (string $uri) => str_starts_with($uri, '/wake/api/'))
+        ->reject(fn (string $uri) => str_contains($reference, "`GET {$uri}"))
+        ->values()
+        ->all();
+
+    expect($missing)->toBe([], 'API endpoints missing from docs/reference/api.md');
+});

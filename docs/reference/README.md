@@ -11,3 +11,4 @@ description: Exact descriptions of settings, files, templates and commands.
 - [Command line](cli.md)
 - [MCP server](mcp.md)
 - [Roles](roles.md)
+- [Content API](api.md)

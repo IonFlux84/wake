@@ -36,6 +36,7 @@ The documentation is split by what you want to do, following the
 - [Command line](reference/cli.md): Artisan commands
 - [MCP server](reference/mcp.md): tools for AI assistants
 - [Roles](reference/roles.md): who may do what
+- [Content API](reference/api.md): content as JSON
 
 ## Concepts
 
