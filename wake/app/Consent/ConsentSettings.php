@@ -43,10 +43,19 @@ class ConsentSettings
     public function categories(): array
     {
         return array_values(array_filter([
-            $this->get('statistics') ? 'statistics' : null,
+            $this->asksForStatistics() ? 'statistics' : null,
             'media',
             $this->get('marketing') ? 'marketing' : null,
         ]));
+    }
+
+    /**
+     * Statistics need a yes in the banner when the statistics cookie is
+     * offered (level 2), or when level 1 waits for consent.
+     */
+    public function asksForStatistics(): bool
+    {
+        return (bool) $this->get('statistics') || config('wake.tracking.level1') === 'consent';
     }
 
     /**
@@ -66,8 +75,16 @@ class ConsentSettings
     public function texts(string $language): array
     {
         $texts = $this->get('texts', []);
+        $defaults = $this->defaultTexts($language);
 
-        return array_merge($this->defaultTexts($language), $texts[$language] ?? []);
+        // Without the cookie, "statistics" means counting visits anonymously.
+        if (! $this->get('statistics')) {
+            $defaults['statistics_text'] = $defaults['statistics_anonymous_text'];
+        }
+
+        unset($defaults['statistics_anonymous_text']);
+
+        return array_merge($defaults, $texts[$language] ?? []);
     }
 
     /**
@@ -99,7 +116,7 @@ class ConsentSettings
             'version' => 1,
             'statistics' => false,
             'marketing' => false,
-            'always' => false,
+            'always' => true,
             'position' => 'bottom',
             'privacy_url' => '',
             'texts' => [],
@@ -124,6 +141,7 @@ class ConsentSettings
             'necessary_text' => 'Speichert Ihre Auswahl. Immer aktiv.',
             'statistics' => 'Statistik',
             'statistics_text' => 'Ein Cookie hilft uns zu verstehen, ob Sie wiederkommen. Die Daten bleiben auf unserem Server.',
+            'statistics_anonymous_text' => 'Wir zählen Besuche anonym und ohne Cookie. Die Daten bleiben auf unserem Server.',
             'media' => 'Externe Medien',
             'media_text' => 'Videos, Karten und Beiträge anderer Anbieter. Dabei werden Daten an diese Anbieter übertragen.',
             'marketing' => 'Marketing',
@@ -146,6 +164,7 @@ class ConsentSettings
             'necessary_text' => 'Stores your choice. Always active.',
             'statistics' => 'Statistics',
             'statistics_text' => 'A cookie helps us understand whether you come back. The data stays on our server.',
+            'statistics_anonymous_text' => 'We count visits anonymously and without a cookie. The data stays on our server.',
             'media' => 'External media',
             'media_text' => 'Videos, maps and posts from other providers. Data is sent to these providers.',
             'marketing' => 'Marketing',

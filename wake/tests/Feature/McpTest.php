@@ -86,7 +86,7 @@ it('checks the scopes of the token', function () {
 });
 
 it('reports consent decisions', function () {
-    WakeServer::tool(ConsentOverviewTool::class)->assertOk()->assertSee('"banner_needed":false');
+    WakeServer::tool(ConsentOverviewTool::class)->assertOk()->assertSee('"banner_needed":true');
 });
 
 it('stores only a fingerprint of tokens and can revoke them', function () {

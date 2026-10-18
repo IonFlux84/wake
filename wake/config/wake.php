@@ -97,7 +97,7 @@ return [
 
         // Level 1 (no cookie): "always", or "consent" to count only after the
         // visitor agreed in the banner. Level 2 (with cookie) always needs consent.
-        'level1' => 'always',
+        'level1' => 'consent',
 
         // Ignore visitors who send Do Not Track or Global Privacy Control.
         'respect_privacy_signals' => false,

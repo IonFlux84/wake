@@ -34,9 +34,11 @@ itself is never written to disk.
 
 > **Legal note.** This approach is used by Plausible and Fathom and is
 > widely considered consent-free. Whether reading the user agent falls under
-> § 25 TDDDG (Germany) or similar rules is disputed. If you want to be on the
-> safe side, set `tracking.level1` to `'consent'`. Then Wake only counts people
-> who agreed in the banner.
+> § 25 TDDDG (Germany) or similar rules is disputed. That is why Wake plays
+> safe by default: `tracking.level1` is `'consent'`, so Wake only counts people
+> who agreed in the banner. Set it to `'always'` (in the panel under
+> *Settings*) to count every visit without asking, after checking that this is
+> allowed for your site.
 
 ## What is measured
 

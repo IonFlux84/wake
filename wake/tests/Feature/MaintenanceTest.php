@@ -37,6 +37,6 @@ it('leaves maintenance to cron when configured', function () {
 
 it('has Artisan commands', function () {
     $this->artisan('wake:index')->assertSuccessful();
-    $this->artisan('wake:clear')->expectsOutputToContain('Page cache cleared.')->assertSuccessful();
+    $this->artisan('wake:clear')->expectsOutputToContain('Page cache and compiled templates cleared.')->assertSuccessful();
     $this->artisan('wake:maintenance')->assertSuccessful();
 });

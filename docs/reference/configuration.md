@@ -91,7 +91,7 @@ How Wake counts visits is explained in [analytics](../concepts/analytics.md).
 | Setting | Default | Description |
 |---|---|---|
 | `tracking.enabled` | `true` | Count visits with Wake's own statistics. Also settable as `WAKE_TRACKING` in `.env`. |
-| `tracking.level1` | `'always'` | Level 1 counts without cookies. `'always'` counts every visitor, `'consent'` only those who agreed to statistics in the banner. Level 2 (with a cookie) always needs consent. |
+| `tracking.level1` | `'consent'` | Level 1 counts without cookies. `'consent'` (default) counts only those who agreed to statistics in the banner, `'always'` counts every visitor without asking (as Plausible does; check the legal situation first, see [analytics](../concepts/analytics.md)). Level 2 (with a cookie) always needs consent. |
 | `tracking.respect_privacy_signals` | `false` | `true` ignores visitors whose browser sends Do Not Track or Global Privacy Control. |
 | `tracking.retention` | `30` | Days to keep raw data. Daily and monthly sums are kept. |
 | `tracking.geo` | `data/stats/geo/country.mmdb` | Optional IP-to-country database in MaxMind format, e.g. [DB-IP Lite](https://db-ip.com/db/lite.php) (free, CC BY 4.0). Without it, countries stay empty. |

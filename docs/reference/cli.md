@@ -55,8 +55,10 @@ php wake/artisan wake:restore /path/to/backup.zip --force
 
 ## `wake:clear`
 
-Removes all cached pages. Wake does this by itself whenever content changes,
-so you need it mainly after changing a theme.
+Removes all cached pages and the compiled templates (`temp/framework/views`).
+Wake clears the page cache by itself whenever content changes, so you need it
+mainly after changing a theme, or when the panel or website still shows an old
+template.
 
 ```bash
 php wake/artisan wake:clear

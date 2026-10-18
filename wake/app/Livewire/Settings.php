@@ -51,7 +51,7 @@ class Settings extends Component
 
     public bool $trackingEnabled = true;
 
-    public string $level1 = 'always';
+    public string $level1 = 'consent';
 
     public bool $privacySignals = false;
 

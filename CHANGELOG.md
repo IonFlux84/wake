@@ -189,6 +189,13 @@ All notable changes to Wake are documented here. The format follows
 
 ### Changed
 
+- Privacy by default: level-1 statistics now wait for consent
+  (`tracking.level1: 'consent'`), and the consent banner is shown on every site
+  (`always: true`). Both can be switched back in the panel. While level 1 waits
+  for consent, the banner offers "Statistics" (counting without a cookie), and
+  `track.js` sends nothing until the visitor agrees; the page view is counted
+  as soon as they do. Before, any decision, even "Decline", counted as consent.
+- `wake:clear` also clears the compiled templates.
 - New folder layout ([decision 0011](docs/decisions/0011-one-folder-per-entry.md)):
   - `site/` and `storage/` are split into `settings/`, `themes/`, `plugins/`,
     `data/` (to back up) and `temp/` (may be deleted). The panel settings are

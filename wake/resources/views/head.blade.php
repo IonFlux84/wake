@@ -89,6 +89,6 @@
     <script defer src="{{ app(\Wake\Panel\Panel::class)->asset('consent.js') }}"></script>
 @php(app(\Wake\Stats\TrackingConfig::class)->sync())
 @if (config('wake.tracking.enabled'))
-    <script defer src="{{ app(\Wake\Panel\Panel::class)->asset('track.js') }}" data-endpoint="{{ url('hit.php') }}"></script>
+    <script defer src="{{ app(\Wake\Panel\Panel::class)->asset('track.js') }}" data-endpoint="{{ url('hit.php') }}" data-level1="{{ config('wake.tracking.level1') === 'consent' ? 'consent' : 'always' }}" data-cookie="{{ $consent->get('statistics') ? '1' : '0' }}"></script>
 @endif
 {{ app(\Wake\Plugins\Plugins::class)->head($site, $entry) }}

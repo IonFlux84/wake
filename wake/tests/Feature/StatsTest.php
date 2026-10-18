@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Carbon;
+use Wake\Consent\ConsentSettings;
 use Wake\Maintenance\Maintenance;
 use Wake\Stats\Stats;
 use Wake\Stats\TrackingConfig;
@@ -105,7 +106,19 @@ it('summarises finished days in maintenance and prunes old data', function () {
 it('includes the tracking script and writes the rules for hit.php', function () {
     $this->get('/first')->assertSee('data-endpoint="'.url('hit.php').'"', false);
 
-    expect(require Paths::data('stats/.config.php'))->toMatchArray(['enabled' => true, 'level1' => 'always']);
+    expect(require Paths::data('stats/.config.php'))->toMatchArray(['enabled' => true, 'level1' => 'consent']);
+});
+
+it('asks for statistics in the banner while level 1 waits for consent', function () {
+    $html = $this->get('/first')->getContent();
+
+    expect($html)->toContain('data-level1="consent"')->toContain('data-cookie="0"')
+        ->and(app(ConsentSettings::class)->categories())->toContain('statistics')
+        ->and(app(ConsentSettings::class)->texts('de')['statistics_text'])->toContain('ohne Cookie');
+
+    config(['wake.tracking.level1' => 'always']);
+
+    expect(app(ConsentSettings::class)->categories())->not->toContain('statistics');
 });
 
 it('leaves the script out when tracking is off', function () {
@@ -117,6 +130,7 @@ it('leaves the script out when tracking is off', function () {
 describe('public/hit.php', function () {
     beforeEach(function () {
         copy(dirname(base_path()).'/public/hit.php', $this->sandbox.'/public/hit.php');
+        config(['wake.tracking.level1' => 'always']); // these tests count without consent
         app(TrackingConfig::class)->sync();
 
         $this->port = random_int(20000, 40000);
@@ -154,6 +168,19 @@ describe('public/hit.php', function () {
 
         expect(beacon($this->port, ['t' => 'nonsense']))->toBe(400)
             ->and(is_file($this->sandbox.'/data/stats/raw/'.date('Y-m-d').'.log'))->toBeFalse();
+    });
+
+    it('counts nothing without a yes to statistics while level 1 waits for consent (the default)', function () {
+        config(['wake.tracking.level1' => 'consent']);
+        app(TrackingConfig::class)->sync();
+
+        beacon($this->port, ['t' => 'pageview', 'p' => '/first', 'c' => 0]);
+
+        expect(is_file($this->sandbox.'/data/stats/raw/'.date('Y-m-d').'.log'))->toBeFalse();
+
+        beacon($this->port, ['t' => 'pageview', 'p' => '/first', 'c' => 1]);
+
+        expect(file_get_contents($this->sandbox.'/data/stats/raw/'.date('Y-m-d').'.log'))->toContain("pageview\t");
     });
 
     it('stores consent proofs even with statistics switched off', function () {

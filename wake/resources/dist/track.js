@@ -2,7 +2,7 @@
    to /hit.php. No cookies unless the visitor agreed to statistics (level 2).
    API: wake('event', 'Name', 'optional label') */
 (function () {
-  var d = document, w = window, endpoint = d.currentScript.dataset.endpoint;
+  var d = document, w = window, opts = d.currentScript.dataset, endpoint = opts.endpoint;
   var start = Date.now(), active = 0, visibleSince = d.visibilityState === 'visible' ? start : 0, scroll = 0, sent = false;
 
   function consent() {
@@ -10,7 +10,13 @@
     try { return m ? JSON.parse(decodeURIComponent(m[1])).c || [] : []; } catch (e) { return []; }
   }
 
-  function level() { return consent().indexOf('statistics') > -1 ? 2 : (consent().length ? 1 : 0); }
+  // 2: counted with the visitor cookie, 1: counted without a cookie,
+  // 0: not counted (hit.php drops it when level 1 waits for consent).
+  // Only a yes to "statistics" counts as consent, never a decline.
+  function level() {
+    if (consent().indexOf('statistics') > -1) return opts.cookie === '0' ? 1 : 2;
+    return opts.level1 === 'consent' ? 0 : 1;
+  }
 
   function visitorCookie() {
     if (level() < 2) return 0;
@@ -25,6 +31,7 @@
     data.p = location.pathname + location.search;
     data.l = d.documentElement.lang || '';
     data.c = level();
+    if (data.c === 0) return; // waiting for consent: nothing leaves the browser
     var body = JSON.stringify(data);
     if (navigator.sendBeacon) navigator.sendBeacon(endpoint, new Blob([body], { type: 'application/json' }));
     else fetch(endpoint, { method: 'POST', body: body, keepalive: true, credentials: 'same-origin' });
@@ -59,7 +66,15 @@
   });
   d.addEventListener('submit', function (e) { w.wake('event', 'Form submitted', e.target.getAttribute('name') || e.target.id || ''); });
 
-  w.addEventListener('wake:consent', function () { visitorCookie(); });
+  // The page view counts once: right away, or as soon as the visitor agrees.
+  var counted = false;
+  function pageview() {
+    if (counted || level() === 0) return;
+    counted = true;
+    send({ t: 'pageview', r: d.referrer, n: visitorCookie() });
+  }
 
-  send({ t: 'pageview', r: d.referrer, n: visitorCookie() });
+  w.addEventListener('wake:consent', function () { pageview(); visitorCookie(); });
+
+  pageview();
 })();

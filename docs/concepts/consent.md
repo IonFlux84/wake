@@ -11,17 +11,18 @@ every decision.
 
 ## When the banner appears
 
-The banner appears on its own only when the site actually needs consent up
-front:
+By default the banner appears on every site (`always: true` in
+`settings/consent.yml`), so visitors always see what the site counts and can
+decide. With `always: false` it appears only when the site actually needs
+consent up front:
 
-- the statistics cookie is offered (`statistics: true` in `settings/consent.yml`),
-- marketing scripts are used (`marketing: true`),
-- level-1 statistics wait for consent (`tracking.level1: 'consent'`), or
-- you force it with `always: true`.
+- the statistics cookie is offered (`statistics: true`),
+- marketing scripts are used (`marketing: true`), or
+- level-1 statistics wait for consent (`tracking.level1: 'consent'`, the
+  default).
 
-A site that only uses Wake's cookieless statistics and no external scripts
-shows **no banner at all**. Embedded videos and maps ask for themselves when
-someone clicks them (see below).
+Embedded videos and maps ask for themselves when someone clicks them (see
+below).
 
 The footer link `@wakeConsentLink` ("Cookie settings") opens the detailed
 settings at any time, so visitors can change or withdraw their choice.
@@ -102,7 +103,7 @@ there, with a live preview per language.
 version: 2
 statistics: true          # offer the level-2 statistics cookie
 marketing: false
-always: false             # show the banner even if nothing needs consent
+always: true              # show the banner even if nothing needs consent (default)
 position: bottom          # bottom or center
 privacy_url: /privacy
 texts:

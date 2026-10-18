@@ -45,8 +45,7 @@ class LayoutCommand extends Command
 
         app(Index::class)->forget();
         app(Index::class)->refresh(true);
-        $this->call('wake:clear');
-        $this->callSilently('view:clear'); // compiled views may have come along from storage/
+        $this->call('wake:clear'); // also clears compiled views, which may have come along from storage/
         $this->components->info(count($migration->steps).' steps done.');
 
         return self::SUCCESS;

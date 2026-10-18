@@ -17,7 +17,11 @@ function consentConfig(string $html): array
     return json_decode($m[1], true);
 }
 
-it('needs no banner when there is nothing to agree to', function () {
+it('shows the banner by default, and none when switched off and nothing needs consent', function () {
+    expect(consentConfig($this->get('/first')->getContent())['banner'])->toBeTrue();
+
+    app(ConsentSettings::class)->save(['always' => false]);
+    config(['wake.tracking.level1' => 'always']);
     $config = consentConfig($this->get('/first')->getContent());
 
     expect($config['banner'])->toBeFalse()
@@ -88,7 +92,7 @@ it('shows decisions and saves the banner in the panel', function () {
     @mkdir(Paths::data('consent'), 0775, true);
     file_put_contents(Paths::data('consent/2026-05.log'), json_encode(['time' => '2026-05-30T10:00:00+00:00', 'id' => 'abcdef1234567890', 'categories' => ['necessary', 'media'], 'action' => 'custom', 'version' => 1, 'language' => 'en'])."\n");
 
-    $this->actingAs($owner)->get('/wake/consent')->assertOk()->assertSee('No banner needed')->assertSee('External media');
+    $this->actingAs($owner)->get('/wake/consent')->assertOk()->assertSee('The banner is shown to new visitors.')->assertSee('External media');
 
     Livewire::actingAs($owner)->test(Consent::class)
         ->assertSet('statistics', false)
