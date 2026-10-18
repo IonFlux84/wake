@@ -112,6 +112,7 @@ class Plugins
                     app('translator')->addJsonPath($info->path.'/lang');
                 }
 
+                $this->autoload($info);
                 $setup = (static fn (string $file) => require $file)($info->path.'/plugin.php');
                 $plugin = new Plugin($info, $this);
 
@@ -125,6 +126,37 @@ class Plugins
                 Log::warning("Plugin {$folder} could not be started: ".$e->getMessage());
             }
         }
+    }
+
+    /**
+     * Makes the plugin's classes loadable: the PSR-4 folders from "autoload"
+     * in plugin.yml, and a bundled vendor/autoload.php if there is one.
+     */
+    protected function autoload(PluginInfo $info): void
+    {
+        if (is_file($info->path.'/vendor/autoload.php')) {
+            require_once $info->path.'/vendor/autoload.php';
+        }
+
+        $map = $info->autoload();
+
+        if ($map === []) {
+            return;
+        }
+
+        spl_autoload_register(function (string $class) use ($map) {
+            foreach ($map as $prefix => $dir) {
+                if (str_starts_with($class, $prefix)) {
+                    $file = $dir.'/'.str_replace('\\', '/', substr($class, strlen($prefix))).'.php';
+
+                    if (is_file($file)) {
+                        require_once $file;
+                    }
+
+                    return;
+                }
+            }
+        });
     }
 
     /**

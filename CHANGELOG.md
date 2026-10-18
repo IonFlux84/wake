@@ -196,6 +196,8 @@ All notable changes to Wake are documented here. The format follows
   `track.js` sends nothing until the visitor agrees; the page view is counted
   as soon as they do. Before, any decision, even "Decline", counted as consent.
 - `wake:clear` also clears the compiled templates.
+- Plugins load their classes through `autoload` in `plugin.yml` (PSR-4) and a
+  bundled `vendor/autoload.php`; no more `require_once`.
 - Tokens for assistants and the API expire, after 90 days by default (30 days,
   a year or no end can be chosen); expired tokens are refused.
 - On the first visit Wake writes the site's address to `APP_URL` in the new

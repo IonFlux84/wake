@@ -20,6 +20,8 @@ all plugins, switch them on and off and change their settings.
 plugins/opening-hours/
   plugin.yml      name, description, version, author, settings
   plugin.php      registers what the plugin adds
+  src/            your classes, loaded through "autoload" in plugin.yml
+  vendor/         bundled libraries; vendor/autoload.php is loaded if present
   views/          Blade views, used as opening-hours::name
   lang/           translations, de.json and so on
   assets/         CSS, JavaScript and images for the website
@@ -38,6 +40,8 @@ description: { en: Shows today's opening hours., de: Zeigt die heutigen Öffnung
 version: 1.0.0
 author: Jane Doe
 url: https://example.org/opening-hours
+autoload:
+  OpeningHours: src            # PSR-4: OpeningHours\Hours is src/Hours.php
 options:
   closed_on:
     type: select
@@ -45,6 +49,9 @@ options:
     options: { sunday: Sunday, monday: Monday }
     default: sunday
 ```
+
+`autoload` maps namespaces to folders inside the plugin (PSR-4). Folders
+outside the plugin are ignored.
 
 Options work like [theme options](templates.md): `text`, `textarea`,
 `toggle`, `select` and `color`, each with `label`, `default` and optionally
@@ -73,9 +80,8 @@ cache, so keep it quick: register things here and do the work later, when
 they are used. The file may also return nothing; then Wake only loads its
 views, translations and assets.
 
-Plugins have no autoloader. Load your own classes with
-`require_once __DIR__.'/src/MyClass.php';` and give them a namespace of your
-own. To share an object between views, routes and tasks, put it into
+Your own classes are loaded through `autoload` in `plugin.yml`; give them a
+namespace of your own. To share an object between views, routes and tasks, put it into
 Laravel's container: `app()->instance(MyService::class, new MyService($plugin));`.
 
 ## What a plugin can add

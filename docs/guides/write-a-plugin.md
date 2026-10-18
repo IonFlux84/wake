@@ -50,6 +50,8 @@ description:
   de: Zeigt, ob heute geöffnet ist, als Karte und als JSON.
 version: 1.0.0
 author: Jane Doe
+autoload:
+  OpeningHours: src           # classes OpeningHours\… live in src/
 url: https://example.org/opening-hours
 options:
   hours:
@@ -67,6 +69,9 @@ options:
     placeholder: "2026-12-24"
     hint: { en: One date per line., de: Ein Datum pro Zeile. }
 ```
+
+`autoload` tells Wake where your classes are (PSR-4): `OpeningHours\Hours`
+is loaded from `src/Hours.php` the first time it is used.
 
 Everything under `options` appears as a form under *Plugins* in the panel.
 Labels and hints can be one text or one per language. The values end up in
@@ -94,9 +99,9 @@ and the rest of the site keeps working.
 
 ## 3. The logic in its own class
 
-Wake has no autoloader for plugins, so load your classes with `require_once`.
-Put a namespace of your own around them, so they cannot clash with other
-plugins.
+Wake loads your classes through `autoload` in `plugin.yml`, so there is no
+`require_once`. Put a namespace of your own around them, so they cannot clash
+with other plugins.
 
 `src/Hours.php` works out today's answer from the settings. It also keeps the
 answer in a small file in `temp/` (Laravel's `storage_path()`), so a page view
@@ -210,8 +215,6 @@ Laravel's container:
 
 use OpeningHours\Hours;
 use Wake\Plugins\Plugin;
-
-require_once __DIR__.'/src/Hours.php';
 
 return function (Plugin $plugin) {
     app()->instance(Hours::class, new Hours($plugin));
@@ -367,8 +370,6 @@ final class RememberToday implements Task
 and register it:
 
 ```php
-require_once __DIR__.'/src/RememberToday.php';
-
 $plugin->task(RememberToday::class);
 ```
 
@@ -408,10 +409,6 @@ use OpeningHours\Hours;
 use OpeningHours\RememberToday;
 use Wake\Content\ContentChanged;
 use Wake\Plugins\Plugin;
-
-// Plugins have no autoloader: load your classes yourself.
-require_once __DIR__.'/src/Hours.php';
-require_once __DIR__.'/src/RememberToday.php';
 
 return function (Plugin $plugin) {
     // One shared instance for the card view, the route and the task.
@@ -526,9 +523,10 @@ account. Site owners trust you with that, so:
 - **No secrets in `plugin.yml` defaults** and none in `settings/`, which people
   commit to Git. Ask for API keys as a setting, or read them from `.env` with
   `env('OPENING_HOURS_KEY')`.
-- **Keep dependencies few.** There is no Composer for plugins. If you bundle a
-  library, put it in your own namespace so two plugins cannot load two
-  versions of it.
+- **Keep dependencies few.** Site owners cannot run Composer. If you need a
+  library, run Composer yourself and ship the plugin with its `vendor/` folder:
+  Wake loads `vendor/autoload.php` if it is there. Prefer libraries in your
+  own namespace, so two plugins cannot load two versions of one.
 
 ## Names and versions
 

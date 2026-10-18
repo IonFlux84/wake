@@ -7,3 +7,6 @@ options:
     type: text
     label: Greeting
     default: Hello
+autoload:
+  Greeter: src
+  Evil: ../../

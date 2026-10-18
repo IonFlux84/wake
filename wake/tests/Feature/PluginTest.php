@@ -83,3 +83,10 @@ it('keeps plugins away from editors', function () {
 
     $this->actingAs($editor)->get('/wake/plugins')->assertForbidden();
 });
+
+it('loads plugin classes from the folders in "autoload", never from outside the plugin', function () {
+    $info = app(Plugins::class)->get('greeter');
+
+    expect(array_keys($info->autoload()))->toBe(['Greeter\\'])
+        ->and(class_exists('Greeter\\Text\\Salutation'))->toBeTrue();
+});
