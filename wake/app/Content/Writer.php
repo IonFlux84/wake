@@ -53,7 +53,7 @@ class Writer
         $slug = Str::slug((string) ($fields['slug'] ?? $title), language: $language) ?: 'entry';
 
         $folder = match ($contentType->layout) {
-            ContentType::FOLDERS => CarbonImmutable::now()->format('Y-m-d').'-'.$slug,
+            ContentType::FOLDERS => (! empty($fields['published']) ? CarbonImmutable::parse((string) $fields['published']) : CarbonImmutable::now())->format('Y-m-d').'-'.$slug,
             default => $slug,
         };
 

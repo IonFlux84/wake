@@ -17,6 +17,7 @@
         "laravel/framework": "^13.17",
         "laravel/mcp": "^1.0",
         "laravel/tinker": "^3.0",
+        "league/html-to-markdown": "^5.1",
         "livewire/livewire": "^4.4",
         "maxmind-db/reader": "^1.14",
         "symfony/yaml": "^8.1"

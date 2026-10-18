@@ -73,3 +73,15 @@ claude mcp add wake -- php /path/to/site/wake/artisan wake:mcp --token=wake_…
 ```
 
 See [MCP server](mcp.md) for the tools.
+
+## `wake:import:ghost`
+
+Imports posts, pages and tags from a Ghost export file. With `--url`, images
+are downloaded from the old site. `--language` sets the language of the
+imported content.
+
+```bash
+php wake/artisan wake:import:ghost ghost-export.json --url=https://blog.example.org
+```
+
+See [Move from Ghost](../guides/move-from-ghost.md).

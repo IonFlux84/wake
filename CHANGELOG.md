@@ -86,3 +86,5 @@ All notable changes to Wake are documented here. The format follows
 - Media page with every file of every entry.
 - Read-only content API at `/wake/api/v1/` (site, entries, entry, stats):
   published content is public with CORS, drafts and statistics need a token.
+- Import from Ghost (panel and `wake:import:ghost`): posts, pages, tags,
+  feature images and images in posts, with Ghost cards turned into Wake cards.

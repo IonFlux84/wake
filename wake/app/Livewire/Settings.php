@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Cache\PageCache;
@@ -14,6 +15,7 @@ use Wake\Content\ContentTypes;
 use Wake\Content\FrontMatter;
 use Wake\Content\History;
 use Wake\Content\Index;
+use Wake\Import\GhostImporter;
 use Wake\Localization\Languages;
 use Wake\Support\Files;
 use Wake\Support\Health;
@@ -26,6 +28,16 @@ use Wake\Support\Settings as SiteSettings;
  */
 class Settings extends Component
 {
+    use WithFileUploads;
+
+    /** @var mixed a Ghost export to import */
+    public $ghostFile = null;
+
+    public string $ghostUrl = '';
+
+    /** @var array<string, mixed>|null result of the last import */
+    public ?array $importResult = null;
+
     /** @var array<string, array{title: string, description: string}> */
     public array $site = [];
 
@@ -153,6 +165,23 @@ class Settings extends Component
         $accounts->save($me->with($changes));
         session()->flash('status', __('Your account has been saved.'));
         $this->redirectRoute('wake.settings');
+    }
+
+    public function importGhost(GhostImporter $importer): void
+    {
+        $this->authorizeAdmin();
+        $this->validate(['ghostFile' => 'required|file|max:51200', 'ghostUrl' => 'nullable|url']);
+
+        try {
+            $importer->import((string) file_get_contents($this->ghostFile->getRealPath()), $this->ghostUrl ?: null);
+        } catch (\InvalidArgumentException $e) {
+            $this->addError('ghostFile', $e->getMessage());
+
+            return;
+        }
+
+        $this->importResult = ['counts' => $importer->counts, 'warnings' => array_slice($importer->warnings, 0, 20)];
+        $this->ghostFile = null;
     }
 
     protected function authorizeAdmin(): void

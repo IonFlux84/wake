@@ -9,3 +9,4 @@ description: Step-by-step instructions for concrete tasks.
 - [Connect an AI assistant](connect-an-assistant.md)
 - [Write and publish](write-and-publish.md)
 - [Invite your team](invite-your-team.md)
+- [Move from Ghost](move-from-ghost.md)

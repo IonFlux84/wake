@@ -61,6 +61,22 @@
         </form>
     @endif
 
+    @if ($isAdmin)
+        <form class="card form" wire:submit="importGhost">
+            <h2 class="h2">{{ __('Import from Ghost') }}</h2>
+            <p class="muted" style="margin:0;font-size:14px">{{ __('In Ghost, open Settings → Labs → Export your content. Upload the JSON file here. With the address of the old site, Wake also copies the images.') }}</p>
+            <div class="grid grid-2" style="gap:12px">
+                <div class="field"><label for="ghost-file">{{ __('Export file (JSON)') }}</label><input id="ghost-file" type="file" accept=".json,application/json" class="input" wire:model="ghostFile">@error('ghostFile')<span class="error">{{ $message }}</span>@enderror</div>
+                <div class="field"><label for="ghost-url">{{ __('Address of the old site (optional)') }}</label><input id="ghost-url" type="url" class="input" wire:model="ghostUrl" placeholder="https://blog.example.org">@error('ghostUrl')<span class="error">{{ $message }}</span>@enderror</div>
+            </div>
+            <div class="actions"><button class="btn btn-dark" type="submit" wire:loading.attr="disabled"><x-wake::icon name="upload" />{{ __('Import') }}</button><span wire:loading wire:target="importGhost" class="muted">{{ __('Importing …') }}</span></div>
+            @if ($importResult)
+                <div class="flash" role="status">{{ __('Imported :posts posts, :pages pages, :tags tags and :images images. Skipped :skipped.', $importResult['counts']) }}</div>
+                @foreach ($importResult['warnings'] as $warning)<p class="muted mono" style="margin:0;font-size:12px">{{ $warning }}</p>@endforeach
+            @endif
+        </form>
+    @endif
+
     <section class="grid grid-2">
         <form class="card form" wire:submit="saveAccount">
             <h2 class="h2">{{ __('Your account') }}</h2>
