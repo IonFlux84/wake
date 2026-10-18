@@ -41,6 +41,7 @@ use Wake\Livewire\RoleManager;
 use Wake\Livewire\Statistics;
 use Wake\Livewire\Team;
 use Wake\Livewire\ThemeManager;
+use Wake\Livewire\TwoFactorSettings;
 use Wake\Localization\Languages;
 use Wake\Maintenance\Maintenance;
 use Wake\Markdown\Markdown;
@@ -70,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         'category-manager' => CategoryManager::class,
         'media-library' => MediaLibrary::class,
         'backup-manager' => BackupManager::class,
+        'two-factor-settings' => TwoFactorSettings::class,
         'page-tree' => PageTree::class,
         'menu-editor' => MenuEditor::class,
         'settings' => \Wake\Livewire\Settings::class,

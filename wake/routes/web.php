@@ -20,6 +20,8 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
     Route::middleware('guest')->group(function () {
         Route::get('login', [LoginController::class, 'show'])->name('login');
         Route::post('login', [LoginController::class, 'store']);
+        Route::get('login/code', [LoginController::class, 'code'])->name('login.code');
+        Route::post('login/code', [LoginController::class, 'verify'])->middleware('throttle:20,1');
         Route::get('password', [PasswordController::class, 'request'])->name('password.request');
         Route::post('password', [PasswordController::class, 'email'])->middleware('throttle:5,1')->name('password.email');
         Route::get('password/{token}', [PasswordController::class, 'reset'])->name('password.reset');

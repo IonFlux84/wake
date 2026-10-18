@@ -10,6 +10,7 @@ use Wake\Accounts\Accounts;
 use Wake\Accounts\Invitations;
 use Wake\Accounts\Role;
 use Wake\Accounts\Roles;
+use Wake\Accounts\TwoFactor;
 
 /**
  * The team: who has access, with which role, and invitations.
@@ -62,6 +63,18 @@ class Team extends Component
         abort_unless($account && $this->mayManage($account) && in_array($role, $this->assignableRoles(), true), 403);
 
         $accounts->save($account->with(['role' => $role]));
+    }
+
+    /**
+     * For someone who lost their phone and their recovery codes.
+     */
+    public function resetTwoFactor(Accounts $accounts, TwoFactor $twoFactor, string $id): void
+    {
+        $account = $accounts->find($id);
+        abort_unless($account && $this->mayManage($account), 403);
+
+        $twoFactor->disable($account);
+        session()->flash('status', __('Two-factor sign-in is off for :name. They can sign in with their password and set it up again.', ['name' => $account->name()]));
     }
 
     public function remove(Accounts $accounts, string $id): void

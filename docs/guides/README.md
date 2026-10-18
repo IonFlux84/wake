@@ -13,4 +13,5 @@ description: Step-by-step instructions for concrete tasks.
 - [Choose and adjust a theme](themes.md)
 - [Back up and restore](backups.md)
 - [Invite your team](invite-your-team.md)
+- [Sign in with two factors](two-factor.md)
 - [Move from Ghost](move-from-ghost.md)

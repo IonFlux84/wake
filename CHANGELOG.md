@@ -151,6 +151,9 @@ All notable changes to Wake are documented here. The format follows
 - Preview of entries in any status in the theme, from the editor, and preview
   links that work for seven days without an account (signed URLs).
 - Redirects page in the panel: see, add and remove old addresses.
+- Two-factor sign-in with codes from an authenticator app (TOTP) and eight
+  recovery codes, set up per account under Settings. Team managers can turn
+  it off for someone who lost their phone.
 - Backups: one ZIP with content, settings, themes, accounts, versions and
   consent records (statistics optional), written, downloaded, uploaded and
   restored in the panel or with `wake:backup` and `wake:restore`. A restore

@@ -43,3 +43,6 @@ their tokens for assistants, moves to `storage/trash/`. Their posts stay.
 *Forgot your password?* on the sign-in page sends a link that works for 60
 minutes. Reset tokens are kept in the file cache, so this needs no database
 either.
+
+A new password does not skip two-factor sign-in: after the reset, Wake still
+asks for the code. See [Sign in with two factors](two-factor.md).

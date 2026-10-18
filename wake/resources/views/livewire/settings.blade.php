@@ -131,4 +131,8 @@
             @endforelse
         </div>
     </section>
+
+    <section class="card" style="max-width:640px">
+        <livewire:wake.two-factor-settings />
+    </section>
 </div>
