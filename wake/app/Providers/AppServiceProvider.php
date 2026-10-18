@@ -17,6 +17,7 @@ use Wake\Content\ContentChanged;
 use Wake\Content\ContentTypes;
 use Wake\Content\Index;
 use Wake\Content\Site;
+use Wake\Livewire\Consent;
 use Wake\Livewire\Dashboard;
 use Wake\Livewire\Journey;
 use Wake\Livewire\LiveVisitors;
@@ -36,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
         'live-visitors' => LiveVisitors::class,
         'statistics' => Statistics::class,
         'journey' => Journey::class,
+        'consent' => Consent::class,
     ];
 
     public function register(): void

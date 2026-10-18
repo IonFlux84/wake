@@ -21,5 +21,6 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::get('/', DashboardController::class)->name('dashboard');
         Route::view('stats', 'wake::panel.stats')->name('stats');
         Route::view('stats/journey', 'wake::panel.journey')->name('stats.journey');
+        Route::view('consent', 'wake::panel.consent')->name('consent');
     });
 });

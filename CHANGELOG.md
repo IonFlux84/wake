@@ -54,3 +54,6 @@ All notable changes to Wake are documented here. The format follows
   reading time and read-through rate, sources, campaigns, countries, devices,
   languages, browsers, events and visits of AI crawlers.
 - The wake of a page: where its readers came from and what they opened next.
+- Consent page in the panel: decisions of the last 30 days, agreement per
+  category, latest records, embedded services and a banner editor with live
+  preview per language (administrators only).

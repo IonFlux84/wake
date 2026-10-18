@@ -1,8 +1,12 @@
 <?php
 
+use Livewire\Livewire;
+use Wake\Accounts\Accounts;
+use Wake\Accounts\Role;
 use Wake\Consent\ConsentSettings;
 use Wake\Consent\Services;
 use Wake\Content\Index;
+use Wake\Livewire\Consent;
 use Wake\Markdown\Markdown;
 
 function consentConfig(string $html): array
@@ -76,4 +80,32 @@ it('lists embedded services for the privacy policy', function () {
 
 it('offers a link to reopen the settings', function () {
     expect(view('wake::consent-link')->render())->toContain('data-wake-consent-open');
+});
+
+it('shows decisions and saves the banner in the panel', function () {
+    $owner = app(Accounts::class)->create(['name' => 'Dana', 'email' => 'dana@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+    @mkdir(storage_path('consent'), 0775, true);
+    file_put_contents(storage_path('consent/2026-05.log'), json_encode(['time' => '2026-05-30T10:00:00+00:00', 'id' => 'abcdef1234567890', 'categories' => ['necessary', 'media'], 'action' => 'custom', 'version' => 1, 'language' => 'en'])."\n");
+
+    $this->actingAs($owner)->get('/wake/consent')->assertOk()->assertSee('No banner needed')->assertSee('External media');
+
+    Livewire::actingAs($owner)->test(Consent::class)
+        ->assertSet('statistics', false)
+        ->set('statistics', true)
+        ->set('texts.en.title', 'Cookies here')
+        ->call('save')
+        ->assertRedirect(route('wake.consent'));
+
+    $settings = new ConsentSettings;
+
+    expect($settings->get('statistics'))->toBeTrue()
+        ->and($settings->get('version'))->toBe(2)
+        ->and($settings->texts('en')['title'])->toBe('Cookies here')
+        ->and($settings->get('texts.de'))->toBeNull();
+});
+
+it('lets only administrators change the banner', function () {
+    $author = app(Accounts::class)->create(['name' => 'Al', 'email' => 'al@example.com', 'password' => 'secret secret', 'role' => Role::Author]);
+
+    Livewire::actingAs($author)->test(Consent::class)->call('save')->assertForbidden();
 });

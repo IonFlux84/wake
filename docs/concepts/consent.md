@@ -88,6 +88,12 @@ enough to prove that a given consent was given with a given text (Art. 7 GDPR).
 Changing the banner texts raises the version in `site/consent.yml`. Visitors
 whose stored choice has an older version are asked again.
 
+## In the panel
+
+*Consent* shows the decisions of the last 30 days, the agreement per category,
+the latest records and the embedded services. Administrators edit the banner
+there, with a live preview per language.
+
 ## Settings file
 
 `site/consent.yml` is written by the panel. All keys are optional:
