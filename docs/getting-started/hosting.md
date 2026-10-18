@@ -35,9 +35,10 @@ SSH nor Composer, and no database.
    `.env` with a secret application key, and asks you to create the owner
    account.
 
-6. **Set your address and mail** in `.env`: `APP_URL=https://your-domain` and,
-   for invitations and password mails, the `MAIL_*` settings (see
-   [Invite your team](../guides/invite-your-team.md)).
+6. **Set your address** in `.env`: `APP_URL=https://your-domain`.
+
+7. **Set up mail** in the panel under *Settings* → **Sending mail**, and send
+   yourself a test mail (see [Invite your team](../guides/invite-your-team.md)).
 
 ## Checklist
 

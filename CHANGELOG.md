@@ -179,5 +179,9 @@ All notable changes to Wake are documented here. The format follows
 
 ### Fixed
 
+- Invitations said “sent” although Wake only wrote mails to the log. Mail can
+  now be set up in the panel (*Settings* → *Sending mail*, SMTP or sendmail,
+  with a test mail); the team page says honestly whether a mail went out, and
+  a failing mail server no longer breaks inviting or password resets.
 - Images uploaded to a new post without a title were lost. Wake now saves the
   post as a draft called "Untitled" first.

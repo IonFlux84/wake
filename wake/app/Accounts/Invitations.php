@@ -3,8 +3,10 @@
 namespace Wake\Accounts;
 
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Throwable;
 use Wake\Mail\InvitationMail;
 
 /**
@@ -17,6 +19,9 @@ class Invitations
 
     /** The link of the last invitation sent, to show it in the panel as well. */
     public ?string $lastLink = null;
+
+    /** Why the last mail could not be sent, if it could not. */
+    public ?string $lastError = null;
 
     public function __construct(protected Accounts $accounts) {}
 
@@ -41,7 +46,14 @@ class Invitations
 
         $this->accounts->save($account);
         $this->lastLink = route('wake.invitation', ['id' => $account->id(), 'token' => $token]);
-        Mail::to($account->email())->locale($account->language())->send(new InvitationMail($account, $inviter, $token));
+        $this->lastError = null;
+
+        try {
+            Mail::to($account->email())->locale($account->language())->send(new InvitationMail($account, $inviter, $token));
+        } catch (Throwable $e) {
+            $this->lastError = $e->getMessage();
+            Log::warning('Invitation mail failed: '.$e->getMessage());
+        }
 
         return $account;
     }

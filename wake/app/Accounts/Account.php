@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Wake\Mail\PasswordResetMail;
 
@@ -115,7 +116,12 @@ class Account implements Authenticatable, AuthorizableContract, CanResetPassword
 
     public function sendPasswordResetNotification($token): void
     {
-        Mail::to($this->email())->locale($this->language())->send(new PasswordResetMail($this, $token));
+        try {
+            Mail::to($this->email())->locale($this->language())->send(new PasswordResetMail($this, $token));
+        } catch (\Throwable $e) {
+            // Never tell the visitor whether an address exists; the log says why.
+            Log::warning('Password mail failed: '.$e->getMessage());
+        }
     }
 
     // Authenticatable ------------------------------------------------------

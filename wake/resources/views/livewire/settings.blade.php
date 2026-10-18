@@ -73,6 +73,10 @@
     @endif
 
     @if ($isAdmin)
+        <livewire:wake.mail-settings-form />
+    @endif
+
+    @if ($isAdmin)
         <div class="card">
             <div class="card-head"><h2 class="h2">{{ __('Updates') }}</h2><span class="badge">{{ \Wake\Wake::VERSION }}</span></div>
             <p class="muted" style="margin:0;font-size:14px">{{ __('Wake only asks GitHub for a new version when you click the button.') }}</p>

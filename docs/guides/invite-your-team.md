@@ -5,17 +5,16 @@ description: Give other people access to the panel with the right role.
 
 # Invite your team
 
-1. **Set up mail** so Wake can send invitations and password links. Add your
-   mail server to `.env`:
+1. **Set up mail** so Wake can send invitations and password links: open
+   *Settings* → **Sending mail**, choose *SMTP* and enter server, port,
+   encryption, user name, password and sender address. Your host or mail
+   provider has these details; they are often the same as in your mail
+   program. Then click **Send a test mail to me**.
 
-   ```bash
-   MAIL_MAILER=smtp
-   MAIL_HOST=smtp.example.com
-   MAIL_PORT=587
-   MAIL_USERNAME=wake@example.com
-   MAIL_PASSWORD=…
-   MAIL_FROM_ADDRESS="wake@example.com"
-   ```
+   The settings are stored in `storage/mail.yml`, the password encrypted with
+   the application key. They replace the `MAIL_*` values in `.env`, which
+   still work if you prefer to set mail there. Many shared hosts also offer
+   *sendmail*, which needs no details.
 
    Without mail, invitations still work: the panel shows the invitation link,
    and you send it yourself.

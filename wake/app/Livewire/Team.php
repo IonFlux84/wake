@@ -11,6 +11,7 @@ use Wake\Accounts\Invitations;
 use Wake\Accounts\Role;
 use Wake\Accounts\Roles;
 use Wake\Accounts\TwoFactor;
+use Wake\Mail\MailSettings;
 
 /**
  * The team: who has access, with which role, and invitations.
@@ -41,9 +42,21 @@ class Team extends Component
         ]);
 
         $invitations->invite($this->name, $this->email, $this->role, $this->me());
-        session()->flash('status', __('Invitation sent to :email.', ['email' => $this->email]));
-        session()->flash('invite_link', $invitations->lastLink);
+        $this->report($invitations, $this->email);
         $this->reset('name', 'email');
+    }
+
+    /**
+     * Says honestly whether the mail went out, and always offers the link.
+     */
+    protected function report(Invitations $invitations, string $email): void
+    {
+        session()->flash('status', match (true) {
+            $invitations->lastError !== null => __('The invitation for :email is ready, but the mail could not be sent: :error', ['email' => $email, 'error' => $invitations->lastError]),
+            ! MailSettings::sends() => __('The invitation for :email is ready. Wake does not send mails yet, so send the link below yourself, or set up mail under Settings.', ['email' => $email]),
+            default => __('Invitation sent to :email.', ['email' => $email]),
+        });
+        session()->flash('invite_link', $invitations->lastLink);
     }
 
     public function resend(Invitations $invitations, Accounts $accounts, string $id): void
@@ -52,8 +65,7 @@ class Team extends Component
 
         if ($account?->isPending()) {
             $invitations->send($account, $this->me());
-            session()->flash('status', __('Invitation sent to :email.', ['email' => $account->email()]));
-            session()->flash('invite_link', $invitations->lastLink);
+            $this->report($invitations, $account->email());
         }
     }
 

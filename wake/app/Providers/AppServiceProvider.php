@@ -33,6 +33,7 @@ use Wake\Livewire\Entries;
 use Wake\Livewire\EntryEditor;
 use Wake\Livewire\Journey;
 use Wake\Livewire\LiveVisitors;
+use Wake\Livewire\MailSettingsForm;
 use Wake\Livewire\MediaLibrary;
 use Wake\Livewire\MenuEditor;
 use Wake\Livewire\PageTree;
@@ -44,6 +45,7 @@ use Wake\Livewire\Team;
 use Wake\Livewire\ThemeManager;
 use Wake\Livewire\TwoFactorSettings;
 use Wake\Localization\Languages;
+use Wake\Mail\MailSettings;
 use Wake\Maintenance\Maintenance;
 use Wake\Markdown\Markdown;
 use Wake\Mcp\CurrentToken;
@@ -75,6 +77,7 @@ class AppServiceProvider extends ServiceProvider
         'backup-manager' => BackupManager::class,
         'two-factor-settings' => TwoFactorSettings::class,
         'plugin-manager' => PluginManager::class,
+        'mail-settings-form' => MailSettingsForm::class,
         'page-tree' => PageTree::class,
         'menu-editor' => MenuEditor::class,
         'settings' => \Wake\Livewire\Settings::class,
@@ -112,6 +115,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Auth::provider('wake', fn ($app) => new AccountUserProvider($app->make(Accounts::class)));
+        $this->app->make(MailSettings::class)->apply();
         $this->app->make(Theme::class)->register();
         $this->app->make(Plugins::class)->boot();
 
