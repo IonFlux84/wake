@@ -7,6 +7,7 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
+use Wake\Accounts\Permissions;
 use Wake\Content\ContentTypes;
 use Wake\Content\Entry;
 use Wake\Content\Query;
@@ -59,6 +60,9 @@ class ContentListTool extends WakeTool
         if ($search = mb_strtolower(trim((string) $request->get('search')))) {
             $query->where(fn (array $fields, array $row) => str_contains(mb_strtolower((string) ($fields['title'] ?? $row['name'])), $search));
         }
+
+        $account = auth()->user();
+        $query->where(fn (array $fields, array $row) => Permissions::mayRead($account, Entry::make($row, app(Languages::class)->default())));
 
         $entries = $query->limit(max(1, min(100, (int) $request->get('limit', 20))))->get();
 

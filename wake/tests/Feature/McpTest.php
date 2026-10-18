@@ -1,8 +1,11 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 use Wake\Accounts\Accounts;
+use Wake\Accounts\Permissions;
 use Wake\Accounts\Role;
+use Wake\Accounts\Roles;
 use Wake\Accounts\Tokens;
 use Wake\Content\History;
 use Wake\Content\Models\Post;
@@ -178,4 +181,25 @@ describe('content tools', function () {
             ->assertOk()->assertSee('pixel.png');
         WakeServer::tool(MediaUploadTool::class, ['id' => 'posts/2026-02-01-second', 'name' => 'evil.php', 'data' => $png])->assertHasErrors();
     });
+});
+
+it('lets a token do no more than its owner may do today', function () {
+    $roles = app(Roles::class);
+    $roles->save('writer', ['en' => 'Writer'], ['content.write']);
+    $account = app(Accounts::class)->create(['name' => 'Wil', 'email' => 'wil@example.com', 'password' => 'secret secret', 'role' => 'writer']);
+    app(CurrentToken::class)->set(['scopes' => ['stats:read', 'content:read'], 'name' => 'test']);
+    Auth::setUser($account);
+
+    expect(app(CurrentToken::class)->can('stats:read'))->toBeFalse()
+        ->and(app(CurrentToken::class)->can('content:read'))->toBeTrue();
+});
+
+it('hides drafts of others from contributors', function () {
+    $author = app(Accounts::class)->create(['name' => 'Ann', 'email' => 'ann@example.com', 'password' => 'secret secret', 'role' => Role::Author]);
+    $contributor = app(Accounts::class)->create(['name' => 'Cid', 'email' => 'cid@example.com', 'password' => 'secret secret', 'role' => Role::Contributor]);
+    $draft = app(Writer::class)->create('post', ['title' => 'Secret plan', 'author' => $author->id()]);
+
+    expect(Permissions::mayRead($contributor, $draft))->toBeFalse()
+        ->and(Permissions::mayRead($author, $draft))->toBeTrue()
+        ->and(Permissions::mayRead(null, Post::find('posts/2026-01-10-first')))->toBeTrue();
 });

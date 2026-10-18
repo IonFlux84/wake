@@ -79,8 +79,9 @@ final class Plugin
     }
 
     /**
-     * Website routes. They come before Wake's own addresses and have no
-     * session; wrap them in Route::middleware('web') if they need one.
+     * Website routes. They come before Wake's own addresses, have no session
+     * (wrap them in Route::middleware('web') if they need one) and are hidden
+     * while the site is closed, like the website.
      */
     public function routes(Closure $routes): self
     {

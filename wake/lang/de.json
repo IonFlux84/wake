@@ -533,7 +533,7 @@
     "The update is incomplete. Nothing was changed.": "Das Update ist unvollständig. Es wurde nichts geändert.",
     "The wake of this page": "Das Kielwasser dieser Seite",
     "The web server serves the folder :root. Point the document root to the public folder, otherwise your content and statistics may be reachable from outside.": "Der Webserver liefert den Ordner :root aus. Stell das Document-Root auf den Ordner public, sonst sind Inhalte und Statistik womöglich von außen erreichbar.",
-    "The ZIP contains no theme: a templates folder with Blade templates is missing.": "Die ZIP-Datei enthält kein Theme: Es fehlt ein Ordner templates mit Blade-Vorlagen.",
+    "The ZIP contains no theme: templates/home.blade.php is missing.": "Die ZIP-Datei enthält kein Theme: templates/home.blade.php fehlt.",
     "The ZIP contains unsafe paths.": "Die ZIP-Datei enthält unsichere Pfade.",
     "Theme moved to the trash.": "Theme in den Papierkorb gelegt.",
     "Theme settings saved.": "Theme-Einstellungen gespeichert.",

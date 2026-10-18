@@ -3,6 +3,7 @@
 namespace Wake\Mcp;
 
 use Laravel\Mcp\Server;
+use Wake\Wake;
 
 /**
  * Wake as an MCP server for AI assistants (decision 0006).
@@ -14,7 +15,7 @@ class WakeServer extends Server
 {
     protected string $name = 'Wake';
 
-    protected string $version = '0.1.0';
+    protected string $version = Wake::VERSION;
 
     public int $defaultPaginationLength = 50;
 

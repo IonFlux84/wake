@@ -132,8 +132,9 @@ class Plugins
      */
     public function registerRoutes(): void
     {
+        // Like the website itself, plugin addresses are hidden while the site is closed.
         foreach ($this->routes as $routes) {
-            Route::group([], $routes);
+            Route::middleware('wake.closed')->group($routes);
         }
     }
 

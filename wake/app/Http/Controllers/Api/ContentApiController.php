@@ -4,6 +4,7 @@ namespace Wake\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Wake\Accounts\Permissions;
 use Wake\Content\Categories;
 use Wake\Content\ContentTypes;
 use Wake\Content\Entry;
@@ -74,6 +75,9 @@ class ContentApiController
             $query->tag($data['tag']);
         }
 
+        $account = auth()->user();
+        $query->where(fn (array $fields, array $row) => Permissions::mayRead($account, Entry::make($row, app(Languages::class)->default())));
+
         $page = $query->paginate($data['limit'] ?? 10, $data['page'] ?? 1);
         $withBody = (bool) ($data['body'] ?? false);
 
@@ -88,7 +92,7 @@ class ContentApiController
         $entry = (new Query)->in($this->language($request->query('language')))->find((string) $request->query('id'));
 
         abort_if($entry === null, 404, 'Not found.');
-        abort_if(! $entry->isPublished() && ! app(CurrentToken::class)->can('content:read'), 404, 'Not found.');
+        abort_if(! $entry->isPublished() && (! app(CurrentToken::class)->can('content:read') || ! Permissions::mayRead(auth()->user(), $entry)), 404, 'Not found.');
 
         return response()->json(['data' => $this->entryData($entry, true)]);
     }

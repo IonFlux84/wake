@@ -7,6 +7,7 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
+use Wake\Accounts\Permissions;
 use Wake\Content\Query;
 
 #[Name('content_read')]
@@ -27,7 +28,7 @@ class ContentReadTool extends WakeTool
     {
         $entry = (new Query)->in($request->get('language'))->find((string) $request->get('id'));
 
-        if (! $entry) {
+        if (! $entry || ! Permissions::mayRead(auth()->user(), $entry)) {
             return Response::error('There is no entry with this id. content_list shows the ids.');
         }
 

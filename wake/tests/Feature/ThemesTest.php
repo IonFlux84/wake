@@ -5,6 +5,9 @@ use Livewire\Livewire;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Livewire\ThemeManager;
+use Wake\Support\Files;
+use Wake\Support\Paths;
+use Wake\Support\PublicAssets;
 use Wake\Support\Settings;
 use Wake\Theme\Themes;
 
@@ -81,4 +84,18 @@ it('is only for people who may manage themes', function () {
     $editor = app(Accounts::class)->create(['name' => 'Ed', 'email' => 'ed@example.com', 'password' => 'secret secret', 'role' => Role::Editor]);
 
     $this->actingAs($editor)->get('/wake/themes')->assertForbidden();
+});
+
+it('publishes fonts and images a stylesheet points to', function () {
+    $assets = Paths::site('themes/harbour/assets');
+    Files::write($assets.'/css/site.css', "@font-face { src: url('../fonts/sans.woff2') format('woff2'); }\n.hero { background: url(img/wave.png); }\n.x { background: url(\"../../../../.env\"); }\n.y { background: url(data:image/png;base64,AAAA); }\n");
+    Files::write($assets.'/fonts/sans.woff2', 'font');
+    Files::write($assets.'/css/img/wave.png', 'png');
+
+    PublicAssets::url($assets.'/css/site.css', 'assets/themes/harbour/css/site.css');
+
+    expect(is_file(public_path('assets/themes/harbour/fonts/sans.woff2')))->toBeTrue()
+        ->and(is_file(public_path('assets/themes/harbour/css/img/wave.png')))->toBeTrue()
+        ->and(glob(public_path('*.env')) ?: [])->toBe([])
+        ->and(is_file(public_path('.env')))->toBeFalse();
 });

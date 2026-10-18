@@ -57,7 +57,7 @@ class Themes
     }
 
     /**
-     * Install a theme from a ZIP file. The ZIP must contain templates/ and
+     * Install a theme from a ZIP file. The ZIP must contain templates/home.blade.php and
      * may contain everything inside one top folder.
      */
     public function install(string $zip): ThemeInfo
@@ -77,13 +77,13 @@ class Themes
                 throw new InvalidArgumentException(__('The ZIP contains unsafe paths.'));
             }
 
-            if (preg_match('#^(.*?)templates/[^/]+\.blade\.php$#', $name, $m)) {
+            if (preg_match('#^(.*?)templates/home\.blade\.php$#', $name, $m)) {
                 $prefix ??= $m[1];
             }
         }
 
         if ($prefix === null) {
-            throw new InvalidArgumentException(__('The ZIP contains no theme: a templates folder with Blade templates is missing.'));
+            throw new InvalidArgumentException(__('The ZIP contains no theme: templates/home.blade.php is missing.'));
         }
 
         $temp = storage_path('updates/theme-'.bin2hex(random_bytes(4)));
