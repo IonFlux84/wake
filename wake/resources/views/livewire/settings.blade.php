@@ -8,6 +8,24 @@
     @if (session('status'))<div class="flash" role="status">{{ session('status') }}</div>@endif
     @foreach ($problems as $problem)<div class="flash error" role="alert">{{ $problem }}</div>@endforeach
 
+    <section class="grid grid-2">
+        <form class="card form" wire:submit="saveAccount">
+            <h2 class="h2">{{ __('Your account') }}</h2>
+            <div class="field"><label for="me-name">{{ __('Name') }}</label><input id="me-name" class="input" wire:model="name">@error('name')<span class="error">{{ $message }}</span>@enderror</div>
+            <div class="field"><label for="me-email">{{ __('Email address') }}</label><input id="me-email" type="email" class="input" wire:model="email">@error('email')<span class="error">{{ $message }}</span>@enderror</div>
+            <div class="field"><label for="me-lang">{{ __('Language of the panel') }}</label><select id="me-lang" class="select" wire:model="language"><option value="">{{ __('Like the site (:language)', ['language' => config('wake.panel.language') === 'en' ? 'English' : 'Deutsch']) }}</option><option value="de">Deutsch</option><option value="en">English</option></select></div>
+            <div class="grid grid-2" style="gap:12px">
+                <div class="field"><label for="pw-old">{{ __('Current password') }}</label><input id="pw-old" type="password" class="input" wire:model="currentPassword" autocomplete="current-password">@error('currentPassword')<span class="error">{{ $message }}</span>@enderror</div>
+                <div class="field"><label for="pw-new">{{ __('New password') }}</label><input id="pw-new" type="password" class="input" wire:model="newPassword" autocomplete="new-password">@error('newPassword')<span class="error">{{ $message }}</span>@enderror</div>
+            </div>
+            <div class="actions"><button class="btn btn-primary" type="submit">{{ __('Save account') }}</button></div>
+        </form>
+        <section class="card" id="two-factor">
+            <livewire:wake.two-factor-settings />
+        </section>
+    </section>
+
+
     @if ($isAdmin)
         <form wire:submit="saveSite" style="display:flex;flex-direction:column;gap:16px">
             <section class="card" style="flex-direction:row;align-items:center;gap:16px;{{ $closed ? 'background:var(--night);color:#fff;border-color:var(--night)' : '' }}">
@@ -17,6 +35,15 @@
                     <p style="margin:4px 0 0;font-size:14px;{{ $closed ? 'color:#bdbdbd' : '' }}" class="{{ $closed ? '' : 'muted' }}">{{ __('Only signed-in team members see the website. Everyone else lands on the sign-in page, and search engines are kept out. Good while building a site.') }}</p>
                 </div>
                 <label class="check" style="white-space:nowrap"><input type="checkbox" wire:model.live="closed"> {{ $closed ? __('Closed') : __('Open') }}</label>
+            </section>
+            <section class="card" style="flex-direction:row;align-items:center;gap:16px">
+                <x-wake::icon name="key" size="22" />
+                <div style="flex:1">
+                    <h2 class="h2">{{ __('Require two-factor sign-in') }}</h2>
+                    <p class="muted" style="margin:4px 0 0;font-size:14px">{{ __('Everyone on the team must set up two-factor sign-in before they can use the panel. People who have not done it yet are taken to the setup right after signing in.') }}</p>
+                    @error('requireTwoFactor')<p class="error" style="margin:6px 0 0;font-size:13px;color:var(--danger)">{{ $message }}</p>@enderror
+                </div>
+                <label class="check" style="white-space:nowrap"><input type="checkbox" wire:model="requireTwoFactor"> {{ __('Required') }}</label>
             </section>
             <section class="grid grid-2">
                 <div class="card form">
@@ -110,18 +137,9 @@
         </form>
     @endif
 
+
+
     <section class="grid grid-2">
-        <form class="card form" wire:submit="saveAccount">
-            <h2 class="h2">{{ __('Your account') }}</h2>
-            <div class="field"><label for="me-name">{{ __('Name') }}</label><input id="me-name" class="input" wire:model="name">@error('name')<span class="error">{{ $message }}</span>@enderror</div>
-            <div class="field"><label for="me-email">{{ __('Email address') }}</label><input id="me-email" type="email" class="input" wire:model="email">@error('email')<span class="error">{{ $message }}</span>@enderror</div>
-            <div class="field"><label for="me-lang">{{ __('Language of the panel') }}</label><select id="me-lang" class="select" wire:model="language"><option value="">{{ __('Like the site (:language)', ['language' => config('wake.panel.language') === 'en' ? 'English' : 'Deutsch']) }}</option><option value="de">Deutsch</option><option value="en">English</option></select></div>
-            <div class="grid grid-2" style="gap:12px">
-                <div class="field"><label for="pw-old">{{ __('Current password') }}</label><input id="pw-old" type="password" class="input" wire:model="currentPassword" autocomplete="current-password">@error('currentPassword')<span class="error">{{ $message }}</span>@enderror</div>
-                <div class="field"><label for="pw-new">{{ __('New password') }}</label><input id="pw-new" type="password" class="input" wire:model="newPassword" autocomplete="new-password">@error('newPassword')<span class="error">{{ $message }}</span>@enderror</div>
-            </div>
-            <div class="actions"><button class="btn btn-primary" type="submit">{{ __('Save account') }}</button></div>
-        </form>
         <div class="card">
             <h2 class="h2">{{ __('Latest changes') }}</h2>
             @forelse ($history as $item)
@@ -134,9 +152,5 @@
                 <p class="muted" style="margin:0">{{ __('Nothing changed yet.') }}</p>
             @endforelse
         </div>
-    </section>
-
-    <section class="card" style="max-width:640px">
-        <livewire:wake.two-factor-settings />
     </section>
 </div>

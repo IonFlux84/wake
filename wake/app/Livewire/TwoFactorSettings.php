@@ -23,6 +23,9 @@ class TwoFactorSettings extends Component
     /** @var list<string> shown once after turning it on */
     public array $recoveryCodes = [];
 
+    /** On the page people are sent to when the site requires it. */
+    public bool $required = false;
+
     public function start(TwoFactor $twoFactor): void
     {
         $this->pendingSecret = $twoFactor->newSecret();
@@ -60,6 +63,12 @@ class TwoFactorSettings extends Component
 
     public function disable(TwoFactor $twoFactor, Accounts $accounts): void
     {
+        if (config('wake.security.require_two_factor')) {
+            $this->addError('password', __('This site requires two-factor sign-in for everyone.'));
+
+            return;
+        }
+
         if ($this->checkPassword()) {
             $twoFactor->disable($accounts->find(auth()->id()));
             $this->reset('recoveryCodes');
@@ -73,6 +82,7 @@ class TwoFactorSettings extends Component
 
         return view('wake::livewire.two-factor-settings', [
             'enabled' => TwoFactor::isEnabled($account),
+            'siteRequires' => (bool) config('wake.security.require_two_factor'),
             'remaining' => $twoFactor->remainingRecoveryCodes($account),
             'qr' => $this->pendingSecret !== '' ? $twoFactor->qrCode($twoFactor->uri($account, $this->pendingSecret)) : null,
         ]);

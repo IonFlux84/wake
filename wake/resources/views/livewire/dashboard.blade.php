@@ -10,6 +10,13 @@
     };
 @endphp
 <div style="display:flex;flex-direction:column;gap:20px">
+    @unless (\Wake\Accounts\TwoFactor::isEnabled(auth()->user()))
+        <a href="{{ route('wake.settings') }}#two-factor" class="flash" style="text-decoration:none;display:flex;align-items:center;gap:10px">
+            <x-wake::icon name="key" size="16" />
+            <span style="flex:1">{{ __('Protect your account with two-factor sign-in: a stolen password alone is then not enough.') }}</span>
+            <span style="font-weight:600;white-space:nowrap">{{ __('Set up') }} →</span>
+        </a>
+    @endunless
     <header class="page-head">
         <div>
             <div class="eyebrow">{{ now()->locale(app()->getLocale())->isoFormat('dd, D. MMMM · H:mm') }}</div>

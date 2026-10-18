@@ -160,6 +160,10 @@ All notable changes to Wake are documented here. The format follows
   commands, with views, translations, assets and settings like themes. The
   panel lists them, switches them on and off and edits their settings; a
   plugin that fails to start is skipped and its error shown.
+- Two-factor sign-in can be required for everyone (`security.require_two_factor`):
+  people without it are taken to the setup after signing in. The setup sits
+  next to *Your account* at the top of *Settings*, the dashboard reminds
+  people who have not set it up, and *Team* shows who has it.
 - Two-factor sign-in with codes from an authenticator app (TOTP) and eight
   recovery codes, set up per account under Settings. Team managers can turn
   it off for someone who lost their phone.

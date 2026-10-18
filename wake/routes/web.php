@@ -30,8 +30,9 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::post('invitation/{id}/{token}', [PasswordController::class, 'accept'])->middleware('throttle:10,1');
     });
 
-    Route::middleware('auth')->group(function () {
+    Route::middleware(['auth', 'wake.two-factor'])->group(function () {
         Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
+        Route::view('two-factor', 'wake::panel.two-factor')->name('two-factor');
         Route::get('/', DashboardController::class)->name('dashboard');
         Route::view('stats', 'wake::panel.stats')->middleware('can:stats.view')->name('stats');
         Route::view('stats/journey', 'wake::panel.journey')->middleware('can:stats.view')->name('stats.journey');

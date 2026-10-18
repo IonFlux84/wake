@@ -13,7 +13,7 @@ class Settings
     public const EDITABLE = [
         'timezone', 'post_url', 'missing_translation', 'prefix_default_language',
         'tracking.enabled', 'tracking.level1', 'tracking.respect_privacy_signals', 'tracking.retention',
-        'mcp.approval', 'panel.accent', 'panel.language', 'closed', 'theme', 'theme_options', 'plugins.disabled', 'plugins.options',
+        'mcp.approval', 'panel.accent', 'panel.language', 'closed', 'security.require_two_factor', 'theme', 'theme_options', 'plugins.disabled', 'plugins.options',
     ];
 
     public static function file(): string

@@ -30,7 +30,7 @@ Owners and administrators can change some settings under *Settings* in the
 panel. Wake stores them in `site/settings.yml`, which overrides
 `site/config.php`, so the panel always shows what is in effect. These are
 `timezone`, `post_url`, `missing_translation`, `prefix_default_language`, the
-`tracking.*` settings, `mcp.approval`, `panel.accent`, `panel.language`, `closed`, `theme`, `theme_options`, `plugins.disabled` and `plugins.options`. Everything else is
+`tracking.*` settings, `mcp.approval`, `panel.accent`, `panel.language`, `closed`, `security.require_two_factor`, `theme`, `theme_options`, `plugins.disabled` and `plugins.options`. Everything else is
 only set in `site/config.php`.
 
 Secrets such as the application key and mail passwords belong in `.env`, not
@@ -41,6 +41,7 @@ here, so `site/` can be committed to Git safely.
 | Setting | Default | Description |
 |---|---|---|
 | `closed` | `false` | Closed site: only signed-in team members see the website; everyone else is sent to the sign-in page. `robots.txt` then disallows everything, pages carry `noindex`, nothing is cached or counted, and the API needs a token. Switch it in the panel under *Settings*. |
+| `security.require_two_factor` | `false` | Everyone must set up [two-factor sign-in](../guides/two-factor.md) before they can use the panel; people without it are sent to the setup after signing in. Switch it in the panel under *Settings*; you need it set up for your own account first. |
 | `languages` | `['en' => 'English']` | Languages of the site, code → name. The first one is the default language. See [content format](content-format.md#languages). |
 | `prefix_default_language` | `false` | `true` puts the default language in the URL too (`/en/about` instead of `/about`). Requests without the prefix are redirected. |
 | `missing_translation` | `'hide'` | What happens when an entry has no translation in the requested language. `'hide'` answers with 404. `'fallback'` shows the default language with a notice and `noindex`, under the default language's slug. |

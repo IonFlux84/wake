@@ -11,7 +11,8 @@ it on for itself.
 
 ## Turn it on
 
-1. Open *Settings* and find **Two-factor sign-in**. Click **Set up**.
+1. Open *Settings*. **Two-factor sign-in** sits right next to *Your account*
+   at the top. Click **Set up**. (While it is off, the dashboard reminds you.)
 2. Scan the QR code with an authenticator app: the one in your password
    manager, or an app such as Aegis, Google Authenticator or Microsoft
    Authenticator. You can also type in the key below the code.
@@ -23,6 +24,24 @@ it on for itself.
 From now on, signing in has a second step. *Stay signed in* still works, so
 you are not asked again on the same device until the session ends.
 
+## Require it for everyone
+
+Owners and administrators can make two-factor sign-in mandatory: *Settings* →
+**Require two-factor sign-in**. Set it up for your own account first; Wake
+refuses the switch otherwise, so nobody locks themselves out.
+
+From then on:
+
+- Anyone without two-factor sign-in is taken to a setup page right after
+  signing in and can do nothing else in the panel until it is done (signing
+  out still works).
+- Nobody can turn it off for themselves.
+- *Team* shows who has it (**2FA**) and who has not yet (**no 2FA**).
+- Tokens for AI assistants keep working; they never use the password.
+
+The setting is `security.require_two_factor`
+([configuration](../reference/configuration.md#site)).
+
 ## Lost your phone?
 
 - Sign in with one of your **recovery codes** instead of the app code. When
@@ -30,7 +49,8 @@ you are not asked again on the same device until the session ends.
   recovery codes**, needs your password).
 - No recovery codes either? Someone with `team.manage` (for example the owner)
   can turn two-factor sign-in off for you under *Team* (key button next to
-  your name). Then sign in with your password and set it up again.
+  your name). Then sign in with your password and set it up again. If the
+  site requires two-factor sign-in, Wake takes you to the setup right away.
 
 ## Good to know
 

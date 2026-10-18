@@ -4,6 +4,7 @@ use Livewire\Livewire;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Accounts\TwoFactor;
+use Wake\Livewire\Settings;
 use Wake\Livewire\Team;
 use Wake\Livewire\TwoFactorSettings;
 
@@ -105,4 +106,46 @@ it('lets team managers turn it off for someone who lost their phone', function (
     Livewire::actingAs($owner)->test(Team::class)->call('resetTwoFactor', $member->id());
 
     expect(TwoFactor::isEnabled(app(Accounts::class)->find($member->id())))->toBeFalse();
+});
+
+it('sends people without two-factor sign-in to the setup when the site requires it', function () {
+    config(['wake.security.require_two_factor' => true]);
+    $editor = app(Accounts::class)->create(['name' => 'Eda', 'email' => 'eda@example.com', 'password' => 'secret secret', 'role' => Role::Editor]);
+
+    $this->actingAs($editor)->get('/wake')->assertRedirect('/wake/two-factor');
+    $this->actingAs($editor)->get('/wake/posts')->assertRedirect('/wake/two-factor');
+    $this->actingAs($editor)->get('/wake/two-factor')->assertOk()->assertSee('Secure your account');
+    $this->actingAs($editor)->post('/wake/logout')->assertRedirect('/wake/login');
+
+    [$ready] = withTwoFactor(Role::Editor, 'ready@example.com');
+    $this->actingAs($ready)->get('/wake')->assertOk();
+});
+
+it('does not let anyone turn it off while the site requires it', function () {
+    [$account] = withTwoFactor();
+    config(['wake.security.require_two_factor' => true]);
+
+    Livewire::actingAs($account)->test(TwoFactorSettings::class)
+        ->set('password', 'secret secret')->call('disable')->assertHasErrors('password');
+
+    expect(TwoFactor::isEnabled(app(Accounts::class)->find($account->id())))->toBeTrue();
+});
+
+it('lets owners require it only with it set up for themselves', function () {
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+
+    Livewire::actingAs($owner)->test(Settings::class)->set('requireTwoFactor', true)->call('saveSite')->assertHasErrors('requireTwoFactor');
+    expect(config('wake.security.require_two_factor'))->toBeFalse();
+
+    [$secured] = withTwoFactor(Role::Owner, 'owen@example.com');
+    Livewire::actingAs($secured)->test(Settings::class)->set('requireTwoFactor', true)->call('saveSite')->assertHasNoErrors();
+    expect(config('wake.security.require_two_factor'))->toBeTrue();
+});
+
+it('reminds people on the dashboard and shows the state in the team', function () {
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+    withTwoFactor(Role::Editor, 'eda@example.com');
+
+    $this->actingAs($owner)->get('/wake')->assertSee('Protect your account with two-factor sign-in');
+    $this->actingAs($owner)->get('/wake/team')->assertSee('2FA')->assertSee('no 2FA');
 });

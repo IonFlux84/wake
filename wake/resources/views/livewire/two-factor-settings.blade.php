@@ -10,7 +10,10 @@
         <ul class="mono" style="columns:2;margin:0;padding-left:18px;font-size:15px;line-height:1.8" aria-label="{{ __('Recovery codes') }}">
             @foreach ($recoveryCodes as $recoveryCode)<li>{{ $recoveryCode }}</li>@endforeach
         </ul>
-        <div class="actions"><button type="button" class="btn btn-small" x-data @click="navigator.clipboard.writeText(@js(implode("\n", $recoveryCodes)))">{{ __('Copy') }}</button></div>
+        <div class="actions">
+            <button type="button" class="btn btn-small" x-data @click="navigator.clipboard.writeText(@js(implode("\n", $recoveryCodes)))">{{ __('Copy') }}</button>
+            @if ($required)<a class="btn btn-primary" href="{{ route('wake.dashboard') }}">{{ __('I have saved them, continue') }} →</a>@endif
+        </div>
     @endif
 
     @if ($qr)
@@ -31,10 +34,12 @@
         <div class="field"><label for="tf-pw">{{ __('Password, to make changes') }}</label><input id="tf-pw" type="password" class="input" wire:model="password" autocomplete="current-password">@error('password')<span class="error">{{ $message }}</span>@enderror</div>
         <div class="actions">
             <button type="button" class="btn" wire:click="newRecoveryCodes">{{ __('New recovery codes') }}</button>
-            <button type="button" class="btn btn-danger" wire:click="disable" wire:confirm="{{ __('Turn off two-factor sign-in?') }}">{{ __('Turn off') }}</button>
+            @unless ($siteRequires)
+                <button type="button" class="btn btn-danger" wire:click="disable" wire:confirm="{{ __('Turn off two-factor sign-in?') }}">{{ __('Turn off') }}</button>
+            @endunless
         </div>
     @else
-        <p class="muted" style="margin:0;font-size:14px">{{ __('With a second step, a stolen password alone is not enough to sign in.') }}</p>
+        <p class="muted" style="margin:0;font-size:14px">{{ $siteRequires ? __('This site requires two-factor sign-in for everyone. It takes two minutes: you need an authenticator app on your phone.') : __('With a second step, a stolen password alone is not enough to sign in.') }}</p>
         <div class="actions"><button type="button" class="btn" wire:click="start"><x-wake::icon name="key" />{{ __('Set up') }}</button></div>
     @endif
 </div>

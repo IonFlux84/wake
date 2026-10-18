@@ -20,7 +20,7 @@
                 <div style="display:flex;align-items:center;gap:12px" wire:key="member-{{ $account->id() }}">
                     <span class="avatar">{{ $account->initials() }}</span>
                     <span style="flex:1;min-width:0">
-                        <b style="display:block">{{ $account->name() }} @if ($account->isPending())<span class="badge">{{ __('invited') }}</span>@endif</b>
+                        <b style="display:block">{{ $account->name() }} @if ($account->isPending())<span class="badge">{{ __('invited') }}</span>@elseif (\Wake\Accounts\TwoFactor::isEnabled($account))<span class="badge" title="{{ __('Two-factor sign-in is on') }}">2FA</span>@else<span class="badge muted" title="{{ __('Two-factor sign-in is off') }}">{{ __('no 2FA') }}</span>@endif</b>
                         <span class="muted" style="font-size:13px">{{ $account->email() }}</span>
                     </span>
                     @if ($account->role()->isOwner() || $account->id() === auth()->id())

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Wake\Http\Middleware\CachePages;
 use Wake\Http\Middleware\ClosedSite;
 use Wake\Http\Middleware\PanelLocale;
+use Wake\Http\Middleware\RequireTwoFactor;
 use Wake\Plugins\Plugins;
 
 // The Laravel application lives in wake/. Everything a site owner touches
@@ -40,6 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'wake.cache' => CachePages::class,
             'wake.closed' => ClosedSite::class,
+            'wake.two-factor' => RequireTwoFactor::class,
         ]);
         $middleware->appendToGroup('wake.panel', [PanelLocale::class]);
         $middleware->redirectGuestsTo(fn () => route('wake.login'));

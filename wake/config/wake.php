@@ -16,6 +16,12 @@ return [
     // the sign-in page, and search engines are kept out.
     'closed' => false,
 
+    // Security of the panel. With require_two_factor, everyone must set up
+    // two-factor sign-in before they can use the panel.
+    'security' => [
+        'require_two_factor' => false,
+    ],
+
     // Languages of the site. The first one is the default language.
     'languages' => [
         'en' => 'English',

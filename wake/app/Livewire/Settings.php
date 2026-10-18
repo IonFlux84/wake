@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Wake\Accounts\Accounts;
+use Wake\Accounts\TwoFactor;
 use Wake\Cache\PageCache;
 use Wake\Content\ContentTypes;
 use Wake\Content\FrontMatter;
@@ -64,6 +65,8 @@ class Settings extends Component
 
     public bool $closed = false;
 
+    public bool $requireTwoFactor = false;
+
     public string $name = '';
 
     public string $email = '';
@@ -92,6 +95,7 @@ class Settings extends Component
         $this->accent = (string) config('wake.panel.accent');
         $this->panelLanguage = (string) config('wake.panel.language', 'de');
         $this->closed = (bool) config('wake.closed');
+        $this->requireTwoFactor = (bool) config('wake.security.require_two_factor');
 
         $me = auth()->user();
         $this->name = $me->name();
@@ -122,6 +126,14 @@ class Settings extends Component
             Files::write($file, FrontMatter::dump($fields, $body));
         }
 
+        // Nobody locks themselves out: require it only with it set up for yourself.
+        if ($this->requireTwoFactor && ! TwoFactor::isEnabled(auth()->user())) {
+            $this->addError('requireTwoFactor', __('Set up two-factor sign-in for your own account first.'));
+            $this->requireTwoFactor = false;
+
+            return;
+        }
+
         SiteSettings::save([
             'timezone' => $this->timezone,
             'post_url' => $this->postUrl,
@@ -134,6 +146,7 @@ class Settings extends Component
             'panel.accent' => strtoupper($this->accent),
             'panel.language' => $this->panelLanguage,
             'closed' => $this->closed,
+            'security.require_two_factor' => $this->requireTwoFactor,
         ]);
 
         app(ContentTypes::class)->flush();
