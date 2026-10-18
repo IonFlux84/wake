@@ -1,6 +1,6 @@
 @php
     $languages = app(\Wake\Localization\Languages::class);
-    $accent = config('wake.theme_options.accent', '#C6FF3D');
+    $accent = theme_option('accent', '#C6FF3D');
 @endphp
 <!doctype html>
 <html lang="{{ $entry?->language() ?? $site->language() }}">
@@ -51,6 +51,7 @@
                 @wakeConsentLink
             </nav>
         </div>
+        @if (theme_option('footer_text'))<p class="wrap made">{{ theme_option('footer_text') }}</p>@endif
         <p class="wrap made">© {{ date('Y') }} {{ $site->title() }} · {{ __('Made with') }} <a href="https://getwake.dev">Wake</a></p>
     </footer>
 </body>

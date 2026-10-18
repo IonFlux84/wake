@@ -27,6 +27,28 @@ site/themes/tide/
   lang/de.json           translations of the theme's own texts
 ```
 
+## theme.yml
+
+```yaml
+name: Harbour
+description: { de: Ruhig und maritim, en: Calm and maritime }
+version: 1.0.0
+author: Jane Doe
+options:                       # shown in the panel under Themes
+  accent:
+    type: color                # color, text, textarea, toggle, select
+    label: { de: Akzentfarbe, en: Accent colour }
+    default: '#3D5AFE'
+  show_tags:
+    type: toggle
+    label: Show tags
+    default: true
+```
+
+Templates read options with `theme_option('accent')`: the value chosen in the
+panel, else the default. A `screenshot.jpg` (or `.png`, `.webp`) in the theme
+folder appears in the panel's theme overview.
+
 Templates use [Blade](https://laravel.com/docs/blade). Refer to other templates
 of the theme with the `theme::` prefix:
 

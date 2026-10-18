@@ -54,6 +54,17 @@ class Theme
     }
 
     /**
+     * An option of the active theme: the value set in the panel
+     * (theme_options), else the default from theme.yml.
+     */
+    public function option(string $key, mixed $default = null): mixed
+    {
+        $value = config('wake.theme_options.'.$key);
+
+        return $value ?? app(Themes::class)->get($this->name())?->options()[$key]['default'] ?? $default;
+    }
+
+    /**
      * The public URL of a theme asset, with a version for cache busting.
      */
     public function asset(string $path): string

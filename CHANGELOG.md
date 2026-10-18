@@ -141,6 +141,13 @@ All notable changes to Wake are documented here. The format follows
   custom roles added and removed, in a matrix under *Team → Roles and rights*
   (`site/roles.yml`). Menu, pages and the MCP server follow the capabilities.
 
+- Themes page: overview with screenshots, activate, duplicate, install from a
+  ZIP, remove, and settings of the active theme declared in its `theme.yml`
+  (`theme_option()` in templates). Tide offers accent colour, next events,
+  tags and a footer line.
+- The panel uses editorial type: Newsreader for headlines, numbers and the
+  writing area, Inter for the interface. The monospace font is kept for code.
+
 ### Fixed
 
 - Images uploaded to a new post without a title were lost. Wake now saves the

@@ -36,7 +36,7 @@
             </div>
             <div style="text-align:center;padding:28px 16px;border-radius:16px;background:#141414;border:1px solid var(--accent);box-shadow:0 0 30px -8px var(--glow)">
                 <x-wake::icon name="wake" size="28" style="margin:0 auto 10px;color:var(--accent)" />
-                <div style="font:800 20px/1.2 var(--sans);font-stretch:115%">{{ $entry?->title() ?? $path }}</div>
+                <div style="font:600 24px/1.2 var(--display)">{{ $entry?->title() ?? $path }}</div>
                 <div class="mono" style="margin-top:8px;color:#bdbdbd;font-size:13px">{{ $number($page['visitors']) }} {{ __('Visitors') }}</div>
             </div>
             <div style="display:grid;gap:10px">

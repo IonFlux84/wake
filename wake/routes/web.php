@@ -35,6 +35,7 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::view('settings', 'wake::panel.settings')->name('settings');
         Route::view('media', 'wake::panel.media')->name('media.index');
         Route::view('categories', 'wake::panel.categories')->name('categories');
+        Route::view('themes', 'wake::panel.themes')->middleware('can:themes.manage')->name('themes');
 
         Route::get('posts', [ContentController::class, 'index'])->defaults('type', 'post')->name('posts');
         Route::get('pages', [ContentController::class, 'index'])->defaults('type', 'page')->name('pages');

@@ -28,18 +28,19 @@ repeats the menu and adds the RSS feed and the cookie settings link.
 
 ## Options
 
-In `site/config.php`:
+Under *Themes* in the panel (or `theme_options` in `site/config.php`):
 
-```php
-'theme_options' => [
-    'accent' => '#3D5AFE',   // links, focus ring, buttons, reading progress
-],
-```
+| Option | Default | Effect |
+|---|---|---|
+| `accent` | `#C6FF3D` | links, focus ring, buttons, reading progress |
+| `show_next_events` | yes | the next events on the start page |
+| `show_tags` | yes | the tags on the start page |
+| `footer_text` | empty | an extra line in the footer |
 
 ## Changing Tide
 
-Copy `site/themes/tide` to `site/themes/my-theme`, set `'theme' => 'my-theme'`
-and change what you like. Updates of Wake never touch `site/`. See
+Click *Duplicate* under *Themes* in the panel (or copy `site/themes/tide` by
+hand), change the copy and activate it. Updates of Wake never touch `site/`. See
 [templates](templates.md) for everything a theme can use.
 
 Archivo (SIL Open Font License) is bundled in `assets/fonts/`.

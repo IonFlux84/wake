@@ -18,7 +18,7 @@
     </section>
 
     @foreach ($site->categories() as $eventCategory)
-        @continue(! $eventCategory->dateField())
+        @continue(! $eventCategory->dateField() || ! theme_option('show_next_events', true))
         @php($nextEvents = $eventCategory->posts()->limit(3)->get())
         {{-- posts() is ordered by the next date, so each event appears once, at its next date. --}}
         @if ($nextEvents->isNotEmpty() && $posts->currentPage() === 1)
@@ -42,7 +42,7 @@
 
     <div class="wrap">@include('theme::snippets.pagination', ['paginator' => $posts])</div>
 
-    @if ($site->tags()->isNotEmpty())
+    @if (theme_option('show_tags', true) && $site->tags()->isNotEmpty())
         <section class="wrap tags-cloud" aria-label="{{ __('Tags') }}">
             @foreach ($site->tags()->take(20) as $tag)<a class="chip" href="{{ $tag->url() }}">{{ $tag->title() }}</a>@endforeach
         </section>

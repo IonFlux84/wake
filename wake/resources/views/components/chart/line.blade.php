@@ -24,7 +24,7 @@
     <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat({{ $count }},1fr)">
         @foreach ($keys as $i => $day)
             <div @mouseenter="tip = {{ $i }}" @mouseleave="tip = null" style="position:relative">
-                <div x-cloak x-show="tip === {{ $i }}" style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);white-space:nowrap;font:500 12px var(--mono);background:#1f1f1f;color:#fff;padding:6px 9px;border-radius:8px;pointer-events:none;z-index:2">
+                <div x-cloak x-show="tip === {{ $i }}" style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);white-space:nowrap;font:500 12px var(--sans);background:#1f1f1f;color:#fff;padding:6px 9px;border-radius:8px;pointer-events:none;z-index:2">
                     {{ \Carbon\CarbonImmutable::parse($day)->locale(app()->getLocale())->isoFormat('dd D. MMM') }} · {{ number_format($points[$i][$primary] ?? 0, 0, ',', '.') }} / {{ number_format($points[$i][$secondary] ?? 0, 0, ',', '.') }}
                 </div>
             </div>

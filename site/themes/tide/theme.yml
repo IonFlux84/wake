@@ -1,5 +1,27 @@
 name: Tide
-description: The default theme of Wake.
-version: 0.1.0
+description:
+  de: Das ruhige Standard-Theme von Wake. Hell und dunkel, eine Akzentfarbe, ohne externe Schriften.
+  en: Wake's calm default theme. Light and dark, one accent colour, no external fonts.
+version: 1.0.0
 author: Wake contributors
 license: MIT
+
+# Options shown in the panel under Themes. Templates read them with
+# theme_option('accent').
+options:
+  accent:
+    type: color
+    label: { de: Akzentfarbe, en: Accent colour }
+    default: '#C6FF3D'
+  show_next_events:
+    type: toggle
+    label: { de: Nächste Termine auf der Startseite, en: Next events on the start page }
+    default: true
+  show_tags:
+    type: toggle
+    label: { de: Schlagwörter auf der Startseite, en: Tags on the start page }
+    default: true
+  footer_text:
+    type: text
+    label: { de: Text im Footer, en: Footer text }
+    placeholder: { de: z. B. Impressum und Datenschutz unten verlinkt, en: e.g. a short line about the site }
