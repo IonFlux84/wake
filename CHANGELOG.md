@@ -191,6 +191,8 @@ All notable changes to Wake are documented here. The format follows
 
 ### Fixed
 
+- Files without text (like `content/site.en.md`) got two blank lines after
+  the front matter when saved.
 - Hand-edited `site/menus.yml` and `site/redirects.yml` now clear the page
   cache like content changes do.
 - The release ZIP shipped a `.env` with the same application key for every

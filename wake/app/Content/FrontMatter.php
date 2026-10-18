@@ -52,7 +52,9 @@ class FrontMatter
     {
         $yaml = static::yaml($fields, 0);
 
-        return "---\n".$yaml."---\n\n".rtrim($body)."\n";
+        $body = rtrim($body);
+
+        return "---\n".$yaml."---\n".($body === '' ? '' : "\n".$body."\n");
     }
 
     /**

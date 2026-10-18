@@ -49,3 +49,8 @@ it('writes values without needless quotes and reads them back', function () {
         ->toContain("count: '123'\n")
         ->and(FrontMatter::parse($source)[0])->toBe($fields);
 });
+
+it('writes no blank lines after the front matter when there is no text', function () {
+    expect(FrontMatter::dump(['title' => 'Wake'], ''))->toBe("---\ntitle: Wake\n---\n")
+        ->and(FrontMatter::dump(['title' => 'Wake'], "Hi\n\n"))->toBe("---\ntitle: Wake\n---\n\nHi\n");
+});
