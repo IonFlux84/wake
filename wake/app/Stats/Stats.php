@@ -12,9 +12,9 @@ use Wake\Support\Paths;
  * Answers questions about visits: the dashboard, the statistics page, the
  * editor and the MCP server all ask here.
  *
- * Finished days come from storage/stats/daily/{day}.json, today is computed
+ * Finished days come from data/stats/daily/{day}.json, today is computed
  * from the raw file (cached for a minute). Monthly sums in
- * storage/stats/monthly are kept for long-term views and exports.
+ * data/stats/monthly are kept for long-term views and exports.
  */
 class Stats
 {

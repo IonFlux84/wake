@@ -62,6 +62,30 @@ so you need it mainly after changing a theme.
 php wake/artisan wake:clear
 ```
 
+## `wake:layout`
+
+Moves a site from the folder layout of Wake before 0.2 to the current one
+([decision 0011](../decisions/0011-one-folder-per-entry.md)): `site/` and
+`storage/` become `settings/`, `themes/`, `plugins/`, `data/` and `temp/`,
+every entry becomes a folder with `content.md`, number and date prefixes become
+`order:`, `menu: true` and `published:`, and images move to `content/media/`.
+Menus, redirects, versions and image references follow the new ids.
+
+Without `--apply` it only lists the steps. With it, Wake writes a backup first.
+
+```bash
+php wake/artisan wake:layout            # show what would happen
+php wake/artisan wake:layout --apply    # do it
+```
+
+| Option | Meaning |
+| --- | --- |
+| `--apply` | Move the files. |
+| `--no-backup` | Skip the backup before moving. |
+| `--root=PATH` | Move another site folder (no backup is written then). |
+
+Running it again on a moved site does nothing.
+
 ## `wake:maintenance`
 
 Runs the maintenance tasks right away: publishes scheduled entries whose date

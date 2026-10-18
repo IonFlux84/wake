@@ -7,14 +7,11 @@ namespace Wake\Content;
  */
 class ContentType
 {
-    /** One folder per entry: posts/2026-10-17-hello/index.en.md */
+    /** One folder per entry: posts/hello-world/content.md */
     public const FOLDERS = 'folders';
 
-    /** Nested folders, each one an entry: pages/1_about/2_team/index.en.md */
+    /** Nested folders, each one an entry: pages/about/team/content.md */
     public const TREE = 'tree';
-
-    /** One file per entry and language: tags/travel.en.md */
-    public const FILES = 'files';
 
     /**
      * @param  class-string<Entry>  $model

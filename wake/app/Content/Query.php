@@ -212,12 +212,11 @@ class Query implements Countable, IteratorAggregate
     }
 
     /**
-     * Only entries with a number prefix (pages/1_about). These are "listed"
-     * pages, e.g. for the main menu.
+     * Only entries marked "menu: true", the pages of the automatic main menu.
      */
     public function listed(): static
     {
-        $this->filters[] = fn (array $fields, array $row) => $row['num'] !== null;
+        $this->filters[] = fn (array $fields, array $row) => $row['menu'] ?? false;
 
         return $this;
     }
@@ -419,7 +418,7 @@ class Query implements Countable, IteratorAggregate
     protected function sort(array $rows, string $language, string $default): array
     {
         [$field, $direction] = $this->order ?? match ($this->type) {
-            'page' => ['num', 'asc'],
+            'page' => ['order', 'asc'],
             'tag' => ['title', 'asc'],
             default => ['date', 'desc'],
         };
@@ -438,7 +437,7 @@ class Query implements Countable, IteratorAggregate
 
             return match ($field) {
                 'date' => Addresses::date($row, $language, $default)?->getTimestamp() ?? 0,
-                'num' => $row['num'] ?? PHP_INT_MAX,
+                'order', 'num' => $row['order'] ?? PHP_INT_MAX,
                 default => data_get(array_replace($row['languages'][$default]['fields'] ?? [], $row['languages'][$language]['fields'] ?? []), $field)
                     ?? ($field === 'title' ? $row['name'] : null),
             };

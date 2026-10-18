@@ -10,7 +10,7 @@ use Wake\Support\Files;
 
 /**
  * Personal access tokens for the MCP server and the API. Each token is a
- * file in storage/accounts/{account}/tokens/. Only a SHA-256 hash of the
+ * file in data/accounts/{account}/tokens/. Only a SHA-256 hash of the
  * token is stored; the token itself is shown once, when it is created.
  */
 class Tokens

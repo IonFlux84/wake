@@ -12,7 +12,7 @@ use Wake\Support\Paths;
 
 /**
  * Reads and writes team accounts. Each account is a folder in
- * storage/accounts/ with an account.yml file. API tokens and other personal
+ * data/accounts/ with an account.yml file. API tokens and other personal
  * data live in the same folder.
  */
 class Accounts
@@ -108,7 +108,7 @@ class Accounts
     }
 
     /**
-     * Move an account with its tokens to storage/trash, like content.
+     * Move an account with its tokens to data/trash, like content.
      */
     public function trash(Account $account): void
     {

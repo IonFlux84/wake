@@ -9,8 +9,8 @@ use Wake\Support\Files;
 use Wake\Support\Paths;
 
 /**
- * How Wake sends mail, set in the panel and stored in storage/mail.yml (not
- * in site/, which may be committed to Git). The password is encrypted with
+ * How Wake sends mail, set in the panel and stored in data/secrets/mail.yml (not
+ * in settings/, which may be committed to Git). The password is encrypted with
  * the application key. Without this file, the MAIL_* values in .env apply.
  */
 class MailSettings

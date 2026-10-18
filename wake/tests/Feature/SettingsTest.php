@@ -24,7 +24,7 @@ it('saves site settings to site/settings.yml and the site files', function () {
         ->assertHasNoErrors();
 
     expect(SiteSettings::read())->toMatchArray(['post_url' => '{year}/{slug}', 'tracking' => ['enabled' => true, 'level1' => 'always', 'respect_privacy_signals' => false, 'retention' => 60], 'mcp' => ['approval' => true], 'panel' => ['accent' => '#FF2D87', 'language' => 'en']])
-        ->and(file_get_contents($this->content('site.en.md')))->toContain('title: New Title');
+        ->and(file_get_contents($this->content('website.md')))->toContain('title: New Title');
 
     $this->get('/2026/first')->assertOk();
 });

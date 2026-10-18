@@ -5,8 +5,8 @@ namespace Wake\Support;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Settings changed in the panel, stored in site/settings.yml. They override
- * site/config.php. Only the keys in EDITABLE can be written this way.
+ * Settings changed in the panel, stored in settings/general.yml. They override
+ * settings/config.php. Only the keys in EDITABLE can be written this way.
  */
 class Settings
 {

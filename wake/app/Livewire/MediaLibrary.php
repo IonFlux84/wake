@@ -5,26 +5,38 @@ namespace Wake\Livewire;
 use Illuminate\View\View;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Wake\Accounts\Permissions;
-use Wake\Content\Entry;
 use Wake\Content\Index;
 use Wake\Content\Query;
 use Wake\Content\Writer;
 use Wake\Localization\Languages;
+use Wake\Media\Media;
 
 /**
- * All files of all entries in one place. Files belong to an entry, so
- * uploading happens in the editor.
+ * The media library: every file in content/media/, in folders. Shows where
+ * a file is used, lists unused ones and warns before deleting used files.
  */
 class MediaLibrary extends Component
 {
+    use WithFileUploads;
+
+    public const FILE_RULE = 'required|file|max:51200|mimes:jpg,jpeg,png,gif,webp,avif,svg,pdf,zip,mp3,mp4,docx,xlsx,pptx,odt,ods,txt,csv,epub';
+
     #[Url]
     public string $kind = 'images';
 
     #[Url]
     public string $search = '';
 
-    /** The file being edited: "{entry id}|{file name}". */
+    /** A folder below media/, "" for all. */
+    #[Url]
+    public string $folder = '';
+
+    #[Url]
+    public bool $unused = false;
+
+    /** The file being edited: its path below media/. */
     #[Url]
     public string $file = '';
 
@@ -38,9 +50,15 @@ class MediaLibrary extends Component
 
     public string $focus = '50% 50%';
 
-    public function select(string $id, string $name): void
+    /** @var mixed */
+    public $upload = null;
+
+    /** Where uploads go, below media/. */
+    public string $uploadFolder = 'uploads';
+
+    public function select(string $path): void
     {
-        $this->file = $id.'|'.$name;
+        $this->file = $path;
         $this->loadDetails();
     }
 
@@ -58,16 +76,14 @@ class MediaLibrary extends Component
 
     public function saveDetails(Writer $writer): void
     {
-        [$id, $name] = explode('|', $this->file, 2);
-        $entry = (new Query)->find($id);
-        abort_unless($entry && Permissions::mayEdit(auth()->user(), $entry), 403);
+        abort_unless(Media::find($this->file) && Permissions::mayEditMedia(auth()->user(), $this->file), 403);
 
         $this->validate(['focus' => ['required', 'regex:/^\d{1,3}% \d{1,3}%$/'], 'credit' => 'nullable|string|max:200', 'alt.*' => 'nullable|string|max:500', 'caption.*' => 'nullable|string|max:1000']);
 
         $languages = app(Languages::class);
         $values = fn (array $byLanguage) => $languages->isMultilingual() ? $byLanguage : ($byLanguage[$languages->default()] ?? '');
 
-        $writer->saveMediaMeta($id, $name, [
+        $writer->saveMediaMeta('media/'.$this->file, [
             'alt' => $values($this->alt),
             'caption' => $values($this->caption),
             'credit' => $this->credit,
@@ -79,19 +95,29 @@ class MediaLibrary extends Component
 
     public function deleteFile(Writer $writer): void
     {
-        [$id, $name] = explode('|', $this->file, 2);
-        $entry = (new Query)->find($id);
-        abort_unless($entry && Permissions::mayEdit(auth()->user(), $entry), 403);
+        abort_unless(Media::find($this->file) && Permissions::mayDeleteMedia(auth()->user(), $this->file), 403);
 
-        $writer->deleteMedia($id, $name);
+        $writer->deleteMedia('media/'.$this->file);
         $this->file = '';
         session()->flash('status', __('File moved to the trash.'));
     }
 
+    public function uploadFile(Writer $writer): void
+    {
+        $account = auth()->user();
+        abort_unless($account->can('content.write') || $account->can('content.publish') || $account->can('content.edit_all'), 403);
+
+        $this->validate(['upload' => self::FILE_RULE, 'uploadFolder' => ['required', 'string', 'max:120', 'regex:#^[a-z0-9][a-z0-9/_-]*$#i', 'not_regex:#\.\.#']]);
+
+        $reference = $writer->storeMedia($this->uploadFolder, $this->upload->getClientOriginalName(), $this->upload->getRealPath());
+        $this->upload = null;
+        $this->select(substr($reference, 6));
+        session()->flash('status', __('File uploaded.'));
+    }
+
     protected function loadDetails(): void
     {
-        [$id, $name] = array_pad(explode('|', $this->file, 2), 2, '');
-        $media = (new Query)->find($id)?->file($name);
+        $media = Media::find($this->file);
 
         if (! $media) {
             $this->file = '';
@@ -113,34 +139,41 @@ class MediaLibrary extends Component
 
     public function render(Index $index, Languages $languages): View
     {
+        $all = $index->allMedia();
+        $folders = collect(array_keys($all))->map(fn (string $path) => dirname($path))->reject(fn (string $dir) => $dir === '.')
+            ->flatMap(function (string $dir) {
+                $parts = explode('/', $dir);
+
+                return array_map(fn (int $i) => implode('/', array_slice($parts, 0, $i)), range(1, count($parts)));
+            })->unique()->sort()->values();
+        $search = mb_strtolower($this->search);
         $files = collect();
 
-        foreach ($index->entries() as $row) {
-            if ($row['media'] === []) {
+        foreach ($all as $path => $mtime) {
+            $media = new Media($path, $mtime);
+
+            if (($this->kind === 'images') !== $media->isImage()
+                || ($this->folder !== '' && ! str_starts_with($path, $this->folder.'/'))
+                || ($this->unused && $index->mediaUsage($path) !== [])
+                || ($search !== '' && ! str_contains(mb_strtolower($path), $search))) {
                 continue;
             }
 
-            $entry = Entry::make($row, $languages->default());
-
-            foreach ($entry->media() as $file) {
-                if (($this->kind === 'images') !== $file->isImage()) {
-                    continue;
-                }
-
-                if ($this->search !== '' && ! str_contains(mb_strtolower($file->name().' '.$entry->title()), mb_strtolower($this->search))) {
-                    continue;
-                }
-
-                $files->push(['file' => $file, 'entry' => $entry, 'mtime' => $row['media'][$file->name()]]);
-            }
+            $files->push(['file' => $media, 'mtime' => $mtime, 'used' => count($index->mediaUsage($path))]);
         }
 
-        [$id, $name] = array_pad(explode('|', $this->file, 2), 2, '');
+        $selected = $this->file !== '' ? Media::find($this->file) : null;
+        $query = new Query;
+        $account = auth()->user();
 
         return view('wake::livewire.media-library', [
             'files' => $files->sortByDesc('mtime')->take(200)->values(),
-            'selected' => $this->file !== '' ? (new Query)->find($id)?->file($name) : null,
-            'selectedEntry' => $this->file !== '' ? (new Query)->find($id) : null,
+            'total' => $files->count(),
+            'folders' => $folders,
+            'selected' => $selected,
+            'usedBy' => $selected ? collect($index->mediaUsage($this->file))->map(fn (string $id) => $query->find($id))->filter()->values() : collect(),
+            'mayEdit' => $selected && Permissions::mayEditMedia($account, $this->file),
+            'mayDelete' => $selected && Permissions::mayDeleteMedia($account, $this->file),
             'languages' => $languages,
         ]);
     }

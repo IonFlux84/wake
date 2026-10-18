@@ -26,11 +26,11 @@ it('lists published entries publicly, with CORS', function () {
 });
 
 it('reads one entry with body and translations', function () {
-    $this->getJson('/wake/api/v1/entry?id=posts/2026-01-10-first')->assertOk()
+    $this->getJson('/wake/api/v1/entry?id=posts/first')->assertOk()
         ->assertJsonPath('data.translations.de', url('/de/erster-beitrag'))
         ->assertJsonPath('data.cover.width', 800);
 
-    $this->getJson('/wake/api/v1/entry?id=posts/2026-03-01-draft')->assertNotFound();
+    $this->getJson('/wake/api/v1/entry?id=posts/draft')->assertNotFound();
 });
 
 it('needs a token for drafts and statistics', function () {

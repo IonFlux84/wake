@@ -51,11 +51,11 @@ class MediaUploadTool extends WakeTool
         file_put_contents($temp, $data);
 
         try {
-            $name = app(Writer::class)->addMedia($entry->id(), (string) $request->get('name'), $temp);
+            $reference = app(Writer::class)->addMedia($entry->id(), (string) $request->get('name'), $temp);
         } finally {
             @unlink($temp);
         }
 
-        return Response::json(['id' => $entry->id(), 'name' => $name, 'markdown' => "![]({$name})"]);
+        return Response::json(['id' => $entry->id(), 'file' => $reference, 'markdown' => "![]({$reference})"]);
     }
 }

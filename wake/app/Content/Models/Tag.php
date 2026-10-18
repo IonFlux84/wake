@@ -22,11 +22,11 @@ class Tag extends Entry
             'id' => 'tags/'.$slug,
             'type' => 'tag',
             'name' => $slug,
-            'num' => null,
-            'date' => null,
+            'order' => null,
+            'menu' => false,
             'parent' => null,
             'hash' => substr(md5('tags/'.$slug), 0, 10),
-            'media' => [],
+            'style' => null,
             'languages' => [$language => ['file' => null, 'mtime' => 0, 'fields' => ['title' => Str::headline($slug)]]],
         ];
 

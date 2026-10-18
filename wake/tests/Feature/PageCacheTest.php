@@ -33,7 +33,7 @@ it('can be switched off', function () {
 
 it('is cleared when content changes', function () {
     $this->get('http://localhost/first');
-    $this->writeContent('posts/2026-02-01-second/index.en.md', "---\ntitle: Changed\n---\n");
+    $this->writeContent('posts/second/content.md', "---\ntitle: Changed\n---\n");
 
     app(Index::class)->refresh();
 

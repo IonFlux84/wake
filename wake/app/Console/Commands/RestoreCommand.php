@@ -8,7 +8,7 @@ use Wake\Backup\Backups;
 
 class RestoreCommand extends Command
 {
-    protected $signature = 'wake:restore {file : A backup ZIP, as a path or a name in storage/backups} {--force : Do not ask}';
+    protected $signature = 'wake:restore {file : A backup ZIP, as a path or a name in data/backups} {--force : Do not ask}';
 
     protected $description = 'Replace content, settings and accounts with a backup';
 
@@ -35,7 +35,7 @@ class RestoreCommand extends Command
             return self::FAILURE;
         }
 
-        $this->components->info("Backup restored. The previous state is in storage/backups/{$safety}.");
+        $this->components->info("Backup restored. The previous state is in data/backups/{$safety}.");
 
         return self::SUCCESS;
     }

@@ -19,75 +19,81 @@ function pageIds(): array
     return collect(app(Index::class)->entries())->where('type', 'page')->keys()->sort()->values()->all();
 }
 
-it('reorders pages by renaming their folders', function () {
-    $id = app(Writer::class)->movePage('pages/2_blog', null, 0);
+function pageOrder(?string $parent = null): array
+{
+    return collect(app(Index::class)->entries())->where('type', 'page')->where('parent', $parent)
+        ->sortBy(fn (array $row) => [$row['order'] ?? PHP_INT_MAX, $row['name']])->keys()->values()->all();
+}
 
-    expect($id)->toBe('pages/1_blog')
-        ->and(pageIds())->toBe(['pages/1_blog', 'pages/2_about', 'pages/2_about/1_team', 'pages/contact', 'pages/home'])
+it('reorders pages by writing "order" into their files', function () {
+    $id = app(Writer::class)->movePage('pages/blog', null, 0);
+
+    expect($id)->toBe('pages/blog')
+        ->and(pageOrder())->toBe(['pages/blog', 'pages/about', 'pages/contact', 'pages/home'])
+        ->and(app(Index::class)->find('pages/home')['order'])->toBe(4)
+        ->and(pageIds())->toBe(['pages/about', 'pages/about/team', 'pages/blog', 'pages/contact', 'pages/home'])
         ->and(app(Site::class)->menu()->map->title()->all())->toBe(['Blog', 'About']);
 });
 
 it('moves a page under another parent and redirects its old address', function () {
-    $id = app(Writer::class)->movePage('pages/1_about/1_team', null, 2);
+    $id = app(Writer::class)->movePage('pages/about/team', null, 2);
 
-    expect($id)->toBe('pages/3_team')
-        ->and(app(Index::class)->find('pages/3_team')['parent'])->toBeNull()
-        ->and(app(Redirects::class)->target('en', 'about/team'))->toBe('pages/3_team');
+    expect($id)->toBe('pages/team')
+        ->and(app(Index::class)->find('pages/team')['parent'])->toBeNull()
+        ->and(pageOrder())->toBe(['pages/about', 'pages/blog', 'pages/team', 'pages/contact', 'pages/home'])
+        ->and(app(Redirects::class)->target('en', 'about/team'))->toBe('pages/team');
 
     $this->get('/about/team')->assertRedirect('/team');
 });
 
-it('moves a page out of the menu and into another page', function () {
+it('moves a page into another page without changing the menu', function () {
     $writer = app(Writer::class);
 
-    expect($writer->movePage('pages/2_blog', null, null))->toBe('pages/blog')
-        ->and($writer->movePage('pages/contact', 'pages/1_about', 0))->toBe('pages/1_about/1_contact')
-        ->and(pageIds())->toContain('pages/1_about/2_team')
-        ->and(app(Site::class)->menu()->first()->children()->map->title()->all())->toBe(['Contact', 'Team']);
+    expect($writer->movePage('pages/contact', 'pages/about', 0))->toBe('pages/about/contact')
+        ->and(pageOrder('pages/about'))->toBe(['pages/about/contact', 'pages/about/team'])
+        ->and(app(Site::class)->menu()->first()->children()->map->title()->all())->toBe(['Team']);
 });
 
-it('moves a page out of a sibling that is renamed at the same time', function () {
-    $id = app(Writer::class)->movePage('pages/1_about/1_team', null, 0);
-
-    expect($id)->toBe('pages/1_team')
-        ->and(pageIds())->toBe(['pages/1_team', 'pages/2_about', 'pages/3_blog', 'pages/contact', 'pages/home'])
-        ->and(is_file(Paths::content('pages/1_team/index.en.md')))->toBeTrue();
+it('never renames a folder when only the order changes', function () {
+    expect(app(Writer::class)->movePage('pages/contact', null, 0))->toBe('pages/contact')
+        ->and(is_file(Paths::content('pages/contact/content.md')))->toBeTrue()
+        ->and(app(Index::class)->find('pages/about')['order'])->toBe(2);
 });
 
 it('keeps versions, redirects and menus pointing at moved pages', function () {
     $writer = app(Writer::class);
-    $writer->update('pages/1_about/1_team', 'en', ['title' => 'Our team']);
-    app(Redirects::class)->add('en', 'crew', 'pages/1_about/1_team');
-    app(Menus::class)->save('footer', [['page' => 'pages/1_about/1_team']]);
+    $writer->update('pages/about/team', 'en', ['title' => 'Our team']);
+    app(Redirects::class)->add('en', 'crew', 'pages/about/team');
+    app(Menus::class)->save('footer', [['page' => 'pages/about/team']]);
 
-    $writer->movePage('pages/1_about', null, 1);
+    $writer->movePage('pages/about/team', 'pages/blog', 0);
 
-    expect(app(Revisions::class)->of('pages/2_about/1_team/index.en.md'))->toHaveCount(1)
-        ->and(app(Redirects::class)->target('en', 'crew'))->toBe('pages/2_about/1_team')
-        ->and(app(Menus::class)->all()['footer'][0]['page'])->toBe('pages/2_about/1_team')
+    expect(app(Revisions::class)->of('pages/blog/team/content.md'))->toHaveCount(1)
+        ->and(app(Redirects::class)->target('en', 'crew'))->toBe('pages/blog/team')
+        ->and(app(Menus::class)->all()['footer'][0]['page'])->toBe('pages/blog/team')
         ->and(app(Site::class)->menu('footer')->map->title()->all())->toBe(['Our team']);
 });
 
 it('gives a moved page a free name', function () {
     app(Writer::class)->create('page', ['title' => 'Team', 'status' => 'published']);
 
-    expect(app(Writer::class)->movePage('pages/1_about/1_team', null, null))->toBe('pages/team-2');
+    expect(app(Writer::class)->movePage('pages/about/team', null, null))->toBe('pages/team-2');
 });
 
 it('refuses impossible moves', function (string $id, ?string $parent) {
     app(Writer::class)->movePage($id, $parent, 0);
 })->with([
-    'into itself' => ['pages/1_about', 'pages/1_about'],
-    'into its child' => ['pages/1_about', 'pages/1_about/1_team'],
-    'the home page' => ['pages/home', 'pages/1_about'],
-    'a post' => ['posts/2026-01-10-first', null],
+    'into itself' => ['pages/about', 'pages/about'],
+    'into its child' => ['pages/about', 'pages/about/team'],
+    'the home page' => ['pages/home', 'pages/about'],
+    'a post' => ['posts/first', null],
 ])->throws(InvalidArgumentException::class);
 
 it('stores menus with pages and links', function () {
     $menus = app(Menus::class);
     $menus->save('main', [
         ['page' => 'pages/contact', 'label' => ['en' => 'Write to us', 'de' => '']],
-        ['label' => 'Shop', 'url' => 'https://shop.example.org', 'children' => [['page' => 'pages/1_about']]],
+        ['label' => 'Shop', 'url' => 'https://shop.example.org', 'children' => [['page' => 'pages/about']]],
         ['page' => 'pages/missing'],
     ]);
 
@@ -109,23 +115,26 @@ it('arranges pages in the panel tree', function () {
     $this->actingAs($owner)->get('/wake/pages')->assertOk()->assertSee('Page tree')->assertSee('not in the menu');
 
     Livewire::actingAs($owner)->test(PageTree::class)
-        ->call('move', 'pages/contact', 'pages/1_about', 'before')
-        ->call('step', 'pages/3_blog', 'in')
-        ->call('toggleListed', 'pages/1_contact');
+        ->call('move', 'pages/contact', 'pages/about', 'before')
+        ->call('step', 'pages/blog', 'in')
+        ->call('toggleListed', 'pages/contact');
 
-    expect(pageIds())->toBe(['pages/1_about', 'pages/1_about/1_team', 'pages/1_about/2_blog', 'pages/contact', 'pages/home']);
+    expect(pageIds())->toBe(['pages/about', 'pages/about/blog', 'pages/about/team', 'pages/contact', 'pages/home'])
+        ->and(pageOrder())->toBe(['pages/contact', 'pages/about', 'pages/home'])
+        ->and(app(Index::class)->find('pages/contact')['menu'])->toBeTrue();
 
     Livewire::actingAs($owner)->test(PageTree::class)
-        ->call('step', 'pages/1_about/2_blog', 'out')
-        ->call('move', 'pages/1_about/1_team', 'pages/2_blog', 'inside');
+        ->call('step', 'pages/about/blog', 'out')
+        ->call('move', 'pages/about/team', 'pages/blog', 'inside');
 
-    expect(pageIds())->toBe(['pages/1_about', 'pages/2_blog', 'pages/2_blog/1_team', 'pages/contact', 'pages/home']);
+    expect(pageIds())->toBe(['pages/about', 'pages/blog', 'pages/blog/team', 'pages/contact', 'pages/home'])
+        ->and(pageOrder())->toBe(['pages/contact', 'pages/about', 'pages/blog', 'pages/home']);
 });
 
 it('lets only people with the right arrange pages and menus', function () {
     $author = app(Accounts::class)->create(['name' => 'Ali', 'email' => 'ali@example.com', 'password' => 'secret secret', 'role' => Role::Author]);
 
-    Livewire::actingAs($author)->test(PageTree::class)->call('step', 'pages/2_blog', 'up')->assertForbidden();
+    Livewire::actingAs($author)->test(PageTree::class)->call('step', 'pages/blog', 'up')->assertForbidden();
     $this->actingAs($author)->get('/wake/menus')->assertForbidden();
 });
 

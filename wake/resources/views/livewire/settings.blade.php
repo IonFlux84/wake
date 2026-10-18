@@ -64,7 +64,7 @@
                         <div class="field"><label for="missing">{{ __('When a translation is missing') }}</label>
                             <select id="missing" class="select" wire:model="missingTranslation"><option value="hide">{{ __('Show nothing (404)') }}</option><option value="fallback">{{ __('Show the default language with a notice') }}</option></select></div>
                     @endif
-                    <p class="muted" style="margin:0;font-size:13px">{{ __('Languages are set in site/config.php.') }}</p>
+                    <p class="muted" style="margin:0;font-size:13px">{{ __('Languages are set in settings/config.php.') }}</p>
                     <h2 class="h2" style="margin-top:8px">{{ __('Panel') }}</h2>
                     <div class="field"><label for="panel-lang">{{ __('Language of the panel') }}</label>
                         <select id="panel-lang" class="select" wire:model="panelLanguage"><option value="de">Deutsch</option><option value="en">English</option></select>
@@ -99,7 +99,7 @@
                     @endif
                 </div>
             </section>
-            <div class="actions"><button class="btn btn-primary" type="submit">{{ __('Save settings') }}</button><span class="muted" style="font-size:13px">{{ __('Stored in site/settings.yml.') }}</span></div>
+            <div class="actions"><button class="btn btn-primary" type="submit">{{ __('Save settings') }}</button><span class="muted" style="font-size:13px">{{ __('Stored in settings/general.yml.') }}</span></div>
         </form>
     @endif
 

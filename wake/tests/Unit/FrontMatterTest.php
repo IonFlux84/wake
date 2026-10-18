@@ -27,8 +27,8 @@ it('accepts Windows line endings and a byte order mark', function () {
 });
 
 it('reports broken YAML with the file name', function () {
-    FrontMatter::parse("---\ntitle: [unclosed\n---\n", 'posts/x/index.md');
-})->throws(InvalidContentException::class, 'posts/x/index.md');
+    FrontMatter::parse("---\ntitle: [unclosed\n---\n", 'posts/x/content.md');
+})->throws(InvalidContentException::class, 'posts/x/content.md');
 
 it('writes files it can read back', function () {
     $source = FrontMatter::dump(['title' => 'Hello', 'tags' => ['a']], "Body text\n\n");

@@ -13,7 +13,7 @@ use Wake\Content\Query;
 use Wake\Localization\Languages;
 
 /**
- * The main and footer menu (site/menus.yml): pages and links, one level of
+ * The main and footer menu (settings/menus.yml): pages and links, one level of
  * children, arranged by drag and drop or with the arrow buttons.
  */
 class MenuEditor extends Component
@@ -24,7 +24,7 @@ class MenuEditor extends Component
     /** @var list<array{key: string, page: ?string, url: string, label: array<string, string>, children: list<array<string, mixed>>}> */
     public array $items = [];
 
-    /** Whether the menu is stored in site/menus.yml (the main menu follows the page tree otherwise). */
+    /** Whether the menu is stored in settings/menus.yml (the main menu follows the page tree otherwise). */
     public bool $custom = false;
 
     public string $addPage = '';

@@ -32,7 +32,7 @@ it('writes content, settings and accounts into a ZIP', function () {
     $backups = app(Backups::class);
     $entries = zipEntries($backups->path($backups->create()));
 
-    expect($entries)->toContain('wake-backup.json', 'content/posts/2026-01-10-first/index.en.md', 'content/posts/2026-01-10-first/photo.png')
+    expect($entries)->toContain('wake-backup.json', 'content/posts/first/content.md', 'content/media/posts/first/photo.png')
         ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'settings/')))->toBeTrue()
         ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'themes/')))->toBeTrue()
         ->and(collect($entries)->contains(fn ($e) => str_starts_with($e, 'data/accounts/')))->toBeTrue()
@@ -45,12 +45,12 @@ it('restores a backup and keeps the replaced state', function () {
     $backups = app(Backups::class);
     $name = $backups->create();
 
-    app(Writer::class)->update('posts/2026-01-10-first', 'en', ['title' => 'Changed after the backup']);
+    app(Writer::class)->update('posts/first', 'en', ['title' => 'Changed after the backup']);
     app(Writer::class)->create('post', ['title' => 'Written later']);
 
     $safety = $backups->restore($backups->path($name));
 
-    expect(Post::find('posts/2026-01-10-first')->title())->toBe('First post')
+    expect(Post::find('posts/first')->title())->toBe('First post')
         ->and(Post::query()->get()->map->title()->all())->not->toContain('Written later')
         ->and($backups->path($safety))->not->toBeNull()
         ->and(glob(Paths::data('trash/*-before-restore/content/posts')))->toHaveCount(1);
@@ -110,8 +110,8 @@ it('writes and restores backups from the command line', function () {
     $this->artisan('wake:backup')->assertSuccessful();
     $name = app(Backups::class)->all()[0]['name'];
 
-    app(Writer::class)->update('posts/2026-01-10-first', 'en', ['title' => 'Changed']);
+    app(Writer::class)->update('posts/first', 'en', ['title' => 'Changed']);
     $this->artisan('wake:restore', ['file' => $name, '--force' => true])->assertSuccessful();
 
-    expect(Post::find('posts/2026-01-10-first')->title())->toBe('First post');
+    expect(Post::find('posts/first')->title())->toBe('First post');
 });

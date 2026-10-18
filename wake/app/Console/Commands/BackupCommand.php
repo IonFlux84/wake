@@ -9,7 +9,7 @@ class BackupCommand extends Command
 {
     protected $signature = 'wake:backup {--stats : Include the statistics}';
 
-    protected $description = 'Write a backup ZIP to storage/backups';
+    protected $description = 'Write a backup ZIP to data/backups';
 
     public function handle(Backups $backups): int
     {

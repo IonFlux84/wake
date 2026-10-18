@@ -7,7 +7,7 @@ use Wake\Support\Files;
 use Wake\Support\Paths;
 
 /**
- * Old addresses of entries, kept in site/redirects.yml. When the slug of a
+ * Old addresses of entries, kept in settings/redirects.yml. When the slug of a
  * published entry changes, Wake remembers the old address and answers it
  * with a permanent redirect to the new one.
  *

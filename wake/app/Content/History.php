@@ -7,7 +7,7 @@ use Wake\Mcp\CurrentToken;
 use Wake\Support\Paths;
 
 /**
- * Who changed what, and how: storage/history/{year}-{month}.log, one JSON
+ * Who changed what, and how: data/history/{year}-{month}.log, one JSON
  * line per change. Changes made by AI assistants are marked with "mcp" and
  * the name of the token.
  */

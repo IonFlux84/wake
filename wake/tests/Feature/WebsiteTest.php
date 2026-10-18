@@ -82,7 +82,7 @@ it('serves robots.txt', function () {
 it('shows changes made to files without any further step', function () {
     $this->get('/first')->assertSee('First post');
 
-    $this->writeContent('posts/2026-01-10-first/index.en.md', "---\ntitle: Edited by FTP\npublished: 2026-01-10 09:00\n---\n");
+    $this->writeContent('posts/first/content.md', "---\ntitle: Edited by FTP\npublished: 2026-01-10 09:00\n---\n");
 
     $this->get('/first')->assertSee('Edited by FTP');
 });

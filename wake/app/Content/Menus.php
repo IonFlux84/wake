@@ -10,7 +10,7 @@ use Wake\Support\Files;
 use Wake\Support\Paths;
 
 /**
- * The menus of the site, kept in site/menus.yml:
+ * The menus of the site, kept in settings/menus.yml:
  *
  *     main:
  *       - page: pages/1_about
@@ -22,7 +22,8 @@ use Wake\Support\Paths;
  *       - page: pages/imprint
  *
  * Without a "main" menu in the file, the main menu follows the page tree:
- * the listed top-level pages with their listed children.
+ * the top-level pages with "menu: true" and their children with "menu: true",
+ * in the order of their "order" field.
  */
 class Menus
 {
@@ -134,8 +135,8 @@ class Menus
     protected function fromTree(Collection $pages, ?string $parent, int $depth): Collection
     {
         return $pages
-            ->filter(fn (Entry $page) => $page->row()['parent'] === $parent && $page->row()['num'] !== null)
-            ->sortBy(fn (Entry $page) => $page->row()['num'])
+            ->filter(fn (Entry $page) => $page->row()['parent'] === $parent && ($page->row()['menu'] ?? false))
+            ->sortBy(fn (Entry $page) => [$page->row()['order'] ?? PHP_INT_MAX, $page->row()['name']])
             ->map(fn (Entry $page) => new MenuItem(
                 $page->title(), $page->url(), $page,
                 $depth > 1 ? $this->fromTree($pages, $page->id(), $depth - 1) : collect(),

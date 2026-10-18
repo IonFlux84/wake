@@ -3,10 +3,9 @@
 namespace Wake\Http\Controllers;
 
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Wake\Content\Entry;
 use Wake\Content\Index;
-use Wake\Localization\Languages;
 use Wake\Media\Images;
+use Wake\Media\Media;
 use Wake\Support\Files;
 
 /**
@@ -16,23 +15,21 @@ use Wake\Support\Files;
  */
 class MediaController
 {
-    public function __invoke(Index $index, Languages $languages, string $hash, string $version, string $variant, string $name): BinaryFileResponse
+    public function __invoke(Index $index, string $hash, string $version, string $variant, string $name): BinaryFileResponse
     {
-        $row = $index->findByHash($hash);
-        $source = $name;
+        $path = $index->mediaByHash($hash);
+        $file = $path !== null ? Media::find($path) : null;
         $format = '';
 
         // photo.jpg.webp is photo.jpg converted to WebP.
-        if (! isset($row['media'][$name]) && preg_match('/^(.+)\.(webp|avif)$/', $name, $m)) {
-            [$source, $format] = [$m[1], $m[2]];
+        if ($file !== null && $name !== $file->name() && preg_match('/^(.+)\.(webp|avif)$/', $name, $m) && $m[1] === $file->name()) {
+            $format = $m[2];
         }
 
-        $mtime = $row['media'][$source] ?? null;
-
-        abort_if($mtime === null || base_convert((string) $mtime, 10, 36) !== $version, 404);
+        abort_if($file === null || ($name !== $file->name() && $format === ''), 404);
+        abort_if(base_convert((string) $file->modifiedAt(), 10, 36) !== $version, 404);
         abort_unless(preg_match('/^(o|\d+)$/', $variant), 404);
 
-        $file = Entry::make($row, $languages->default())->file($source);
         $width = $variant === 'o' ? null : (int) $variant;
 
         if ($width === null && $format === '') {

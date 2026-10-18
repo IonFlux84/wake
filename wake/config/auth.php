@@ -1,6 +1,6 @@
 <?php
 
-// Team accounts are files in storage/accounts (see Wake\Accounts).
+// Team accounts are files in data/accounts (see Wake\Accounts).
 
 return [
 

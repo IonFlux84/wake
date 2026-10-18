@@ -189,6 +189,25 @@ All notable changes to Wake are documented here. The format follows
 
 ### Changed
 
+- New folder layout ([decision 0011](docs/decisions/0011-one-folder-per-entry.md)):
+  - `site/` and `storage/` are split into `settings/`, `themes/`, `plugins/`,
+    `data/` (to back up) and `temp/` (may be deleted). The panel settings are
+    in `settings/general.yml`, the mail settings in `data/secrets/mail.yml`,
+    versions in `data/versions/`.
+  - Every entry is a folder with `content.md` and `content.<lang>.md`, also
+    tags and categories. Folder names carry no numbers or dates any more:
+    `order:` and `menu: true` sort the page tree and fill the main menu,
+    `published:` holds the date. Moving a page in the panel writes `order:`
+    and only moves the folder for a new parent.
+  - Site fields are in `content/website.md`, custom types in
+    `content/<folder>/type.yml`, categories in `content/categories/<key>/`.
+  - All media are in one library, `content/media/`. Content refers to files
+    as `media/<path>`; the editor uploads to `media/<entry id>/`.
+  - `php wake/artisan wake:layout --apply` moves an existing site, with a
+    backup first.
+- The media library shows where a file is used, filters by folder and unused
+  files, uploads into any folder and only lets people who may delete
+  everything delete files that are in use.
 - The panel and the sign-in pages use the Hairline design of getwake.dev:
   greyscale with hairlines, Geist and Geist Mono, the Kelvin mark, no glow
   ([decision 0010](docs/decisions/0010-hairline-design.md)). Newsreader stays

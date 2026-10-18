@@ -6,9 +6,9 @@ use Wake\Maintenance\Maintenance;
 it('writes "published" into due scheduled posts', function () {
     app(Maintenance::class)->run();
 
-    expect(file_get_contents($this->content('posts/2026-01-15-due/index.en.md')))->toContain('status: published')
-        ->and(file_get_contents($this->content('posts/2099-01-01-future/index.en.md')))->toContain('status: scheduled')
-        ->and(app(Index::class)->find('posts/2026-01-15-due')['languages']['en']['fields']['status'])->toBe('published');
+    expect(file_get_contents($this->content('posts/due/content.md')))->toContain('status: published')
+        ->and(file_get_contents($this->content('posts/future/content.md')))->toContain('status: scheduled')
+        ->and(app(Index::class)->find('posts/due')['languages']['en']['fields']['status'])->toBe('published');
 });
 
 it('runs at most once per interval', function () {

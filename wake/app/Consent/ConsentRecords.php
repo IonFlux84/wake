@@ -6,7 +6,7 @@ use Carbon\CarbonImmutable;
 use Wake\Support\Paths;
 
 /**
- * Reads the consent records in storage/consent/{year}-{month}.log.
+ * Reads the consent records in data/consent/{year}-{month}.log.
  */
 class ConsentRecords
 {

@@ -73,7 +73,7 @@ it('recognises services', function (string $url, string $service, string $embed)
 ]);
 
 it('lists embedded services for the privacy policy', function () {
-    $this->writeContent('posts/2026-02-01-second/index.en.md', "---\ntitle: Second\n---\n\n::: embed https://vimeo.com/1\n:::\n");
+    $this->writeContent('posts/second/content.md', "---\ntitle: Second\n---\n\n::: embed https://vimeo.com/1\n:::\n");
 
     expect(app(Index::class)->services())->toBe(['vimeo'])
         ->and(view('wake::services')->render())->toContain('Vimeo')->toContain('wake_consent')->toContain('Statistics');

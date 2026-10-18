@@ -9,7 +9,7 @@ use Wake\Localization\Languages;
 use Wake\Plugins\Plugins;
 
 /**
- * A category of posts, defined in site/categories/{key}.yml. It brings its
+ * A category of posts, defined in content/categories/{key}/content.md. It brings its
  * own fields (shown in the editor), its own website templates and,
  * optionally, its own addresses.
  */

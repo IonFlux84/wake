@@ -7,6 +7,7 @@ description: Why Laravel sits in wake/ and the site next to it.
 
 - **Status:** accepted
 - **Date:** 2026-10-18
+- **Refined by:** [0011](0011-one-folder-per-entry.md), which splits `site/` and `storage/` into `settings/`, `themes/`, `plugins/`, `data/` and `temp/`
 
 ## Context
 

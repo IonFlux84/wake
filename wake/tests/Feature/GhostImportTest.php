@@ -21,7 +21,7 @@ it('imports posts, pages and tags', function () {
 
     expect($importer->counts)->toMatchArray(['posts' => 2, 'pages' => 1, 'tags' => 1]);
 
-    $post = Post::find('posts/2025-11-02-harbour-at-night');
+    $post = Post::find('posts/harbour-at-night');
 
     expect($post->title())->toBe('Harbour at night')
         ->and($post->isPublished())->toBeTrue()
@@ -37,7 +37,7 @@ it('imports posts, pages and tags', function () {
 
 it('turns Ghost cards into Wake cards', function () {
     importGhost();
-    $body = Post::find('posts/2025-11-02-harbour-at-night')->body();
+    $body = Post::find('posts/harbour-at-night')->body();
 
     expect($body)->toContain('The **harbour** at night. [Link](https://example.org)')
         ->toContain("::: callout ⚓\nBring a *jacket*.\n:::")
@@ -52,11 +52,11 @@ it('downloads images from the old site', function () {
     Http::fake(['old.example.org/*' => Http::response(base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='), 200, ['Content-Type' => 'image/png'])]);
 
     $importer = importGhost('https://old.example.org');
-    $post = Post::find('posts/2025-11-02-harbour-at-night');
+    $post = Post::find('posts/harbour-at-night');
 
     expect($importer->counts['images'])->toBe(2)
-        ->and($post->get('cover'))->toBe('harbour.jpg')
-        ->and($post->body())->toContain('![A boat](boat.jpg)');
+        ->and($post->get('cover'))->toBe('media/posts/harbour-at-night/harbour.jpg')
+        ->and($post->body())->toContain('![A boat](media/posts/harbour-at-night/boat.jpg)');
 });
 
 it('does not import the same post twice', function () {

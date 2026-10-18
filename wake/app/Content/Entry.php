@@ -343,26 +343,39 @@ class Entry implements JsonSerializable
     // Media ----------------------------------------------------------------
 
     /**
+     * The files in this entry's own media folder (content/media/<id>/), keyed
+     * by how content refers to them ("media/<id>/photo.jpg").
+     *
      * @return Collection<string, Media>
      */
     public function media(): Collection
     {
-        return collect($this->row['media'])->map(fn (int $mtime, string $name) => new Media($this, $name, $mtime));
-    }
+        $prefix = $this->id().'/';
 
-    public function file(string $name): ?Media
-    {
-        return isset($this->row['media'][$name]) ? new Media($this, $name, $this->row['media'][$name]) : null;
+        return collect(app(Index::class)->allMedia())
+            ->filter(fn (int $mtime, string $path) => str_starts_with($path, $prefix) && ! str_contains(substr($path, strlen($prefix)), '/'))
+            ->mapWithKeys(fn (int $mtime, string $path) => ['media/'.$path => new Media($path, $mtime)]);
     }
 
     /**
-     * Details of a file from its sidecar file, see Media::meta().
-     *
-     * @return array<string, mixed>
+     * A media file: "media/<path>" anywhere in the library, or a plain name
+     * in this entry's own media folder ("photo.jpg").
      */
-    public function mediaMeta(string $name): array
+    public function file(string $name): ?Media
     {
-        return $this->row['media_meta'][$name] ?? [];
+        if ($name === '' || str_contains($name, '..')) {
+            return null;
+        }
+
+        return Media::find(str_starts_with($name, 'media/') ? $name : $this->mediaFolder().'/'.$name);
+    }
+
+    /**
+     * Where uploads for this entry go: "media/<id>".
+     */
+    public function mediaFolder(): string
+    {
+        return 'media/'.$this->id();
     }
 
     /**
@@ -392,7 +405,7 @@ class Entry implements JsonSerializable
      */
     public function directory(): string
     {
-        return Paths::content($this->contentType()->layout === ContentType::FILES ? dirname($this->id()) : $this->id());
+        return Paths::content($this->id());
     }
 
     /**

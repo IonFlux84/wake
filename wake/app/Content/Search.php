@@ -9,7 +9,7 @@ use Wake\Support\Files;
 
 /**
  * Full-text search without a database: a small inverted index per language
- * in storage/cache/search-{lang}.php (word => [entry id => score]), rebuilt
+ * in temp/cache/search-{lang}.php (word => [entry id => score]), rebuilt
  * when the content index changes. Titles count more than tags, tags more
  * than text.
  */

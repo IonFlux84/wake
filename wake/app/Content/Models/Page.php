@@ -14,10 +14,18 @@ class Page extends Entry
     }
 
     /**
-     * Listed pages have a number prefix (pages/1_about) and appear in menus.
+     * Pages with "menu: true" appear in the automatic main menu.
      */
     public function isListed(): bool
     {
-        return $this->row['num'] !== null;
+        return (bool) ($this->row['menu'] ?? false);
+    }
+
+    /**
+     * The position among its sibling pages ("order: 2"), null without one.
+     */
+    public function position(): ?int
+    {
+        return $this->row['order'] ?? null;
     }
 }

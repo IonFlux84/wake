@@ -1,0 +1,8 @@
+name: event
+title: Events
+fields:
+  start:
+    type: datetime
+    required: true
+  location:
+    type: text

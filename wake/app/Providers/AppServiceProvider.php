@@ -138,7 +138,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Settings in site/config.php override Wake's defaults in config/wake.php.
+     * Settings in settings/config.php override Wake's defaults in config/wake.php.
      * A few of them map to Laravel settings.
      */
     protected function mergeSiteConfig(): void
@@ -151,8 +151,8 @@ class AppServiceProvider extends ServiceProvider
         $site = is_file($file) ? (require $file) : [];
         $site = is_array($site) ? $site : [];
 
-        // Settings changed in the panel live in site/settings.yml and win
-        // over site/config.php, so the panel always shows what is in effect.
+        // Settings changed in the panel live in settings/general.yml and win
+        // over settings/config.php, so the panel always shows what is in effect.
         $site = array_replace_recursive($site, Settings::read());
 
         $config = $this->app['config'];

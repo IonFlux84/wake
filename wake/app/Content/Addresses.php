@@ -66,14 +66,13 @@ class Addresses
     }
 
     /**
-     * The publication date: "published" in the front matter, or else the
-     * date at the start of the folder name.
+     * The publication date: "published" in the front matter.
      *
      * @param  array<string, mixed>  $row
      */
     public static function date(array $row, string $language, string $default): ?CarbonImmutable
     {
-        $value = static::fields($row, $language, $default)['published'] ?? $row['date'];
+        $value = static::fields($row, $language, $default)['published'] ?? null;
 
         if ($value === null || $value === '') {
             return null;

@@ -15,7 +15,7 @@ use Wake\Mcp\WakeServer;
 
 beforeEach(function () {
     foreach ([
-        'posts/2026-05-20-summer-fest/index.en.md' => <<<'MD'
+        'posts/summer-fest/content.md' => <<<'MD'
             ---
             title: Summer fest
             slug: summer-fest
@@ -31,7 +31,7 @@ beforeEach(function () {
 
             Music and food.
             MD,
-        'posts/2026-05-20-summer-fest/index.de.md' => <<<'MD'
+        'posts/summer-fest/content.de.md' => <<<'MD'
             ---
             title: Sommerfest
             slug: sommerfest
@@ -43,7 +43,7 @@ beforeEach(function () {
 
             Musik und Essen.
             MD,
-        'posts/2026-05-02-old-fair/index.en.md' => <<<'MD'
+        'posts/old-fair/content.md' => <<<'MD'
             ---
             title: Old fair
             published: 2026-05-02 10:00
@@ -73,7 +73,7 @@ it('reads categories with titles, addresses and fields per language', function (
 });
 
 it('gives posts of a category their own addresses and template', function () {
-    $post = Post::find('posts/2026-05-20-summer-fest');
+    $post = Post::find('posts/summer-fest');
 
     expect($post->url())->toBe(url('/events/summer-fest'))
         ->and($post->translation('de')->url())->toBe(url('/de/termine/sommerfest'))
@@ -83,7 +83,7 @@ it('gives posts of a category their own addresses and template', function () {
 });
 
 it('inherits shared fields in translations', function () {
-    $german = Post::find('posts/2026-05-20-summer-fest')->translation('de');
+    $german = Post::find('posts/summer-fest')->translation('de');
 
     expect($german->get('start'))->toBe('2026-07-04 15:00')
         ->and($german->get('price'))->toBe('frei');
@@ -139,14 +139,14 @@ it('requires required category fields before publishing', function () {
 });
 
 it('does not overwrite shared fields from a translation', function () {
-    Livewire::withQueryParams(['id' => 'posts/2026-05-20-summer-fest', 'language' => 'de'])->actingAs($this->owner)
+    Livewire::withQueryParams(['id' => 'posts/summer-fest', 'language' => 'de'])->actingAs($this->owner)
         ->test(EntryEditor::class, ['type' => 'post'])
         ->assertSet('custom.start', '2026-07-04T15:00')
         ->set('custom.start', '2030-01-01T00:00')
         ->set('custom.location', 'Stadtpark')
         ->call('save');
 
-    $post = Post::find('posts/2026-05-20-summer-fest');
+    $post = Post::find('posts/summer-fest');
 
     expect($post->get('start'))->toBe('2026-07-04 15:00')
         ->and($post->translation('de')->get('location'))->toBe('Stadtpark');
@@ -194,7 +194,7 @@ it('tells assistants about categories and filters by them', function () {
 
 describe('recurring events', function () {
     beforeEach(function () {
-        $this->writeContent('posts/2026-05-21-choir/index.en.md', "---\ntitle: Choir\nslug: choir\npublished: 2026-05-21 10:00\ncategory: termine\nstart: 2026-05-26 19:00\nend: 2026-05-26 21:00\nrepeat: weekly\nrepeat_until: 2026-07-28\nrepeat_except: [2026-06-09]\nlocation: Hall\n---\n\nWe sing.\n");
+        $this->writeContent('posts/choir/content.md', "---\ntitle: Choir\nslug: choir\npublished: 2026-05-21 10:00\ncategory: termine\nstart: 2026-05-26 19:00\nend: 2026-05-26 21:00\nrepeat: weekly\nrepeat_until: 2026-07-28\nrepeat_except: [2026-06-09]\nlocation: Hall\n---\n\nWe sing.\n");
     });
 
     it('lists each date in the category and counts as upcoming', function () {
@@ -224,13 +224,13 @@ describe('recurring events', function () {
     });
 
     it('edits exceptions one per line and previews the dates', function () {
-        Livewire::withQueryParams(['id' => 'posts/2026-05-21-choir'])->actingAs($this->owner)
+        Livewire::withQueryParams(['id' => 'posts/choir'])->actingAs($this->owner)
             ->test(EntryEditor::class, ['type' => 'post'])
             ->assertSet('custom.repeat_except', '2026-06-09')
             ->assertSee('Every Tuesday')
             ->set('custom.repeat_except', "2026-06-09\n2026-06-16")
             ->call('save');
 
-        expect(Post::find('posts/2026-05-21-choir')->get('repeat_except'))->toBe(['2026-06-09', '2026-06-16']);
+        expect(Post::find('posts/choir')->get('repeat_except'))->toBe(['2026-06-09', '2026-06-16']);
     });
 });

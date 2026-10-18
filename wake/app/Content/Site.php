@@ -11,7 +11,7 @@ use Wake\Localization\Languages;
 
 /**
  * The website as a whole, available as $site in every template. Its fields
- * come from content/site.{lang}.md.
+ * come from content/website.md (and website.{lang}.md for other languages).
  */
 class Site
 {
@@ -74,7 +74,7 @@ class Site
     }
 
     /**
-     * A menu from site/menus.yml ("main" or "footer"). Without a stored main
+     * A menu from settings/menus.yml ("main" or "footer"). Without a stored main
      * menu, the main menu shows the listed top-level pages of the page tree,
      * in order, with their listed children.
      *

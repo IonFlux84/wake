@@ -10,7 +10,7 @@ use Wake\Content\Redirects;
 use Wake\Localization\Languages;
 
 /**
- * Old addresses and where they lead, from site/redirects.yml. Wake adds
+ * Old addresses and where they lead, from settings/redirects.yml. Wake adds
  * entries itself when a published address changes; here people can add and
  * remove them by hand.
  */

@@ -10,7 +10,7 @@ use Wake\Support\Paths;
 
 /**
  * The roles of the site: the built-in ones, adjusted and extended in
- * site/roles.yml.
+ * settings/roles.yml.
  *
  *     editor:
  *       capabilities: [content.write, content.publish, content.edit_all]

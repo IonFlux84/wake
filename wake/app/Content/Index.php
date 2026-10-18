@@ -15,7 +15,7 @@ use Wake\Support\Paths;
 
 /**
  * What a database would do for Wake: a list of every entry with its fields,
- * kept in storage/cache/index.php. OPcache holds that file in memory, so
+ * kept in temp/cache/index.php. OPcache holds that file in memory, so
  * queries never touch the content files. Only the body of an entry is read
  * from disk, and only when a template asks for it.
  *
@@ -24,7 +24,7 @@ use Wake\Support\Paths;
  */
 class Index
 {
-    public const VERSION = 3;
+    public const VERSION = 4;
 
     /** @var array<string, mixed>|null */
     protected ?array $data = null;
@@ -79,7 +79,47 @@ class Index
     }
 
     /**
-     * Site-wide fields from content/site.{lang}.md.
+     * A file in content/media/, by its path below media/ ("posts/x/photo.jpg").
+     *
+     * @return array{mtime: int, meta: array<string, mixed>}|null
+     */
+    public function media(string $path): ?array
+    {
+        $data = $this->load();
+
+        return isset($data['media'][$path]) ? ['mtime' => $data['media'][$path], 'meta' => $data['media_meta'][$path] ?? []] : null;
+    }
+
+    /**
+     * Every file in content/media/: path below media/ => modification time.
+     *
+     * @return array<string, int>
+     */
+    public function allMedia(): array
+    {
+        return $this->load()['media'];
+    }
+
+    /**
+     * The entries that show or link a media file.
+     *
+     * @return list<string> entry ids
+     */
+    public function mediaUsage(string $path): array
+    {
+        return $this->load()['media_usage'][$path] ?? [];
+    }
+
+    /**
+     * The path of a media file by the hash in its address.
+     */
+    public function mediaByHash(string $hash): ?string
+    {
+        return $this->load()['media_hashes'][$hash] ?? null;
+    }
+
+    /**
+     * Site-wide fields from content/website.md (and website.{lang}.md).
      *
      * @return array<string, mixed>
      */
@@ -311,7 +351,7 @@ class Index
 
             try {
                 [$fields, $body] = FrontMatter::parse((string) file_get_contents(Paths::content($path)), $path);
-                $docs[$path] = ['mtime' => $mtime, 'fields' => $this->normalize($fields), 'services' => $this->servicesIn($body)];
+                $docs[$path] = ['mtime' => $mtime, 'fields' => $this->normalize($fields), 'services' => $this->servicesIn($body), 'refs' => $this->mediaIn($fields, $body)];
             } catch (InvalidContentException $e) {
                 $warnings[] = $e->getMessage();
             }
@@ -321,7 +361,7 @@ class Index
         $site = [];
 
         foreach ($docs as $path => $doc) {
-            if (preg_match('#^site(?:\.([a-z]{2}(?:-[a-z]{2})?))?\.md$#i', $path, $m)) {
+            if (preg_match('#^website(?:\.([a-z]{2}(?:-[a-z]{2})?))?\.md$#i', $path, $m)) {
                 $site[$this->languageOf($m[1] ?? '')] = $doc['fields'];
 
                 continue;
@@ -331,6 +371,9 @@ class Index
         }
 
         $this->linkParents($entries);
+        $this->settleRows($entries, $files);
+        [$media, $mediaMeta, $mediaHashes] = $this->mediaLibrary($files);
+        $usage = $this->usageOf($entries, $docs, $media);
         $routes = $this->buildRoutes($entries, $warnings);
 
         $hashes = [];
@@ -349,6 +392,10 @@ class Index
             'entries' => $entries,
             'routes' => $routes,
             'hashes' => $hashes,
+            'media' => $media,
+            'media_meta' => $mediaMeta,
+            'media_hashes' => $mediaHashes,
+            'media_usage' => $usage,
             'warnings' => $warnings,
         ];
     }
@@ -362,37 +409,22 @@ class Index
     {
         $segments = explode('/', $path);
         $type = $this->types->forFolder($segments[0]);
+        $file = array_pop($segments);
 
-        if ($type === null || count($segments) < 2) {
+        // An entry is a folder with content.md (default language) or content.<lang>.md.
+        if ($type === null || count($segments) < 2 || ! preg_match('#^content(?:\.([a-z]{2}(?:-[a-z]{2})?))?\.md$#i', $file, $m)
+            || ($type->layout === ContentType::FOLDERS && count($segments) !== 2)) {
             return;
         }
 
-        $file = array_pop($segments);
-
-        if ($type->layout === ContentType::FILES) {
-            if (count($segments) !== 1 || ! preg_match('#^(.+?)(?:\.([a-z]{2}(?:-[a-z]{2})?))?\.md$#i', $file, $m)) {
-                return;
-            }
-
-            $dir = $segments[0].'/'.$m[1];
-            $language = $this->languageOf($m[2] ?? '');
-            $media = [];
-        } else {
-            if (count($segments) < 2 || ($type->layout === ContentType::FOLDERS && count($segments) !== 2)
-                || ! preg_match('#^index(?:\.([a-z]{2}(?:-[a-z]{2})?))?\.md$#i', $file, $m)) {
-                return;
-            }
-
-            $dir = implode('/', $segments);
-            $language = $this->languageOf($m[1] ?? '');
-            $media = $this->mediaOf($dir, $files);
-        }
+        $language = $this->languageOf($m[1] ?? '');
 
         if ($language === null) {
             return;
         }
 
-        $entries[$dir] ??= $this->newRow($type, $dir, $media);
+        $dir = implode('/', $segments);
+        $entries[$dir] ??= $this->newRow($type, $dir, $files);
         $entries[$dir]['languages'][$language] = [
             'file' => $path,
             'mtime' => $doc['mtime'],
@@ -401,88 +433,75 @@ class Index
     }
 
     /**
-     * @param  array<string, int>  $media
+     * @param  array<string, int>  $files
      * @return array<string, mixed>
      */
-    protected function newRow(ContentType $type, string $dir, array $media): array
+    protected function newRow(ContentType $type, string $dir, array $files): array
     {
-        $folder = basename($dir);
-        $num = null;
-        $date = null;
-
-        if ($type->layout === ContentType::TREE && preg_match('/^(\d+)_(.+)$/', $folder, $m)) {
-            [$num, $folder] = [(int) $m[1], $m[2]];
-        }
-
-        if ($type->layout === ContentType::FOLDERS && preg_match('/^(\d{4}-\d{2}-\d{2})-(.+)$/', $folder, $m)) {
-            [$date, $folder] = [$m[1], $m[2]];
-        }
-
         return [
             'id' => $dir,
             'type' => $type->name,
-            'name' => $folder,
-            'num' => $num,
-            'date' => $date,
+            'name' => basename($dir),
+            'order' => null,
+            'menu' => false,
             'parent' => null,
             'hash' => substr(md5($dir), 0, 10),
-            'media' => $media,
-            'media_meta' => $this->mediaMeta($dir, $media),
+            'style' => isset($files[$dir.'/style.css']) ? $files[$dir.'/style.css'] : null,
             'languages' => [],
         ];
     }
 
     /**
-     * Files next to an entry's text files: images, downloads and so on.
+     * Order and menu come from the default language's front matter.
      *
+     * @param  array<string, array<string, mixed>>  $entries
      * @param  array<string, int>  $files
-     * @return array<string, int>
      */
-    protected function mediaOf(string $dir, array $files): array
+    protected function settleRows(array &$entries, array $files): void
     {
-        $media = [];
-        $prefix = $dir.'/';
+        $default = $this->languages->default();
 
-        foreach ($files as $path => $mtime) {
-            if (str_starts_with($path, $prefix) && ! str_contains($rest = substr($path, strlen($prefix)), '/')
-                && ! str_ends_with($rest, '.md') && ! str_ends_with($rest, '.yml')) {
-                $media[$rest] = $mtime;
-            }
+        foreach ($entries as $id => $row) {
+            $fields = ($row['languages'][$default] ?? reset($row['languages']) ?: [])['fields'] ?? [];
+            $entries[$id]['order'] = is_numeric($fields['order'] ?? null) ? (int) $fields['order'] : null;
+            $entries[$id]['menu'] = filter_var($fields['menu'] ?? false, FILTER_VALIDATE_BOOL);
         }
-
-        return $media;
     }
 
     /**
-     * Details of media files from their sidecar files: photo.jpg.yml holds
-     * alt, caption, credit and focus of photo.jpg.
+     * Files in content/media/ and their details from sidecar files: photo.jpg.yml
+     * holds alt, caption, credit and focus of photo.jpg.
      *
-     * @param  array<string, int>  $media
-     * @return array<string, array<string, mixed>>
+     * @param  array<string, int>  $files
+     * @return array{0: array<string, int>, 1: array<string, array<string, mixed>>, 2: array<string, string>}
      */
-    protected function mediaMeta(string $dir, array $media): array
+    protected function mediaLibrary(array $files): array
     {
-        $meta = [];
+        $media = $meta = $hashes = [];
 
-        foreach (array_keys($media) as $name) {
-            $sidecar = Paths::content($dir.'/'.$name.'.yml');
-
-            if (! is_file($sidecar)) {
+        foreach ($files as $path => $mtime) {
+            if (! str_starts_with($path, 'media/') || str_ends_with($path, '.yml')) {
                 continue;
             }
 
-            try {
-                $data = Yaml::parseFile($sidecar);
-            } catch (Throwable) {
-                continue;
-            }
+            $name = substr($path, 6);
+            $media[$name] = $mtime;
+            $hashes[substr(md5('media/'.$name), 0, 10)] = $name;
 
-            if (is_array($data) && $data !== []) {
-                $meta[$name] = $data;
+            if (isset($files[$path.'.yml'])) {
+                try {
+                    $data = Yaml::parseFile(Paths::content($path.'.yml'));
+                } catch (Throwable) {
+                    $data = null;
+                }
+
+                if (is_array($data) && $data !== []) {
+                    $meta[$name] = $data;
+                }
             }
         }
 
-        return $meta;
+        return [$media, $meta, $hashes];
     }
 
     /**
@@ -548,6 +567,60 @@ class Index
         $code = strtolower($code);
 
         return $this->languages->exists($code) ? $code : null;
+    }
+
+    /**
+     * Files a document refers to: "media/…" anywhere, or plain names in
+     * Markdown links and images, which mean the entry's own media folder.
+     *
+     * @param  array<string, mixed>  $fields
+     * @return list<string>
+     */
+    protected function mediaIn(array $fields, string $body): array
+    {
+        $refs = [];
+
+        foreach (['cover', 'thumbnail'] as $key) {
+            if (is_string($fields[$key] ?? null) && $fields[$key] !== '') {
+                $refs[] = $fields[$key];
+            }
+        }
+
+        preg_match_all('#\]\(([^)\s]+)#', $body, $links);
+        preg_match_all('#\bmedia/[^\s)"\']+#', $body, $mentions);
+
+        foreach ([...$links[1], ...$mentions[0]] as $ref) {
+            if (! preg_match('#^([a-z][a-z0-9+.-]*:|/|\#|\?)#i', $ref)) {
+                $refs[] = rawurldecode($ref);
+            }
+        }
+
+        return array_values(array_unique($refs));
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $entries
+     * @param  array<string, array<string, mixed>>  $docs
+     * @param  array<string, int>  $media
+     * @return array<string, list<string>> media path => entry ids
+     */
+    protected function usageOf(array $entries, array $docs, array $media): array
+    {
+        $usage = [];
+
+        foreach ($entries as $id => $row) {
+            foreach ($row['languages'] as $translation) {
+                foreach ($docs[$translation['file']]['refs'] ?? [] as $ref) {
+                    $path = str_starts_with($ref, 'media/') ? substr($ref, 6) : $id.'/'.$ref;
+
+                    if (isset($media[$path]) && ! in_array($id, $usage[$path] ?? [], true)) {
+                        $usage[$path][] = $id;
+                    }
+                }
+            }
+        }
+
+        return $usage;
     }
 
     /**

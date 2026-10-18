@@ -10,7 +10,7 @@ use Wake\Support\Paths;
 use ZipArchive;
 
 /**
- * All themes in site/themes/: list, copy, install from a ZIP, remove.
+ * All themes in themes/: list, copy, install from a ZIP, remove.
  */
 class Themes
 {

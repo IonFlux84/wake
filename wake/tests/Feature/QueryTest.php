@@ -14,9 +14,9 @@ it('returns published posts, newest first', function () {
 });
 
 it('treats scheduled posts with a past date as published', function () {
-    expect(Post::find('posts/2026-01-15-due')->isPublished())->toBeTrue()
-        ->and(Post::find('posts/2099-01-01-future')->isPublished())->toBeFalse()
-        ->and(Post::find('posts/2099-01-01-future')->isScheduled())->toBeTrue();
+    expect(Post::find('posts/due')->isPublished())->toBeTrue()
+        ->and(Post::find('posts/future')->isPublished())->toBeFalse()
+        ->and(Post::find('posts/future')->isScheduled())->toBeTrue();
 });
 
 it('finds drafts and scheduled posts', function () {
@@ -82,7 +82,7 @@ it('exposes fields as properties', function () {
 });
 
 it('builds URLs with language prefixes', function () {
-    $post = Post::find('posts/2026-01-10-first');
+    $post = Post::find('posts/first');
 
     expect($post->url())->toBe(url('/first'))
         ->and($post->translation('de')->url())->toBe(url('/de/erster-beitrag'));
@@ -92,11 +92,11 @@ it('supports dated post URLs', function () {
     config(['wake.post_url' => '{year}/{month}/{slug}']);
     app(ContentTypes::class)->flush();
 
-    expect(Post::find('posts/2026-01-10-first')->path())->toBe('2026/01/first');
+    expect(Post::find('posts/first')->path())->toBe('2026/01/first');
 });
 
 it('renders Markdown with media URLs and cards', function () {
-    $html = (string) Post::find('posts/2026-01-10-first')->content();
+    $html = (string) Post::find('posts/first')->content();
 
     expect($html)->toContain('<strong>first</strong>')
         ->toContain('/media/')
@@ -104,11 +104,11 @@ it('renders Markdown with media URLs and cards', function () {
 });
 
 it('creates excerpts from the text', function () {
-    expect(Post::find('posts/2026-02-01-second')->excerpt())->toBe('Only in English.');
+    expect(Post::find('posts/second')->excerpt())->toBe('Only in English.');
 });
 
 it('knows tags, including tags without a file', function () {
-    $tags = Post::find('posts/2026-01-10-first')->tags();
+    $tags = Post::find('posts/first')->tags();
 
     expect($tags->map->title()->all())->toBe(['News', 'Travelling'])
         ->and($tags->first()->isVirtual())->toBeTrue()
@@ -116,10 +116,10 @@ it('knows tags, including tags without a file', function () {
 });
 
 it('builds the page tree', function () {
-    $about = Page::find('pages/1_about');
+    $about = Page::find('pages/about');
 
     expect($about->children()->first()->title())->toBe('Team')
-        ->and($about->children()->first()->parent()->id())->toBe('pages/1_about')
+        ->and($about->children()->first()->parent()->id())->toBe('pages/about')
         ->and(app(Site::class)->menu()->map->title()->all())->toBe(['About', 'Blog']);
 });
 

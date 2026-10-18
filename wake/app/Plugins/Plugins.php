@@ -11,7 +11,7 @@ use Throwable;
 use Wake\Support\Paths;
 
 /**
- * Plugins in site/plugins/{folder}/:
+ * Plugins in plugins/{folder}/:
  *
  *     plugin.yml   name, description, version, author, url, options
  *     plugin.php   returns function (Wake\Plugins\Plugin $plugin) { … }

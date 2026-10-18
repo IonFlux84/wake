@@ -9,7 +9,7 @@ use Wake\Plugins\Plugins;
 use Wake\Support\Settings;
 
 /**
- * The plugins in site/plugins: switch them on and off and change their
+ * The plugins in plugins: switch them on and off and change their
  * settings. Installing happens by copying the folder (FTP or Git).
  */
 class PluginManager extends Component

@@ -3,7 +3,7 @@
 namespace Wake\Plugins;
 
 /**
- * What site/plugins/{folder}/plugin.yml says about a plugin.
+ * What plugins/{folder}/plugin.yml says about a plugin.
  */
 final class PluginInfo
 {

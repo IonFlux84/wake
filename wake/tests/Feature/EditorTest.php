@@ -29,11 +29,11 @@ it('lists entries with status counts and translations', function () {
         ->assertSee('Second post')
         ->assertDontSee('First post');
 
-    expect(Entries::translationStates(Post::find('posts/2026-02-01-second')))->toBe(['en' => 'current', 'de' => 'missing']);
+    expect(Entries::translationStates(Post::find('posts/second')))->toBe(['en' => 'current', 'de' => 'missing']);
 });
 
 it('opens the editor pages', function () {
-    $this->actingAs(member(Role::Owner))->get('/wake/content/post/edit?id=posts/2026-01-10-first')->assertOk()->assertSee('First post');
+    $this->actingAs(member(Role::Owner))->get('/wake/content/post/edit?id=posts/first')->assertOk()->assertSee('First post');
     $this->get('/wake/content/post/new')->assertOk();
     $this->get('/wake/posts')->assertOk();
     $this->get('/wake/content/nonsense')->assertNotFound();
@@ -60,28 +60,28 @@ it('creates a post on the first save, with the author', function () {
 
 it('publishes, schedules and unpublishes', function () {
     $component = Livewire::actingAs(member(Role::Editor))->test(EntryEditor::class, ['type' => 'post'])
-        ->set('id', 'posts/2026-03-01-draft')->call('switchLanguage', 'en')
+        ->set('id', 'posts/draft')->call('switchLanguage', 'en')
         ->call('publish');
 
-    expect(Post::find('posts/2026-03-01-draft')->isPublished())->toBeTrue();
+    expect(Post::find('posts/draft')->isPublished())->toBeTrue();
 
     $component->call('unpublish');
-    expect(Post::find('posts/2026-03-01-draft')->isDraft())->toBeTrue();
+    expect(Post::find('posts/draft')->isDraft())->toBeTrue();
 
     $component->set('scheduleAt', '2026-07-01T09:00')->call('publish');
-    expect(Post::find('posts/2026-03-01-draft')->isScheduled())->toBeTrue();
+    expect(Post::find('posts/draft')->isScheduled())->toBeTrue();
 });
 
 it('adds a translation from the editor', function () {
     Livewire::actingAs(member(Role::Owner))->test(EntryEditor::class, ['type' => 'post'])
-        ->set('id', 'posts/2026-02-01-second')
+        ->set('id', 'posts/second')
         ->call('switchLanguage', 'de')
         ->assertSet('title', '')
         ->set('title', 'Zweiter')
         ->set('body', 'Deutsch.')
         ->call('save');
 
-    expect(Post::find('posts/2026-02-01-second')->translations())->toEqualCanonicalizing(['en', 'de']);
+    expect(Post::find('posts/second')->translations())->toEqualCanonicalizing(['en', 'de']);
 });
 
 it('keeps contributors to their own drafts', function () {
@@ -91,7 +91,7 @@ it('keeps contributors to their own drafts', function () {
         ->set('title', 'My idea')->call('save')
         ->call('publish')->assertForbidden();
 
-    $this->actingAs($contributor)->get('/wake/content/post/edit?id=posts/2026-01-10-first')->assertForbidden();
+    $this->actingAs($contributor)->get('/wake/content/post/edit?id=posts/first')->assertForbidden();
 });
 
 it('lets authors publish their own posts only', function () {
@@ -102,51 +102,51 @@ it('lets authors publish their own posts only', function () {
 
     expect(Post::find($component->get('id'))->isPublished())->toBeTrue();
 
-    $this->actingAs($author)->get('/wake/content/post/edit?id=posts/2026-01-10-first')->assertForbidden();
+    $this->actingAs($author)->get('/wake/content/post/edit?id=posts/first')->assertForbidden();
 });
 
 it('uploads images into the entry folder', function () {
     $result = Livewire::actingAs(member(Role::Owner))->test(EntryEditor::class, ['type' => 'post'])
-        ->set('id', 'posts/2026-02-01-second')
+        ->set('id', 'posts/second')
         ->set('upload', UploadedFile::fake()->image('Summer Party.png', 50, 50))
         ->call('storeUpload')
         ->get('upload');
 
     expect($result)->toBeNull()
-        ->and(Post::find('posts/2026-02-01-second')->file('summer-party.png'))->not->toBeNull();
+        ->and(Post::find('posts/second')->file('summer-party.png'))->not->toBeNull();
 });
 
 it('moves entries to the trash', function () {
     Livewire::actingAs(member(Role::Editor))->test(EntryEditor::class, ['type' => 'post'])
-        ->set('id', 'posts/2026-02-01-second')
+        ->set('id', 'posts/second')
         ->call('trash')
         ->assertRedirect(route('wake.entries', ['type' => 'post']));
 
-    expect(Post::find('posts/2026-02-01-second'))->toBeNull();
+    expect(Post::find('posts/second'))->toBeNull();
 });
 
 it('shows who else is editing', function () {
     $dana = member(Role::Owner);
     $eve = member(Role::Editor, 'Eve');
 
-    Livewire::actingAs($eve)->test(EntryEditor::class, ['type' => 'post'])->set('id', 'posts/2026-01-10-first')->call('keepalive');
+    Livewire::actingAs($eve)->test(EntryEditor::class, ['type' => 'post'])->set('id', 'posts/first')->call('keepalive');
 
-    Livewire::actingAs($dana)->test(EntryEditor::class, ['type' => 'post'])->set('id', 'posts/2026-01-10-first')
+    Livewire::actingAs($dana)->test(EntryEditor::class, ['type' => 'post'])->set('id', 'posts/first')
         ->assertSee('Eve is editing this entry right now');
 });
 
 it('restores an earlier version from the history tab', function () {
     $owner = member(Role::Owner);
-    app(Writer::class)->update('posts/2026-02-01-second', 'en', ['title' => 'Changed', 'extra' => 'x'], 'Changed body.');
-    $revision = app(Revisions::class)->of('posts/2026-02-01-second/index.en.md')[0]['id'];
+    app(Writer::class)->update('posts/second', 'en', ['title' => 'Changed', 'extra' => 'x'], 'Changed body.');
+    $revision = app(Revisions::class)->of('posts/second/content.md')[0]['id'];
 
     Livewire::actingAs($owner)->test(EntryEditor::class, ['type' => 'post'])
-        ->set('id', 'posts/2026-02-01-second')->set('tab', 'history')
+        ->set('id', 'posts/second')->set('tab', 'history')
         ->assertSee('Earlier versions')
         ->call('restore', $revision)
         ->assertSet('title', 'Second post');
 
-    $post = Post::find('posts/2026-02-01-second');
+    $post = Post::find('posts/second');
 
     expect($post->body())->toBe("Only in English.\n")
         ->and($post->get('extra'))->toBeNull()
@@ -154,7 +154,7 @@ it('restores an earlier version from the history tab', function () {
 });
 
 it('shows all media in the library', function () {
-    $this->actingAs(member(Role::Owner))->get('/wake/media')->assertOk()->assertSee('photo.png')->assertSee('First post');
+    $this->actingAs(member(Role::Owner))->get('/wake/media')->assertOk()->assertSee('photo.png')->assertSee('posts/first/')->assertSee('used 1 time');
 });
 
 it('keeps images uploaded to a new post without a title', function () {
@@ -171,27 +171,27 @@ it('keeps images uploaded to a new post without a title', function () {
 });
 
 it('sets a header image and a preview image', function () {
-    $component = Livewire::withQueryParams(['id' => 'posts/2026-02-01-second'])->actingAs(member(Role::Owner))
+    $component = Livewire::withQueryParams(['id' => 'posts/second'])->actingAs(member(Role::Owner))
         ->test(EntryEditor::class, ['type' => 'post'])
         ->set('coverUpload', UploadedFile::fake()->image('Header.jpg', 80, 45));
 
-    $post = Post::find('posts/2026-02-01-second');
-    expect($post->get('cover'))->toBe('header.jpg')
+    $post = Post::find('posts/second');
+    expect($post->get('cover'))->toBe('media/posts/second/header.jpg')
         ->and($post->thumbnail()->name())->toBe('header.jpg');
 
     $component->set('thumbnailUpload', UploadedFile::fake()->image('square.png', 40, 40));
-    expect(Post::find('posts/2026-02-01-second')->thumbnail()->name())->toBe('square.png');
+    expect(Post::find('posts/second')->thumbnail()->name())->toBe('square.png');
 
     $component->call('setImage', 'thumbnail', '');
-    expect(Post::find('posts/2026-02-01-second')->get('thumbnail'))->toBeNull();
+    expect(Post::find('posts/second')->get('thumbnail'))->toBeNull();
 
     $component->call('setImage', 'cover', 'missing.jpg');
-    expect(Post::find('posts/2026-02-01-second')->get('cover'))->toBe('header.jpg');
+    expect(Post::find('posts/second')->get('cover'))->toBe('media/posts/second/header.jpg');
 });
 
 it('rejects files that are not images as header image', function () {
     Livewire::actingAs(member(Role::Owner))->test(EntryEditor::class, ['type' => 'post'])
-        ->set('id', 'posts/2026-02-01-second')
+        ->set('id', 'posts/second')
         ->set('coverUpload', UploadedFile::fake()->create('notes.pdf', 10, 'application/pdf'))
         ->assertHasErrors('coverUpload');
 });

@@ -18,7 +18,7 @@ use Wake\Support\Paths;
  * - writes files atomically and under a lock per entry,
  * - keeps the previous version as a revision,
  * - remembers old addresses of published entries as redirects,
- * - moves deleted entries to storage/trash instead of deleting them,
+ * - moves deleted entries to data/trash instead of deleting them,
  * - and updates the index, which clears the page cache.
  */
 class Writer
@@ -53,19 +53,14 @@ class Writer
         $fields['status'] ??= 'draft';
         $slug = Str::slug((string) ($fields['slug'] ?? $title), language: $language) ?: 'entry';
 
-        $folder = match ($contentType->layout) {
-            ContentType::FOLDERS => (! empty($fields['published']) ? CarbonImmutable::parse((string) $fields['published']) : CarbonImmutable::now())->format('Y-m-d').'-'.$slug,
-            default => $slug,
-        };
-
         $base = $contentType->layout === ContentType::TREE && $parent !== null
             ? $this->existing($parent)['id']
             : $contentType->folder;
 
-        $id = $this->uniqueId($base.'/'.$folder, $contentType);
-        $file = $contentType->layout === ContentType::FILES
-            ? $id.($language === $this->languages->default() ? '' : '.'.$language).'.md'
-            : $id.'/index.'.$language.'.md';
+        // One folder per entry, named like its address; the date and the
+        // menu position live in the file, not in the name.
+        $id = $this->uniqueId($base.'/'.$slug);
+        $file = $id.'/content'.($language === $this->languages->default() ? '' : '.'.$language).'.md';
 
         Files::lock('entry-'.md5($id), fn () => Files::write(Paths::content($file), FrontMatter::dump($this->clean($fields), $body)));
         $this->history->record('create', $id, $language);
@@ -151,23 +146,18 @@ class Writer
     }
 
     /**
-     * Move the whole entry (all languages and media) to storage/trash.
+     * Move the whole entry (all languages and media) to data/trash.
      * Nothing is deleted for good; the folder can be moved back by hand.
      */
     public function trash(string $id): string
     {
         $row = $this->existing($id);
-        $type = $this->types->get($row['type']);
         $target = Paths::data('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-'.str_replace('/', '--', $id));
 
-        Files::lock('entry-'.md5($id), function () use ($row, $type, $target) {
+        Files::lock('entry-'.md5($id), function () use ($row, $target) {
             @mkdir($target, 0775, true);
 
-            if ($type->layout === ContentType::FILES) {
-                foreach ($row['languages'] as $translation) {
-                    rename(Paths::content($translation['file']), $target.'/'.basename($translation['file']));
-                }
-            } elseif (! rename(Paths::content($row['id']), $target.'/'.basename($row['id']))) {
+            if (! rename(Paths::content($row['id']), $target.'/'.basename($row['id']))) {
                 throw new RuntimeException("Cannot move {$row['id']} to the trash.");
             }
         });
@@ -179,43 +169,58 @@ class Writer
     }
 
     /**
-     * Store an uploaded or imported file next to an entry's text files.
+     * Store an uploaded or imported file in the entry's own folder in the
+     * media library (content/media/<id>/). Returns how content refers to it,
+     * e.g. "media/posts/lantern-walk/procession.jpg".
      */
     public function addMedia(string $id, string $name, string $source): string
     {
-        $row = $this->existing($id);
-        $type = $this->types->get($row['type']);
+        return $this->storeMedia($this->existing($id)['id'], $name, $source);
+    }
 
-        if ($type->layout === ContentType::FILES) {
-            throw new InvalidArgumentException('Tags cannot have files.');
+    /**
+     * Store a file in a folder of the media library ("documents", "posts/x").
+     * Names become lowercase with dashes; a taken name gets "-2".
+     */
+    public function storeMedia(string $folder, string $name, string $source): string
+    {
+        $folder = trim(preg_replace('#[^a-z0-9/_-]+#', '-', strtolower($folder)), '/-');
+
+        if ($folder === '' || str_contains($folder, '..')) {
+            throw new InvalidArgumentException('Choose a folder in the media library.');
         }
 
         $info = pathinfo($name);
-        $name = Str::slug($info['filename'] ?? 'file').'.'.strtolower($info['extension'] ?? 'bin');
+        $stem = Str::slug($info['filename'] ?? 'file') ?: 'file';
+        $extension = strtolower($info['extension'] ?? 'bin');
+        $name = $stem.'.'.$extension;
 
-        for ($i = 2; is_file(Paths::content($id.'/'.$name)); $i++) {
-            $name = Str::slug($info['filename']).'-'.$i.'.'.strtolower($info['extension'] ?? 'bin');
+        for ($i = 2; is_file(Paths::content("media/{$folder}/{$name}")); $i++) {
+            $name = $stem.'-'.$i.'.'.$extension;
         }
 
-        Files::copy($source, Paths::content($id.'/'.$name));
+        Files::copy($source, Paths::content("media/{$folder}/{$name}"));
         $this->index->refresh();
 
-        return $name;
+        return "media/{$folder}/{$name}";
     }
 
-    public function deleteMedia(string $id, string $name): void
+    /**
+     * Move a file of the media library (and its details) to the trash.
+     */
+    public function deleteMedia(string $reference): void
     {
-        $row = $this->existing($id);
+        $path = $this->mediaPath($reference);
 
-        if (! isset($row['media'][$name])) {
+        if ($path === null) {
             return;
         }
 
-        $target = Paths::data('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-'.str_replace('/', '--', $id).'--'.$name);
+        $target = Paths::data('trash/'.CarbonImmutable::now()->format('Y-m-d-His').'-media--'.str_replace('/', '--', $path));
         @mkdir(dirname($target), 0775, true);
-        rename(Paths::content($id.'/'.$name), $target);
+        rename(Paths::content('media/'.$path), $target);
 
-        if (is_file($sidecar = Paths::content($id.'/'.$name.'.yml'))) {
+        if (is_file($sidecar = Paths::content('media/'.$path.'.yml'))) {
             rename($sidecar, $target.'.yml');
         }
 
@@ -224,24 +229,20 @@ class Writer
 
     /**
      * Saves alt text, caption, credit and focus point of a file in its sidecar
-     * file (photo.jpg.yml). Empty values are left out; without any, the
-     * sidecar file is removed.
+     * file (photo.jpg.yml next to photo.jpg). Empty values are left out;
+     * without any, the sidecar file is removed.
      *
      * @param  array<string, mixed>  $meta
      */
-    public function saveMediaMeta(string $id, string $name, array $meta): void
+    public function saveMediaMeta(string $reference, array $meta): void
     {
-        $row = $this->existing($id);
-
-        if (! isset($row['media'][$name])) {
-            throw new InvalidArgumentException("No file {$name} in {$id}.");
-        }
+        $path = $this->mediaPath($reference) ?? throw new InvalidArgumentException("There is no file {$reference} in the media library.");
 
         $clean = function ($value) use (&$clean) {
             return is_array($value) ? array_filter(array_map($clean, $value), fn ($v) => $v !== '' && $v !== []) : trim((string) $value);
         };
         $meta = array_filter(array_map($clean, array_intersect_key($meta, array_flip(['alt', 'caption', 'credit', 'focus']))), fn ($v) => $v !== '' && $v !== []);
-        $sidecar = Paths::content($id.'/'.$name.'.yml');
+        $sidecar = Paths::content('media/'.$path.'.yml');
 
         if ($meta === []) {
             @unlink($sidecar);
@@ -254,17 +255,17 @@ class Writer
 
     /**
      * Moves a page in the page tree: under another parent ($parent, null for
-     * the top level) and into the menu order ($position, counted from 0
-     * among the listed pages), or out of the menu order ($position null).
+     * the top level) and to $position among its siblings (counted from 0;
+     * null puts it at the end).
      *
-     * Folders are renamed on disk (pages/1_about → pages/2_about), so ids
-     * change. Wake takes care of everything that refers to them: versions,
-     * redirects, menus, and redirects from the old addresses of published
-     * pages whose address changes.
+     * The order is written as "order: N" into the pages' files. The folder
+     * only moves when the parent changes; then versions, redirects and menus
+     * follow the new id, and published pages whose address changes get a
+     * redirect from the old one.
      *
-     * @return string the new id of the page
+     * @return string the id of the page afterwards
      */
-    public function movePage(string $id, ?string $parent, ?int $position): string
+    public function movePage(string $id, ?string $parent, ?int $position = null): string
     {
         return Files::lock('page-tree', function () use ($id, $parent, $position) {
             $row = $this->existing($id);
@@ -274,7 +275,7 @@ class Writer
                 throw new InvalidArgumentException('Only pages can be moved in the page tree.');
             }
 
-            if ($row['parent'] === null && $row['name'] === 'home') {
+            if ($row['parent'] === null && $row['name'] === 'home' && $parent !== null) {
                 throw new InvalidArgumentException('The home page stays where it is.');
             }
 
@@ -282,92 +283,94 @@ class Writer
                 throw new InvalidArgumentException('A page cannot be moved into itself.');
             }
 
-            $entries = $this->index->entries();
-            $base = $parent ?? $type->folder;
+            $newId = $row['parent'] === $parent ? $id : $this->movePageFolder($row, $parent ?? $type->folder);
 
-            // A page with the same name under the new parent gets a number.
-            $name = $row['name'];
-            $names = collect($entries)->filter(fn (array $r) => $r['type'] === $row['type'] && $r['parent'] === $parent && $r['id'] !== $id)->pluck('name')->all();
-            for ($i = 2; in_array($name, $names, true); $i++) {
-                $name = $row['name'].'-'.$i;
-            }
-            $entries[$id]['name'] = $name;
-
-            // The listed pages under the new parent, in order, with the moved page in its new place.
-            $listed = collect($entries)
-                ->filter(fn (array $r) => $r['type'] === $row['type'] && $r['parent'] === $parent && $r['num'] !== null && $r['id'] !== $id)
-                ->sortBy([['num', 'asc'], ['name', 'asc']])
+            // Number the siblings 1, 2, 3 … with the moved page in its new place.
+            $siblings = collect($this->index->entries())
+                ->filter(fn (array $r) => $r['type'] === $row['type'] && $r['parent'] === $parent && $r['id'] !== $newId)
+                ->sortBy(fn (array $r) => [$r['order'] ?? PHP_INT_MAX, $r['name']])
                 ->keys()->values()->all();
+            array_splice($siblings, $position === null ? count($siblings) : max(0, min($position, count($siblings))), 0, [$newId]);
 
-            if ($position !== null) {
-                array_splice($listed, max(0, min($position, count($listed))), 0, [$id]);
-            }
-
-            // The moved page first: it may live inside a sibling that is renamed, too.
-            $renames = [$id => $base.'/'.$name];
-            foreach ($listed as $i => $sibling) {
-                $renames[$sibling] = $base.'/'.($i + 1).'_'.$entries[$sibling]['name'];
-            }
-
-            $renames = array_filter($renames, fn (string $to, string $from) => $to !== $from, ARRAY_FILTER_USE_BOTH);
-
-            if ($renames === []) {
-                return $id;
-            }
-
-            // The most specific renamed folder an id lives in.
-            $sources = array_keys($renames);
-            usort($sources, fn ($a, $b) => strlen($b) <=> strlen($a));
-            $affected = fn (string $candidate) => collect($sources)->first(fn ($from) => $candidate === $from || str_starts_with($candidate, $from.'/'));
-
-            // Old addresses and files of every page that moves along.
-            $before = [];
-            foreach ($entries as $entryId => $entryRow) {
-                if ($affected($entryId) !== null) {
-                    foreach (array_keys($entryRow['languages']) as $language) {
-                        $entry = Entry::make($this->index->find($entryId), $language);
-                        $before[$entryId][$language] = ['path' => $entry->isPublished() ? $entry->path() : null, 'file' => $entryRow['languages'][$language]['file']];
-                    }
+            foreach ($siblings as $n => $sibling) {
+                if (($this->index->find($sibling)['order'] ?? null) !== $n + 1) {
+                    $this->setFields($sibling, ['order' => $n + 1]);
                 }
             }
 
-            // Two steps through hidden folders next to the targets, so that
-            // swapping 1_a and 2_b never collides.
-            $temporary = [];
-            foreach (array_keys($renames) as $i => $from) {
-                $temporary[$from] = $base.'/.moving-'.$i;
-                rename(Paths::content($from), Paths::content($temporary[$from]));
-            }
-            foreach ($renames as $from => $to) {
-                rename(Paths::content($temporary[$from]), Paths::content($to));
-            }
-
-            $newId = fn (string $old) => ($from = $affected($old)) !== null ? $renames[$from].substr($old, strlen($from)) : $old;
-
-            foreach ($before as $oldId => $translations) {
-                foreach ($translations as $translation) {
-                    $this->revisions->move($translation['file'], $newId($oldId).substr($translation['file'], strlen($oldId)));
-                }
-            }
-
-            $this->redirects->renameTargets($newId);
-            app(Menus::class)->renameTargets($newId);
             $this->index->refresh();
+            $this->history->record('move', $newId);
 
-            foreach ($before as $oldId => $translations) {
-                $row = $this->index->find($newId($oldId));
+            return $newId;
+        });
+    }
 
-                foreach ($translations as $language => $translation) {
-                    if ($row && $translation['path'] !== null && ($path = Entry::make($row, $language)->path()) !== $translation['path']) {
-                        $this->redirects->add($language, $translation['path'], $row['id']);
-                    }
+    /**
+     * Writes fields into the default language's file without keeping a
+     * version, for bookkeeping such as the order in the page tree.
+     *
+     * @param  array<string, mixed>  $fields  null removes a field
+     */
+    public function setFields(string $id, array $fields): void
+    {
+        $row = $this->existing($id);
+        $file = $this->fileFor($row, $this->languages->default());
+
+        Files::lock('entry-'.md5($id), function () use ($file, $fields) {
+            $path = Paths::content($file);
+            [$current, $body] = is_file($path) ? FrontMatter::parse((string) file_get_contents($path), $file) : [[], ''];
+            Files::write($path, FrontMatter::dump($this->clean(array_merge($current, $fields)), $body));
+            $this->index->invalidate([$file]);
+        });
+    }
+
+    /**
+     * Moves a page's folder below another parent and points everything that
+     * refers to it (and to its sub-pages) at the new ids.
+     *
+     * @param  array<string, mixed>  $row
+     */
+    protected function movePageFolder(array $row, string $base): string
+    {
+        $id = $row['id'];
+        $target = $this->uniqueId($base.'/'.$row['name']);
+        $rename = fn (string $old) => $old === $id || str_starts_with($old, $id.'/') ? $target.substr($old, strlen($id)) : $old;
+
+        // Addresses and files of the page and its sub-pages before the move.
+        $before = [];
+        foreach ($this->index->entries() as $entryId => $entryRow) {
+            if ($entryId === $id || str_starts_with($entryId, $id.'/')) {
+                foreach (array_keys($entryRow['languages']) as $language) {
+                    $entry = Entry::make($entryRow, $language);
+                    $before[$entryId][$language] = ['path' => $entry->isPublished() ? $entry->path() : null, 'file' => $entryRow['languages'][$language]['file']];
                 }
             }
+        }
 
-            $this->history->record('move', $newId($id));
+        @mkdir(dirname(Paths::content($target)), 0775, true);
+        rename(Paths::content($id), Paths::content($target));
 
-            return $newId($id);
-        });
+        foreach ($before as $oldId => $translations) {
+            foreach ($translations as $translation) {
+                $this->revisions->move($translation['file'], $rename($oldId).substr($translation['file'], strlen($oldId)));
+            }
+        }
+
+        $this->redirects->renameTargets($rename);
+        app(Menus::class)->renameTargets($rename);
+        $this->index->refresh();
+
+        foreach ($before as $oldId => $translations) {
+            $moved = $this->index->find($rename($oldId));
+
+            foreach ($translations as $language => $translation) {
+                if ($moved && $translation['path'] !== null && ($path = Entry::make($moved, $language)->path()) !== $translation['path']) {
+                    $this->redirects->add($language, $translation['path'], $moved['id']);
+                }
+            }
+        }
+
+        return $target;
     }
 
     /**
@@ -377,13 +380,8 @@ class Writer
      */
     protected function fileFor(array $row, string $language): string
     {
-        if (isset($row['languages'][$language])) {
-            return $row['languages'][$language]['file'];
-        }
-
-        return $this->types->get($row['type'])->layout === ContentType::FILES
-            ? $row['id'].'.'.$language.'.md'
-            : $row['id'].'/index.'.$language.'.md';
+        return $row['languages'][$language]['file']
+            ?? $row['id'].'/content'.($language === $this->languages->default() ? '' : '.'.$language).'.md';
     }
 
     /**
@@ -404,19 +402,25 @@ class Writer
         return Entry::make($row, $language);
     }
 
-    protected function uniqueId(string $id, ContentType $type): string
+    protected function uniqueId(string $id): string
     {
-        $exists = fn (string $candidate) => $type->layout === ContentType::FILES
-            ? glob(Paths::content($candidate).'*.md') !== []
-            : is_dir(Paths::content($candidate));
-
         $unique = $id;
 
-        for ($i = 2; $exists($unique); $i++) {
+        for ($i = 2; is_dir(Paths::content($unique)); $i++) {
             $unique = $id.'-'.$i;
         }
 
         return $unique;
+    }
+
+    /**
+     * The path below media/ of an existing file in the library.
+     */
+    protected function mediaPath(string $reference): ?string
+    {
+        $path = ltrim(preg_replace('#^media/#', '', $reference), '/');
+
+        return ! str_contains($path, '..') && $this->index->media($path) !== null ? $path : null;
     }
 
     protected function guardLanguage(string $language): void

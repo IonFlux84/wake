@@ -3,11 +3,14 @@
 namespace Wake\Media;
 
 use Illuminate\Support\HtmlString;
-use Wake\Content\Entry;
+use Wake\Content\Index;
 use Wake\Localization\Languages;
+use Wake\Support\Paths;
 
 /**
- * A file in an entry's folder: an image, a PDF, a download.
+ * A file in content/media/: an image, a PDF, a download. Its path is the part
+ * below media/, e.g. "posts/lantern-walk/procession.jpg" or "documents/rules.pdf";
+ * content refers to it as "media/<path>".
  *
  * Content folders are not public. Media URLs point to /media/…, where Wake
  * copies the original or creates a resized version on the first request and
@@ -21,21 +24,61 @@ class Media
     /** @var array{0: int, 1: int}|false|null */
     protected array|false|null $size = null;
 
-    public function __construct(protected Entry $entry, protected string $name, protected int $mtime) {}
+    public function __construct(protected string $file, protected int $mtime) {}
 
+    /**
+     * The file for a path below media/, if it exists.
+     */
+    public static function find(string $path): ?self
+    {
+        $path = ltrim(preg_replace('#^media/#', '', $path), '/');
+        $found = app(Index::class)->media($path);
+
+        return $found ? new self($path, $found['mtime']) : null;
+    }
+
+    /**
+     * The file name, e.g. "procession.jpg".
+     */
     public function name(): string
     {
-        return $this->name;
+        return basename($this->file);
+    }
+
+    /**
+     * The path below media/, e.g. "posts/lantern-walk/procession.jpg".
+     */
+    public function relativePath(): string
+    {
+        return $this->file;
+    }
+
+    /**
+     * How content refers to it: "media/posts/lantern-walk/procession.jpg".
+     */
+    public function reference(): string
+    {
+        return 'media/'.$this->file;
+    }
+
+    public function hash(): string
+    {
+        return substr(md5('media/'.$this->file), 0, 10);
+    }
+
+    public function modifiedAt(): int
+    {
+        return $this->mtime;
     }
 
     public function extension(): string
     {
-        return strtolower(pathinfo($this->name, PATHINFO_EXTENSION));
+        return strtolower(pathinfo($this->file, PATHINFO_EXTENSION));
     }
 
     public function path(): string
     {
-        return $this->entry->directory().'/'.$this->name;
+        return Paths::content('media/'.$this->file);
     }
 
     public function isImage(): bool
@@ -66,14 +109,14 @@ class Media
     public function url(?int $width = null, ?string $format = null): string
     {
         $variant = 'o';
-        $name = $this->name;
+        $name = $this->name();
 
         if ($this->isImage()) {
             $variant = $width === null ? 'o' : (string) Images::nearestWidth($width);
             $name .= $format !== null && $format !== $this->extension() ? '.'.$format : '';
         }
 
-        return url('media/'.$this->entry->hash().'/'.base_convert((string) $this->mtime, 10, 36).'/'.$variant.'/'.rawurlencode($name));
+        return url('media/'.$this->hash().'/'.base_convert((string) $this->mtime, 10, 36).'/'.$variant.'/'.rawurlencode($name));
     }
 
     /**
@@ -94,7 +137,7 @@ class Media
      */
     public function meta(): array
     {
-        return $this->entry->mediaMeta($this->name);
+        return app(Index::class)->media($this->file)['meta'] ?? [];
     }
 
     /**

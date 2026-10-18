@@ -7,7 +7,7 @@ use Wake\Support\Files;
 use Wake\Support\Paths;
 
 /**
- * Earlier versions of content files in storage/revisions/{file hash}/.
+ * Earlier versions of content files in data/versions/{file hash}/.
  * Wake keeps the last 20 versions, and anything younger than 30 days.
  */
 class Revisions

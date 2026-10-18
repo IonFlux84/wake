@@ -16,14 +16,14 @@ use Wake\Wake;
 use ZipArchive;
 
 /**
- * Backups as ZIP files in storage/backups: content, site settings, themes,
- * accounts, consent records, versions and history, and optionally the
- * statistics. Caches, the trash and .env are left out.
+ * Backups as ZIP files in data/backups: content, settings, themes, plugins,
+ * accounts, consent records, versions, history and mail settings, and
+ * optionally the statistics. temp/, the trash and .env are left out.
  *
  *     wake-backup.json        format, Wake version, date, contents
  *     content/…
- *     site/…
- *     storage/accounts/…
+ *     settings/…
+ *     data/accounts/…
  */
 class Backups
 {
@@ -117,7 +117,7 @@ class Backups
     }
 
     /**
-     * Keeps an uploaded ZIP in storage/backups after checking it.
+     * Keeps an uploaded ZIP in data/backups after checking it.
      */
     public function store(string $source, string $originalName): string
     {

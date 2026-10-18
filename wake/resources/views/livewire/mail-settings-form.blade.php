@@ -33,7 +33,7 @@
         <div class="field"><label for="mail-from">{{ __('Sender address') }}</label><input id="mail-from" type="email" class="input" wire:model="fromAddress" placeholder="hallo@example.org">@error('fromAddress')<span class="error">{{ $message }}</span>@enderror</div>
         <div class="field"><label for="mail-name">{{ __('Sender name') }}</label><input id="mail-name" class="input" wire:model="fromName"></div>
     </div>
-    <p class="muted" style="margin:0;font-size:13px">{{ __('The password is stored encrypted in storage/mail.yml. These settings replace the MAIL values in .env.') }}</p>
+    <p class="muted" style="margin:0;font-size:13px">{{ __('The password is stored encrypted in data/secrets/mail.yml. These settings replace the MAIL values in .env.') }}</p>
 
     <div class="actions">
         <button type="submit" class="btn btn-primary">{{ __('Save mail settings') }}</button>

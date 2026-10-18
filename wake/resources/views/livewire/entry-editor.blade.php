@@ -254,7 +254,7 @@
                             @error($slot.'Upload')<span class="error">{{ $message }}</span>@enderror
                             <div class="media-grid" x-show="pick" x-cloak>
                                 @foreach ($media->filter(fn ($f) => $f->isImage()) as $file)
-                                    <button type="button" wire:click="setImage('{{ $slot }}', '{{ $file->name() }}')" @click="pick = false" @class(['is-cover' => $$slot === $file->name()]) title="{{ $file->name() }}"><img src="{{ $file->url(320) }}" alt="" loading="lazy"></button>
+                                    <button type="button" wire:click="setImage('{{ $slot }}', '{{ $file->reference() }}')" @click="pick = false" @class(['is-cover' => $$slot === $file->reference()]) title="{{ $file->name() }}"><img src="{{ $file->url(320) }}" alt="" loading="lazy"></button>
                                 @endforeach
                             </div>
                         </div>

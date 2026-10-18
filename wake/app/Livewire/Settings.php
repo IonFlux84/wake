@@ -147,7 +147,7 @@ class Settings extends Component
         ]);
 
         foreach ($this->site as $code => $values) {
-            $file = Paths::content(app(Languages::class)->default() === $code && is_file(Paths::content('site.md')) ? 'site.md' : "site.{$code}.md");
+            $file = Paths::content(app(Languages::class)->default() === $code ? 'website.md' : "website.{$code}.md");
             [$fields, $body] = is_file($file) ? FrontMatter::parse((string) file_get_contents($file)) : [[], ''];
             $fields = array_filter([...$fields, 'title' => $values['title'], 'description' => $values['description']], fn ($v) => $v !== '' && $v !== null);
             Files::write($file, FrontMatter::dump($fields, $body));

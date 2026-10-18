@@ -1,5 +1,0 @@
-title: Events
-folder: events
-fields:
-  start: { type: datetime, required: true }
-  location: { type: text }

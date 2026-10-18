@@ -6,7 +6,7 @@ use Generator;
 use Wake\Support\Paths;
 
 /**
- * The raw statistics files in storage/stats/raw, one per day.
+ * The raw statistics files in data/stats/raw, one per day.
  */
 class RawLog
 {

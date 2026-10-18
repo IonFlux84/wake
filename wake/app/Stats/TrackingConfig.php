@@ -7,7 +7,7 @@ use Wake\Support\Paths;
 
 /**
  * public/hit.php runs without Laravel, so Wake writes the rules it needs
- * into storage/stats/.config.php whenever they change.
+ * into data/stats/.config.php whenever they change.
  */
 class TrackingConfig
 {

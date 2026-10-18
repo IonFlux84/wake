@@ -15,9 +15,9 @@ beforeEach(function () {
 });
 
 it('previews drafts for the team, not for guests', function () {
-    $this->get('/wake/preview?id=posts/2026-03-01-draft&language=en')->assertRedirect('/wake/login');
+    $this->get('/wake/preview?id=posts/draft&language=en')->assertRedirect('/wake/login');
 
-    $this->actingAs($this->owner)->get('/wake/preview?id=posts/2026-03-01-draft&language=en')
+    $this->actingAs($this->owner)->get('/wake/preview?id=posts/draft&language=en')
         ->assertOk()->assertSee('Post: A draft')->assertSee('Preview · Draft')
         ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
 
@@ -25,7 +25,7 @@ it('previews drafts for the team, not for guests', function () {
 });
 
 it('shares previews through signed links that expire', function () {
-    $url = PreviewController::sharedUrl(Post::find('posts/2026-03-01-draft'));
+    $url = PreviewController::sharedUrl(Post::find('posts/draft'));
 
     $this->get($url)->assertOk()->assertSee('A draft')->assertSee('link valid until');
     $this->get($url.'x')->assertForbidden();
@@ -35,7 +35,7 @@ it('shares previews through signed links that expire', function () {
 });
 
 it('saves and opens the preview from the editor', function () {
-    Livewire::withQueryParams(['id' => 'posts/2026-03-01-draft'])->actingAs($this->owner)
+    Livewire::withQueryParams(['id' => 'posts/draft'])->actingAs($this->owner)
         ->test(EntryEditor::class, ['type' => 'post'])
         ->call('preview')->assertDispatched('wake-open')
         ->call('shareLink')->assertSet('sharedLink', fn ($link) => str_contains($link, 'signature='));
@@ -43,7 +43,7 @@ it('saves and opens the preview from the editor', function () {
 
 it('manages redirects in the panel', function () {
     Livewire::actingAs($this->owner)->test(RedirectManager::class)
-        ->set('from', '/old-page')->set('to', 'posts/2026-01-10-first')->call('add')->assertHasNoErrors()
+        ->set('from', '/old-page')->set('to', 'posts/first')->call('add')->assertHasNoErrors()
         ->set('from', '/elsewhere')->set('to', 'https://example.org')->call('add')->assertHasNoErrors()
         ->set('from', '/broken')->set('to', 'posts/missing')->call('add')->assertHasErrors('to');
 

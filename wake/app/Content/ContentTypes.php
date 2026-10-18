@@ -10,7 +10,8 @@ use Wake\Support\Paths;
 
 /**
  * All content types of the site: the built-in post, page and tag, plus every
- * blueprint in site/blueprints/ that names a folder.
+ * folder in content/ with a type.yml. A type.yml in posts/, pages/ or tags/
+ * adds fields to a built-in type.
  */
 class ContentTypes
 {
@@ -58,7 +59,7 @@ class ContentTypes
                 config('wake.post_url', '{slug}'), 'Posts', $blueprints['post'] ?? []),
             'page' => new ContentType('page', 'pages', ContentType::TREE, Page::class,
                 '{path}', 'Pages', $blueprints['page'] ?? []),
-            'tag' => new ContentType('tag', 'tags', ContentType::FILES, Tag::class,
+            'tag' => new ContentType('tag', 'tags', ContentType::FOLDERS, Tag::class,
                 trim(config('wake.tag_url', 'tag'), '/').'/{slug}', 'Tags', $blueprints['tag'] ?? []),
         ];
 
@@ -67,7 +68,7 @@ class ContentTypes
                 continue;
             }
 
-            $folder = trim($blueprint['folder'], '/');
+            $folder = $blueprint['folder'];
 
             $types[$name] = new ContentType(
                 name: $name,
@@ -89,9 +90,23 @@ class ContentTypes
     protected function blueprints(): array
     {
         $blueprints = [];
+        $builtIn = ['posts' => 'post', 'pages' => 'page', 'tags' => 'tag'];
 
-        foreach (glob(Paths::settings('blueprints/*.yml')) ?: [] as $file) {
-            $blueprints[basename($file, '.yml')] = Yaml::parseFile($file) ?? [];
+        foreach (glob(Paths::content('*/type.yml')) ?: [] as $file) {
+            $folder = basename(dirname($file));
+
+            if (in_array($folder, ['media', 'categories'], true)) {
+                continue;
+            }
+
+            try {
+                $data = Yaml::parseFile($file) ?: [];
+            } catch (\Throwable) {
+                continue;
+            }
+
+            $name = $builtIn[$folder] ?? (string) ($data['name'] ?? $folder);
+            $blueprints[$name] = ['folder' => $folder] + (is_array($data) ? $data : []);
         }
 
         return $blueprints;

@@ -7,7 +7,7 @@ use Wake\Support\Paths;
 use Wake\Support\PublicAssets;
 
 /**
- * The active theme in site/themes/{name}:
+ * The active theme in themes/{name}:
  *
  *     templates/   Blade views, available as theme::name
  *     assets/      CSS, JavaScript, fonts and images

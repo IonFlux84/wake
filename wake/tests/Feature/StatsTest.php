@@ -55,7 +55,7 @@ it('links pages to entries', function () {
 
     $pages = collect(app(Stats::class)->report('2026-05-30', '2026-05-30')->pages())->keyBy('path');
 
-    expect($pages['/first']['entry']->id())->toBe('posts/2026-01-10-first')
+    expect($pages['/first']['entry']->id())->toBe('posts/first')
         ->and($pages['/de/erster-beitrag']['entry']->language())->toBe('de');
 });
 

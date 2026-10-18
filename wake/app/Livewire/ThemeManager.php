@@ -69,7 +69,7 @@ class ThemeManager extends Component
     public function duplicate(Themes $themes, string $folder): void
     {
         $copy = $themes->duplicate($folder, $themes->get($folder)->name().' '.__('(copy)'));
-        session()->flash('status', __('Copied to site/themes/:folder. Change the copy as you like, then activate it.', ['folder' => $copy->folder]));
+        session()->flash('status', __('Copied to themes/:folder. Change the copy as you like, then activate it.', ['folder' => $copy->folder]));
     }
 
     public function updatedZip(Themes $themes): void

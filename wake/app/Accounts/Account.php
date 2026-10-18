@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Wake\Mail\PasswordResetMail;
 
 /**
- * A member of the team, stored in storage/accounts/{id}/account.yml.
+ * A member of the team, stored in data/accounts/{id}/account.yml.
  */
 class Account implements Authenticatable, AuthorizableContract, CanResetPassword
 {

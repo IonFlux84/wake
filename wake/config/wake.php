@@ -1,6 +1,6 @@
 <?php
 
-// Default settings for Wake. A site overrides any of them in site/config.php,
+// Default settings for Wake. A site overrides any of them in settings/config.php,
 // which returns an array with the same keys. Every key is documented in
 // docs/reference/configuration.md (a test makes sure it stays that way).
 
@@ -40,13 +40,13 @@ return [
     // Time zone for dates in content and for scheduled publishing.
     'timezone' => env('WAKE_TIMEZONE', 'UTC'),
 
-    // Name of the folder in site/themes/ that renders the website.
+    // Name of the folder in themes/ that renders the website.
     'theme' => 'tide',
 
     // Options for the active theme, e.g. ['accent' => '#3D5AFE'] for Tide.
     'theme_options' => [],
 
-    // Plugins in site/plugins/: folders that are switched off, and the
+    // Plugins in plugins/: folders that are switched off, and the
     // settings of each plugin, usually changed in the panel under Plugins.
     'plugins' => [
         'disabled' => [],
@@ -83,7 +83,7 @@ return [
     ],
 
     'page_cache' => [
-        // Serve finished HTML from storage/cache/pages without booting Laravel.
+        // Serve finished HTML from temp/cache/pages without booting Laravel.
         'enabled' => env('WAKE_PAGE_CACHE', true),
 
         // Seconds a cached page may be served before Wake looks again. This
@@ -106,7 +106,7 @@ return [
         'retention' => 30,
 
         // Optional IP-to-country database in MaxMind format (e.g. DB-IP Lite).
-        'geo' => dirname(base_path()).'/storage/stats/geo/country.mmdb',
+        'geo' => dirname(base_path()).'/data/stats/geo/country.mmdb',
     ],
 
     'mcp' => [

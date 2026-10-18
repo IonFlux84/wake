@@ -5,7 +5,7 @@ namespace Wake\Cache;
 use Wake\Support\Files;
 
 /**
- * Finished HTML pages in storage/cache/pages, served by public/index.php
+ * Finished HTML pages in temp/cache/pages, served by public/index.php
  * before Laravel starts. Each page lives at {path}/index.html.
  */
 class PageCache

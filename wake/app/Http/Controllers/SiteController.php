@@ -87,7 +87,7 @@ class SiteController
     }
 
     /**
-     * An old address of an entry (site/redirects.yml) gets a permanent redirect.
+     * An old address of an entry (settings/redirects.yml) gets a permanent redirect.
      */
     protected function redirect(string $language, string $path): ?RedirectResponse
     {

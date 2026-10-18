@@ -23,3 +23,4 @@ New record: copy [template.md](template.md), take the next number.
 | [0008](0008-application-in-its-own-folder.md) | The application lives in its own folder | accepted |
 | [0009](0009-plugins-as-php-folders.md) | Plugins are PHP folders with a small interface | accepted |
 | [0010](0010-hairline-design.md) | Panel and website share the Hairline design | accepted |
+| [0011](0011-one-folder-per-entry.md) | One folder per entry, one folder per responsibility | accepted |

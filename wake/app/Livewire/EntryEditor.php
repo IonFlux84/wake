@@ -274,7 +274,7 @@ class EntryEditor extends Component
 
     public function updatedFileUpload(): void
     {
-        $this->validate(['fileUpload' => 'required|file|max:51200|mimes:jpg,jpeg,png,gif,webp,avif,svg,pdf,zip,mp3,mp4,docx,xlsx,pptx,odt,ods,txt,csv,epub']);
+        $this->validate(['fileUpload' => MediaLibrary::FILE_RULE]);
         $this->storeFile($this->fileUpload);
         $this->fileUpload = null;
     }
@@ -299,7 +299,8 @@ class EntryEditor extends Component
     }
 
     /**
-     * Store an uploaded file in the entry's folder. A new entry is saved as a
+     * Store an uploaded file in the entry's folder of the media library
+     * (content/media/<id>/) and return its reference. A new entry is saved as a
      * draft first, with a placeholder title if it has none yet, so nothing
      * uploaded gets lost.
      */

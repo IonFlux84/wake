@@ -26,7 +26,7 @@
                     <input id="backup-zip" type="file" accept=".zip" wire:model="zip">
                     @error('zip')<span class="error">{{ $message }}</span>@enderror
                 </div>
-                <p class="muted" style="font-size:13px;margin:0">{{ __('Large backups are easier to upload by FTP into storage/backups. They appear in the list below.') }}</p>
+                <p class="muted" style="font-size:13px;margin:0">{{ __('Large backups are easier to upload by FTP into data/backups. They appear in the list below.') }}</p>
             </div>
         </section>
 

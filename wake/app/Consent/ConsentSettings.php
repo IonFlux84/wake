@@ -7,7 +7,7 @@ use Wake\Support\Files;
 use Wake\Support\Paths;
 
 /**
- * Settings of the consent banner in site/consent.yml, editable in the panel.
+ * Settings of the consent banner in settings/consent.yml, editable in the panel.
  * Texts exist per language; every change to them raises the version, which
  * asks every visitor again.
  */
