@@ -1,7 +1,7 @@
 <form class="card form" wire:submit="save">
     <div class="card-head">
         <h2 class="h2">{{ __('Sending mail') }}</h2>
-        <span class="badge" @if ($sends) style="background:var(--accent);color:var(--on-accent)" @endif>{{ $sends ? __('Mails are sent') : __('Mails are not sent') }}</span>
+        <span @class(['badge', 'on' => $sends])>{{ $sends ? __('Mails are sent') : __('Mails are not sent') }}</span>
     </div>
     <p class="muted" style="margin:0;font-size:14px">{{ __('Wake sends invitations and password links. Your host or mail provider tells you the SMTP details; they are often the same as in your mail program.') }}</p>
     @if (session('mail_status'))<div class="flash" role="status">{{ session('mail_status') }}</div>@endif

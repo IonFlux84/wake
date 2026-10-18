@@ -13,12 +13,11 @@
         </div>
     </header>
 
-    <section class="grid grid-4" aria-label="{{ __('Filter by status') }}">
+    <section class="kpis" aria-label="{{ __('Filter by status') }}">
         @foreach ($statusLabels as $key => $label)
-            <button type="button" class="card" wire:click="setStatus('{{ $key }}')" aria-pressed="{{ $status === $key ? 'true' : 'false' }}"
-                style="text-align:left;cursor:pointer;font:inherit;{{ $status === $key ? 'background:var(--night);color:#fff;border-color:var(--night)' : '' }}">
-                <span class="kpi-label" style="{{ $status === $key ? 'color:#bdbdbd' : '' }}">{{ $label }} @if ($key !== 'all')<span class="status {{ $key }}"></span>@endif</span>
-                <span class="kpi-value" style="{{ $status === $key ? 'color:var(--accent);text-shadow:0 0 18px var(--glow)' : '' }}">{{ $counts[$key] }}</span>
+            <button type="button" class="kpi" wire:click="setStatus('{{ $key }}')" aria-pressed="{{ $status === $key ? 'true' : 'false' }}">
+                <span class="kpi-label">{{ $label }} @if ($key !== 'all')<span class="status {{ $key }}"></span>@endif</span>
+                <span class="kpi-value">{{ $counts[$key] }}</span>
             </button>
         @endforeach
     </section>
@@ -53,7 +52,7 @@
                         <td>
                             <a href="{{ route('wake.entries.edit', ['type' => $type, 'id' => $entry->id()]) }}" style="text-decoration:none;font-weight:600">{{ $entry->title() }}</a>
                             @if ($entry->get('via') === 'mcp')<span class="badge mcp" title="{{ __('Created by an AI assistant') }}">MCP</span>@endif
-                            @if ($entry->get('review'))<span class="badge" style="background:var(--accent);color:var(--on-accent)">{{ __('Waiting for approval') }}</span>@endif
+                            @if ($entry->get('review'))<span class="badge on">{{ __('Waiting for approval') }}</span>@endif
                             <br><span class="muted mono" style="font-size:12px">/{{ $entry->path() }}</span>
                             @if ($entry->category())<span class="badge" style="margin-left:6px">{{ $entry->category()->title(app()->getLocale()) }}@if ($entry->get('start')) · {{ \Carbon\CarbonImmutable::parse($entry->get('start'))->locale(app()->getLocale())->isoFormat('D. MMM') }}@endif</span>@endif
                         </td>

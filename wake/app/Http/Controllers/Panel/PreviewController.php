@@ -59,7 +59,7 @@ class PreviewController
         $note = $expires ? ' · '.__('link valid until :date', ['date' => now()->setTimestamp($expires)->locale(app()->getLocale())->isoFormat('LL')]) : '';
         $status = $entry->isPublished() ? __('Published') : ($entry->isScheduled() ? __('Scheduled') : __('Draft'));
         $banner = '<div style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483001;padding:10px 16px;border-radius:999px;background:#0a0a0a;color:#fff;font:600 14px system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.3)">'
-            .'<span style="color:#c6ff3d">●</span> '.e($label).' · '.e($status).e($note).'</div>';
+            .'<span style="color:#ffffff">●</span> '.e($label).' · '.e($status).e($note).'</div>';
 
         $html = (string) $response->getContent();
         $html = str_replace('</body>', $banner.'</body>', $html);

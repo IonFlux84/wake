@@ -54,13 +54,13 @@
 
         <div class="card" style="background:var(--paper-2)">
             <h2 class="h2">{{ __('Preview') }}</h2>
-            <div style="position:relative;flex:1;min-height:320px;border-radius:14px;border:1px solid var(--line);background:repeating-linear-gradient(0deg,#fff 0 22px,#f4f4f2 22px 23px);overflow:hidden">
-                <div style="position:absolute;left:16px;right:16px;{{ $position === 'center' ? 'top:50%;transform:translateY(-50%)' : 'bottom:16px' }};padding:18px;border-radius:14px;background:#0a0a0a;color:#fff;animation:slideup .5s ease-out both">
+            <div class="dotgrid" style="position:relative;flex:1;min-height:320px;border-radius:6px;border:1px solid var(--line-strong);overflow:hidden">
+                <div style="position:absolute;left:16px;right:16px;{{ $position === 'center' ? 'top:50%;transform:translateY(-50%)' : 'bottom:16px' }};padding:18px;border-radius:6px;background:#0a0a0a;color:#fff;animation:slidein .5s ease-out both">
                     <strong style="display:block;font-size:16px;margin-bottom:6px">{{ $preview['title'] ?? '' }}</strong>
                     <p style="margin:0 0 12px;font-size:14px;opacity:.85">{{ $preview['text'] ?? '' }}</p>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                        <span style="text-align:center;padding:10px;border-radius:9px;background:#fff;color:#0a0a0a;font-weight:700;font-size:14px">{{ $preview['decline'] ?? '' }}</span>
-                        <span style="text-align:center;padding:10px;border-radius:9px;background:#fff;color:#0a0a0a;font-weight:700;font-size:14px">{{ $preview['accept'] ?? '' }}</span>
+                        <span style="text-align:center;padding:10px;border-radius:4px;background:#fff;color:#0a0a0a;font-weight:700;font-size:14px">{{ $preview['decline'] ?? '' }}</span>
+                        <span style="text-align:center;padding:10px;border-radius:4px;background:#fff;color:#0a0a0a;font-weight:700;font-size:14px">{{ $preview['accept'] ?? '' }}</span>
                     </div>
                 </div>
             </div>

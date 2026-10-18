@@ -11,11 +11,7 @@
 @endphp
 <div style="display:flex;flex-direction:column;gap:20px">
     @unless (\Wake\Accounts\TwoFactor::isEnabled(auth()->user()))
-        <a href="{{ route('wake.settings') }}#two-factor" class="flash" style="text-decoration:none;display:flex;align-items:center;gap:10px">
-            <x-wake::icon name="key" size="16" />
-            <span style="flex:1">{{ __('Protect your account with two-factor sign-in: a stolen password alone is then not enough.') }}</span>
-            <span style="font-weight:600;white-space:nowrap">{{ __('Set up') }} →</span>
-        </a>
+        <a href="{{ route('wake.settings') }}#two-factor" class="flash"><x-wake::icon name="key" size="16" /><span class="grow">{{ __('Protect your account with two-factor sign-in: a stolen password alone is then not enough.') }}</span><span class="go">{{ __('Set up') }} →</span></a>
     @endunless
     <header class="page-head">
         <div>
@@ -34,53 +30,45 @@
         <div class="actions">
             <div class="segmented" role="group" aria-label="{{ __('Period') }}">
                 @foreach (['7d' => __('7 days'), '30d' => __('30 days'), '90d' => __('90 days')] as $key => $label)
-                    <button type="button" wire:click="setPeriod('{{ $key }}')" @class(['on' => $period === $key])>{{ $label }}</button>
+                    <button type="button" wire:click="setPeriod('{{ $key }}')" @class(['on' => $period === $key]) aria-pressed="{{ $period === $key ? 'true' : 'false' }}">{{ $label }}</button>
                 @endforeach
             </div>
-            @if (true)
+            @can('content.write')
                 <a class="btn btn-primary" href="{{ route('wake.entries.create', ['type' => 'post']) }}"><x-wake::icon name="plus" />{{ __('New post') }}</a>
-            @endif
+            @endcan
         </div>
     </header>
 
     @if (auth()->user()->can('stats.view'))
-    <section class="grid grid-4" aria-label="{{ __('Key figures') }}">
-        <div class="card">
+    <section class="kpis" aria-label="{{ __('Key figures') }}">
+        <div class="kpi">
             <div class="kpi-label">{{ __('Visitors') }} {!! $delta($deltas['visitors']) !!}</div>
             <div class="kpi-value">{{ $number($report->visitors()) }}</div>
             <div class="kpi-note">{{ __('added up per day, without cookies') }}</div>
         </div>
-        <div class="card">
+        <div class="kpi">
             <div class="kpi-label">{{ __('Page views') }} {!! $delta($deltas['pageviews']) !!}</div>
             <div class="kpi-value">{{ $number($report->pageviews()) }}</div>
             <div class="kpi-note">{{ __('previous period: :n', ['n' => $number($previous->pageviews())]) }}</div>
         </div>
-        <div class="card">
+        <div class="kpi">
             <div class="kpi-label">{{ __('Reading time') }} {!! $delta($deltas['duration']) !!}</div>
             <div class="kpi-value">{{ $duration($report->averageDuration()) }}</div>
             <div class="kpi-note">{{ __('active time per page view') }}</div>
         </div>
-        <div class="card">
+        <div class="kpi">
             <div class="kpi-label">{{ __('With consent') }}</div>
             <div class="kpi-value">{{ round($report->consentShare() * 100) }} %</div>
             <div class="kpi-note">{{ __('counted with the statistics cookie') }}</div>
         </div>
     </section>
 
-    <section class="night" aria-label="{{ __('Visitors and page views') }}">
-        <div class="waves" aria-hidden="true">
-            <svg viewBox="0 0 2000 90" preserveAspectRatio="none"><path d="M0 50 Q 125 20 250 50 T 500 50 T 750 50 T 1000 50 T 1250 50 T 1500 50 T 1750 50 T 2000 50" fill="none" stroke="var(--accent)" stroke-opacity=".16" stroke-width="1.4"/></svg>
-            <svg viewBox="0 0 2000 90" preserveAspectRatio="none"><path d="M0 60 Q 100 35 200 60 T 400 60 T 600 60 T 800 60 T 1000 60 T 1200 60 T 1400 60 T 1600 60 T 1800 60 T 2000 60" fill="none" stroke="#fff" stroke-opacity=".07" stroke-width="1.2"/></svg>
-        </div>
-        <div style="position:relative;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-bottom:22px">
+    <section class="night window" aria-label="{{ __('Visitors and page views') }}">
+        <div class="window-bar"><span>stats/visitors · {{ $period }}</span><span class="grow"></span>
+            <span class="legend"><span><i class="l1"></i>{{ __('Visitors') }}</span><span><i class="l2"></i>{{ __('Page views') }}</span></span></div>
+        <div class="window-body">
             <h2 class="h2">{{ __('Visitors and page views') }}</h2>
-            <div class="muted" style="display:flex;gap:18px;font-size:13px">
-                <span style="display:flex;align-items:center;gap:7px"><span style="width:16px;height:3px;border-radius:2px;background:var(--accent);box-shadow:0 0 8px var(--glow)"></span>{{ __('Visitors') }}</span>
-                <span style="display:flex;align-items:center;gap:7px"><span style="width:16px;border-top:2px dashed #8a8a8a"></span>{{ __('Page views') }}</span>
-            </div>
-        </div>
-        <div style="position:relative" wire:key="chart-{{ $period }}">
-            <x-wake::chart.line :series="$report->series()" :label="__('Visitors and page views per day')" />
+            <div wire:key="chart-{{ $period }}"><x-wake::chart.line :series="$report->series()" :label="__('Visitors and page views per day')" /></div>
         </div>
     </section>
 
@@ -109,7 +97,7 @@
             @forelse ($sources as $source => $count)
                 <div style="display:grid;gap:6px">
                     <div style="display:flex;justify-content:space-between;font-size:14px"><span>{{ $source === '' ? __('Direct') : $source }}</span><span class="mono">{{ $number($count) }}</span></div>
-                    <div style="height:6px;border-radius:3px;background:var(--hover);overflow:hidden"><div style="height:100%;width:{{ round($count / $maxSource * 100) }}%;background:var(--night);border-radius:3px;transform-origin:left;animation:grow .9s ease-out both"></div></div>
+                    <div style="height:4px;background:var(--sunken);overflow:hidden"><div style="height:100%;width:{{ round($count / $maxSource * 100) }}%;background:var(--text);transform-origin:left;animation:grow .9s ease-out both"></div></div>
                 </div>
             @empty
                 <p class="muted" style="margin:0">{{ __('No visits yet in this period.') }}</p>
@@ -127,15 +115,15 @@
                 <div class="card-head"><h2 class="h2">{{ $heading }}</h2><span class="status {{ $status }}"></span></div>
                 @forelse ($posts as $post)
                     <div style="display:flex;justify-content:space-between;gap:12px;font-size:14px">
-                        @if (true)
+                        @can('content.write')
                             <a href="{{ route('wake.entries.edit', ['type' => 'post', 'id' => $post->id()]) }}" style="text-decoration:none;font-weight:600">{{ $post->title() }}</a>
                         @else
                             <span style="font-weight:600">{{ $post->title() }}</span>
-                        @endif
+                        @endcan
                         <span class="muted mono" style="font-size:12px;white-space:nowrap">{{ $post->date()?->locale(app()->getLocale())->isoFormat('D. MMM') }}</span>
                     </div>
                 @empty
-                    <p class="muted" style="margin:0">{{ __('Nothing here.') }}</p>
+                    <p class="none">{{ ['draft' => __('No draft open.'), 'scheduled' => __('Nothing scheduled.'), 'published' => __('Nothing published yet.')][$status] }}</p>
                 @endforelse
             </div>
         @endforeach

@@ -9,7 +9,7 @@
     @if (session('invite_link'))
         <div class="card" style="gap:8px">
             <span class="muted" style="font-size:13px">{{ __('If the mail does not arrive, send this link yourself. It works for 7 days.') }}</span>
-            <code style="font:500 13px var(--mono);background:var(--hover);padding:10px 12px;border-radius:10px;word-break:break-all">{{ session('invite_link') }}</code>
+            <code class="codebox">{{ session('invite_link') }}</code>
         </div>
     @endif
 
@@ -30,8 +30,8 @@
                             @foreach ($roles as $role)<option value="{{ $role }}" @selected($account->role()->key === $role)>{{ app(\Wake\Accounts\Roles::class)->get($role)->label() }}</option>@endforeach
                         </select>
                         @if ($account->isPending())<button class="btn btn-small" wire:click="resend('{{ $account->id() }}')">{{ __('Resend') }}</button>@endif
-                        @if (\Wake\Accounts\TwoFactor::isEnabled($account))<button class="btn btn-small" wire:click="resetTwoFactor('{{ $account->id() }}')" wire:confirm="{{ __('Turn off two-factor sign-in for :name? Only do this if they lost their phone.', ['name' => $account->name()]) }}" title="{{ __('Turn off two-factor sign-in') }}"><x-wake::icon name="key" /></button>@endif
-                        <button class="btn btn-small btn-danger" wire:click="remove('{{ $account->id() }}')" wire:confirm="{{ __('Remove :name from the team?', ['name' => $account->name()]) }}" title="{{ __('Remove') }}"><x-wake::icon name="trash" /></button>
+                        @if (\Wake\Accounts\TwoFactor::isEnabled($account))<button class="btn btn-small" wire:click="resetTwoFactor('{{ $account->id() }}')" wire:confirm="{{ __('Turn off two-factor sign-in for :name? Only do this if they lost their phone.', ['name' => $account->name()]) }}" title="{{ __('Turn off two-factor sign-in') }}" aria-label="{{ __('Turn off two-factor sign-in') }}"><x-wake::icon name="key" /></button>@endif
+                        <button class="btn btn-small btn-danger" wire:click="remove('{{ $account->id() }}')" wire:confirm="{{ __('Remove :name from the team?', ['name' => $account->name()]) }}" title="{{ __('Remove') }}" aria-label="{{ __('Remove') }}"><x-wake::icon name="trash" /></button>
                     @endif
                 </div>
             @endforeach

@@ -5,9 +5,9 @@
             <h1 class="title">{{ __('Media') }}</h1>
             <p class="lead">{{ __('Files live next to the text of their entry. Upload them in the editor; click a file here for its details.') }}</p>
         </div>
-        <div class="segmented" role="group">
-            <button type="button" wire:click="$set('kind', 'images')" @class(['on' => $kind === 'images'])>{{ __('Images') }}</button>
-            <button type="button" wire:click="$set('kind', 'files')" @class(['on' => $kind === 'files'])>{{ __('Other files') }}</button>
+        <div class="segmented" role="group" aria-label="{{ __('Kind of files') }}">
+            <button type="button" wire:click="$set('kind', 'images')" @class(['on' => $kind === 'images']) aria-pressed="{{ $kind === 'images' ? 'true' : 'false' }}">{{ __('Images') }}</button>
+            <button type="button" wire:click="$set('kind', 'files')" @class(['on' => $kind === 'files']) aria-pressed="{{ $kind === 'files' ? 'true' : 'false' }}">{{ __('Other files') }}</button>
         </div>
     </header>
     @if (session('status'))<div class="flash" role="status">{{ session('status') }}</div>@endif
@@ -18,15 +18,15 @@
             <div class="grid grid-2" style="gap:20px;align-items:start">
                 <div x-data="{ set(e) { const r = e.currentTarget.getBoundingClientRect(); $wire.setFocus(Math.round((e.clientX - r.left) / r.width * 100), Math.round((e.clientY - r.top) / r.height * 100)) } }">
                     @if ($selected->isImage())
-                        <div style="position:relative;cursor:crosshair;border-radius:12px;overflow:hidden" @click="set($event)" title="{{ __('Click on the most important spot') }}">
+                        <div style="position:relative;cursor:crosshair;border-radius:6px;overflow:hidden" @click="set($event)" title="{{ __('Click on the most important spot') }}">
                             <img src="{{ $selected->url(960) }}" alt="" style="width:100%;display:block">
                             @php([$fx, $fy] = explode(' ', $focus))
-                            <span style="position:absolute;left:{{ $fx }};top:{{ $fy }};width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #0a0a0a,0 0 14px var(--glow);background:var(--accent);pointer-events:none"></span>
+                            <span style="position:absolute;left:{{ $fx }};top:{{ $fy }};width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:#fff;border:2px solid #000;outline:1px solid #fff;pointer-events:none"></span>
                         </div>
                         <p class="muted" style="font-size:13px;margin:8px 0 0">{{ __('Focus point: click on the most important spot. Cards crop the image around it.') }} <span class="mono">{{ $focus }}</span></p>
                         <div class="grid grid-3" style="gap:8px;margin-top:10px">
                             @foreach (['16/9', '1/1', '3/4'] as $ratio)
-                                <img src="{{ $selected->url(640) }}" alt="" style="width:100%;aspect-ratio:{{ $ratio }};object-fit:cover;object-position:{{ $focus }};border-radius:8px">
+                                <img src="{{ $selected->url(640) }}" alt="" style="width:100%;aspect-ratio:{{ $ratio }};object-fit:cover;object-position:{{ $focus }};border-radius:4px">
                             @endforeach
                         </div>
                     @endif
@@ -42,7 +42,7 @@
                     <div class="actions">
                         <button type="submit" class="btn btn-primary">{{ __('Save details') }}</button>
                         @if ($selectedEntry)<a class="btn" href="{{ route('wake.entries.edit', ['type' => $selectedEntry->type(), 'id' => $selectedEntry->id()]) }}">{{ __('Open entry') }}</a>@endif
-                        <button type="button" class="btn btn-danger" style="margin-left:auto" wire:click="deleteFile" wire:confirm="{{ __('Move this file to the trash? Texts that show it will lose the image.') }}"><x-wake::icon name="trash" /></button>
+                        <button type="button" class="btn btn-danger" style="margin-left:auto" wire:click="deleteFile" wire:confirm="{{ __('Move this file to the trash? Texts that show it will lose the image.') }}" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><x-wake::icon name="trash" /></button>
                     </div>
                 </form>
             </div>
@@ -52,7 +52,7 @@
     <input type="search" class="input" style="max-width:360px" wire:model.live.debounce.300ms="search" placeholder="{{ __('Search by file or entry') }}" aria-label="{{ __('Search by file or entry') }}">
     <section class="grid grid-4">
         @forelse ($files as $item)
-            <button type="button" class="card" style="padding:0;overflow:hidden;gap:0;text-align:left;cursor:pointer;font:inherit;{{ $file === $item['entry']->id().'|'.$item['file']->name() ? 'box-shadow:0 0 0 2px var(--accent);border-color:var(--ink)' : '' }}" wire:click="select(@js($item['entry']->id()), @js($item['file']->name()))">
+            <button type="button" class="card" style="padding:0;overflow:hidden;gap:0;text-align:left;cursor:pointer;font:inherit;{{ $file === $item['entry']->id().'|'.$item['file']->name() ? 'border-color:var(--text);outline:1px solid var(--text)' : '' }}" wire:click="select(@js($item['entry']->id()), @js($item['file']->name()))">
                 @if ($item['file']->isImage())
                     <img src="{{ $item['file']->url(640) }}" alt="" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;object-position:{{ $item['file']->focus() }}">
                 @else

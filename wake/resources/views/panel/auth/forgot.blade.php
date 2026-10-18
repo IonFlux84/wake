@@ -1,13 +1,18 @@
 <x-wake::layout.auth :title="__('Forgot your password?')">
-    <div>
-        <h1 class="title" style="font-size:32px">{{ __('Forgot your password?') }}</h1>
-        <p class="lead" style="font-size:15px">{{ __('Enter your email address. We send you a link to choose a new password.') }}</p>
+    <div class="auth-head">
+        <h1 class="auth-title">{{ __('Forgot your password?') }}</h1>
+        <p class="auth-lead">{{ __('Enter your email address. We send you a link to choose a new password.') }}</p>
     </div>
-    @if (session('status'))<div class="flash" role="status">{{ session('status') }}</div>@endif
-    <form class="form" method="post" action="{{ route('wake.password.email') }}">
+    @if (session('status'))<div class="auth-note" role="status"><span class="auth-note-k">{{ __('Status') }}</span><span class="auth-note-v">{{ session('status') }}</span></div>@endif
+    <form class="auth-form" method="post" action="{{ route('wake.password.email') }}" x-data="{ busy: false }" @submit="busy = true" @pageshow.window="busy = false">
         @csrf
-        <div class="field"><label for="email">{{ __('Email address') }}</label><input class="input" id="email" type="email" name="email" value="{{ old('email') }}" required autofocus>
-            @error('email')<span class="error">{{ $message }}</span>@enderror</div>
-        <div class="actions"><button class="btn btn-primary" type="submit">{{ __('Send link') }}</button><a class="muted" href="{{ route('wake.login') }}">{{ __('Back to sign in') }}</a></div>
+        <div class="field">
+            <label for="email">{{ __('Email address') }}</label>
+            <input class="input" id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" autocapitalize="none" spellcheck="false"
+                   @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
+            @error('email')<span class="error" id="email-error">{{ $message }}</span>@enderror
+        </div>
+        <button class="btn btn-primary auth-submit" type="submit" :disabled="busy">{{ __('Send link') }}</button>
+        <a class="auth-link" href="{{ route('wake.login') }}">{{ __('Back to sign in') }}</a>
     </form>
 </x-wake::layout.auth>

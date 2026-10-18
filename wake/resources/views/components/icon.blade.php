@@ -7,7 +7,8 @@ $paths = [
     'calendar' => '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
     'media' => '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>',
     'stats' => '<path d="M5 20V11M11 20V5M17 20v-6M3 20h18"/>',
-    'wake' => '<path d="M12 4 4 20M12 4l8 16"/><path d="M12 4 9 20M12 4l3 16" stroke-opacity=".5"/>',
+    'wake' => '<path d="M12 6 7 20M12 6l5 14"/><path d="M12 3.5 13.3 6.5h-2.6z" fill="currentColor" stroke="none"/>',
+    'link' => '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
     'consent' => '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" stroke-linejoin="round"/><path d="m9 12 2 2 4-4"/>',
     'assistant' => '<path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/><path d="M10 12h4"/>',
     'team' => '<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/>',
@@ -32,4 +33,4 @@ $paths = [
     'tag' => '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.5"/>',
 ];
 @endphp
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true" @if ($size) width="{{ $size }}" height="{{ $size }}" @endif {{ $attributes }}>{!! $paths[$name] ?? '' !!}</svg>
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" @if ($size) width="{{ $size }}" height="{{ $size }}" @endif {{ $attributes }}>{!! $paths[$name] ?? '' !!}</svg>

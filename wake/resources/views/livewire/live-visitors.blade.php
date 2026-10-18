@@ -1,7 +1,7 @@
 <div class="card" wire:poll.15s>
     <div class="card-head">
         <h2 class="h2">{{ __('Right now') }}</h2>
-        <span class="status published">{{ __('live') }}</span>
+        <span class="status live">{{ __('live') }}</span>
     </div>
     <div style="display:flex;align-items:baseline;gap:10px">
         <span class="kpi-value">{{ $live['visitors'] }}</span>

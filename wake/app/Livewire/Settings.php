@@ -59,7 +59,7 @@ class Settings extends Component
 
     public bool $approval = false;
 
-    public string $accent = '#C6FF3D';
+    public string $accent = '#0A0A0A';
 
     public string $panelLanguage = 'de';
 
@@ -92,7 +92,7 @@ class Settings extends Component
         $this->privacySignals = (bool) config('wake.tracking.respect_privacy_signals');
         $this->retention = (int) config('wake.tracking.retention');
         $this->approval = (bool) config('wake.mcp.approval');
-        $this->accent = (string) config('wake.panel.accent');
+        $this->accent = strtoupper((string) config('wake.panel.accent')) === '#C6FF3D' ? '#0A0A0A' : (string) config('wake.panel.accent');
         $this->panelLanguage = (string) config('wake.panel.language', 'de');
         $this->closed = (bool) config('wake.closed');
         $this->requireTwoFactor = (bool) config('wake.security.require_two_factor');

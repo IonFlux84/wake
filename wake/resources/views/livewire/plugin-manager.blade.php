@@ -27,9 +27,9 @@
                 </div>
                 <div class="actions">
                     @if ($error)
-                        <span class="badge" style="background:var(--danger);color:#fff">{{ __('Error') }}</span>
+                        <span class="badge danger">{{ __('Error') }}</span>
                     @else
-                        <span class="badge" @if ($enabled) style="background:var(--accent);color:var(--on-accent)" @endif>{{ $enabled ? __('On') : __('Off') }}</span>
+                        <span @class(['badge', 'on' => $enabled])>{{ $enabled ? __('On') : __('Off') }}</span>
                     @endif
                     <button type="button" class="btn btn-small" wire:click="toggle(@js($folder))">{{ $enabled ? __('Switch off') : __('Switch on') }}</button>
                 </div>

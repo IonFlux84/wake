@@ -49,7 +49,7 @@ class ThemeManager extends Component
             $value = $this->options[$key] ?? null;
 
             if (($option['type'] ?? '') === 'color' && ! preg_match('/^#[0-9a-fA-F]{6}$/', (string) $value)) {
-                $this->addError('options.'.$key, __('Please choose a colour like #C6FF3D.'));
+                $this->addError('options.'.$key, __('Please choose a colour like #3D5AFE.'));
 
                 continue;
             }

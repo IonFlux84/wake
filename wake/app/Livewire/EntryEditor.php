@@ -212,7 +212,7 @@ class EntryEditor extends Component
             $at = $this->scheduleAt !== '' ? CarbonImmutable::parse($this->scheduleAt, config('app.timezone')) : null;
             app(Writer::class)->publish($this->id, $this->language, $at);
             $this->scheduleAt = '';
-            session()->flash('status', $at?->isFuture() ? __('Scheduled.') : __('Published.'));
+            session()->now('status', $at?->isFuture() ? __('Scheduled.') : __('Published.'));
         }
     }
 
@@ -220,7 +220,7 @@ class EntryEditor extends Component
     {
         $this->authorizePublishing();
         app(Writer::class)->unpublish($this->id, $this->language);
-        session()->flash('status', __('Unpublished. The entry is a draft again.'));
+        session()->now('status', __('Unpublished. The entry is a draft again.'));
     }
 
     public function trash(): void
@@ -353,7 +353,7 @@ class EntryEditor extends Component
         $entry = app(Writer::class)->restore($this->id, $this->language, $revision);
         $this->loadEntry($entry);
         $this->dispatch('wake-editor-load', markdown: $this->body);
-        session()->flash('status', __('The earlier version is back. The version before is kept as a revision.'));
+        session()->now('status', __('The earlier version is back. The version before is kept as a revision.'));
     }
 
     /**

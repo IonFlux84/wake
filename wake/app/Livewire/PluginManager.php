@@ -50,7 +50,7 @@ class PluginManager extends Component
             $value = $this->options[$folder][$key] ?? null;
 
             if (($option['type'] ?? '') === 'color' && ! preg_match('/^#[0-9a-fA-F]{6}$/', (string) $value)) {
-                $this->addError("options.{$folder}.{$key}", __('Please choose a colour like #C6FF3D.'));
+                $this->addError("options.{$folder}.{$key}", __('Please choose a colour like #3D5AFE.'));
 
                 return;
             }

@@ -121,8 +121,8 @@ return [
         // under Settings; this is the language for everyone else.
         'language' => 'de',
 
-        // The one neon colour of the panel. Text on it turns black or white by itself.
-        'accent' => '#C6FF3D',
+        // Highlight colour for small marks only (published dot, main chart line). Black keeps the panel greyscale.
+        'accent' => '#0A0A0A',
     ],
 
     'maintenance' => [

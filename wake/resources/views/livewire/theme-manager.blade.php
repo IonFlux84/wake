@@ -17,16 +17,16 @@
 
     <section class="grid grid-3">
         @foreach ($themes as $folder => $theme)
-            <div class="card" style="padding:0;overflow:hidden;gap:0;{{ $folder === $active ? 'border-color:var(--ink);box-shadow:0 0 0 2px var(--accent)' : '' }}" wire:key="theme-{{ $folder }}">
+            <div class="card" style="padding:0;overflow:hidden;gap:0;{{ $folder === $active ? 'border-color:var(--text);outline:1px solid var(--text)' : '' }}" wire:key="theme-{{ $folder }}">
                 @if ($screenshots[$folder])
                     <img src="{{ $screenshots[$folder] }}" alt="" style="width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;border-bottom:1px solid var(--line)">
                 @else
-                    <div style="aspect-ratio:16/10;background:var(--night);display:flex;align-items:center;justify-content:center;color:var(--accent);font:800 28px var(--display, var(--sans))">{{ $theme->name() }}</div>
+                    <div class="dotgrid-ink" style="aspect-ratio:16/10;background-color:var(--night);display:flex;align-items:center;justify-content:center;color:#fff;font:600 24px var(--sans);letter-spacing:-.03em">{{ $theme->name() }}</div>
                 @endif
                 <div style="padding:18px 20px;display:flex;flex-direction:column;gap:10px;flex:1">
                     <div class="card-head">
                         <h2 class="h2">{{ $theme->name() }}</h2>
-                        @if ($folder === $active)<span class="badge" style="background:var(--accent);color:var(--on-accent)">{{ __('Active') }}</span>@endif
+                        @if ($folder === $active)<span class="badge on">{{ __('Active') }}</span>@endif
                     </div>
                     <p class="muted" style="margin:0;font-size:14px">{{ $theme->description() ?: '—' }}</p>
                     <p class="muted" style="margin:0;font-size:12px">{{ collect([$theme->version() ? 'v'.$theme->version() : null, $theme->author(), 'site/themes/'.$folder])->filter()->implode(' · ') }}</p>

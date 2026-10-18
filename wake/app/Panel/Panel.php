@@ -30,15 +30,17 @@ class Panel
     }
 
     /**
-     * CSS variables for the configured accent colour. Text on the accent is
-     * black or white, whichever reads better.
+     * CSS variables for the highlight colour. The panel is greyscale; a chosen
+     * colour only marks small live signals (published dot, main chart line).
+     * --accent-ink is the version that stays visible on dark surfaces.
      */
     public function accentStyles(): HtmlString
     {
-        $hex = ltrim((string) config('wake.panel.accent', '#C6FF3D'), '#');
+        $hex = strtoupper(ltrim((string) config('wake.panel.accent', '#0A0A0A'), '#'));
 
-        if (! preg_match('/^[0-9a-f]{6}$/i', $hex)) {
-            $hex = 'C6FF3D';
+        // The old neon default counts as "not chosen".
+        if (! preg_match('/^[0-9A-F]{6}$/', $hex) || $hex === 'C6FF3D') {
+            $hex = '0A0A0A';
         }
 
         [$r, $g, $b] = array_map('hexdec', str_split($hex, 2));
@@ -46,8 +48,8 @@ class Panel
         $luminance = 0.2126 * $lin($r) + 0.7152 * $lin($g) + 0.0722 * $lin($b);
 
         return new HtmlString(sprintf(
-            '<style>:root{--accent:#%s;--on-accent:%s;--accent-soft:rgba(%d,%d,%d,.22);--glow:rgba(%d,%d,%d,.7)}</style>',
-            $hex, $luminance > 0.36 ? '#0A0A0A' : '#FFFFFF', $r, $g, $b, $r, $g, $b,
+            '<style>:root{--accent:#%s;--on-accent:%s;--accent-ink:%s}</style>',
+            $hex, $luminance > 0.36 ? '#0A0A0A' : '#FFFFFF', $luminance < 0.05 ? '#FFFFFF' : '#'.$hex,
         ));
     }
 }

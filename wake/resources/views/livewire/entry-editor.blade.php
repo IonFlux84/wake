@@ -10,7 +10,7 @@
     $duration = fn (int $s) => $s >= 60 ? intdiv($s, 60).' min '.str_pad((string) ($s % 60), 2, '0', STR_PAD_LEFT).' s' : $s.' s';
 @endphp
 <div style="display:flex;flex-direction:column;gap:20px" @if ($id) wire:poll.30s="keepalive" @endif
-     x-data="{ saved: '' }" x-on:wake-saved.window="saved = $event.detail.at"
+     x-data="{ saved: '', dirty: false }" x-on:wake-saved.window="saved = $event.detail.at; dirty = false" x-init="addEventListener('beforeunload', e => { if (dirty) e.preventDefault() })"
      @keydown.window.prevent.cmd.s="$wire.save()" @keydown.window.prevent.ctrl.s="$wire.save()">
 
     <header class="page-head" style="align-items:center">
@@ -18,7 +18,7 @@
             <div class="eyebrow">
                 <a href="{{ route('wake.entries', ['type' => $type]) }}" style="color:inherit;text-decoration:none">← {{ ['post' => __('Posts'), 'page' => __('Pages'), 'tag' => __('Tags')][$type] ?? $contentType->title }}</a>
                 · <span class="status {{ $statusClass }}">{{ $statusText }}</span>
-                <span x-show="saved" x-cloak> · {{ __('saved at') }} <span x-text="saved"></span></span>
+                <span x-show="dirty || saved" x-cloak> · <span x-text="dirty ? @js(__('Not saved yet')) : @js(__('Saved at')) + ' ' + saved"></span></span>
             </div>
         </div>
         <div class="actions">
@@ -42,12 +42,14 @@
         </div>
     </header>
 
+    @if (session('status'))<div class="flash" role="status">{{ session('status') }}</div>@endif
+
     @if ($sharedLink)
         <div class="card" style="gap:8px" x-data="{ copied: false }">
             <div class="card-head"><h2 class="h2">{{ __('Preview link') }}</h2><button type="button" class="btn btn-small" wire:click="$set('sharedLink', null)">{{ __('Close') }}</button></div>
             <p class="muted" style="margin:0;font-size:13px">{{ __('Anyone with this link can see this version until :date, without an account. Search engines cannot.', ['date' => now()->addDays(\Wake\Http\Controllers\Panel\PreviewController::DAYS)->locale(app()->getLocale())->isoFormat('LL')]) }}</p>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <code style="flex:1;font:500 12px var(--mono);background:var(--hover);padding:10px 12px;border-radius:10px;word-break:break-all">{{ $sharedLink }}</code>
+                <code class="codebox" style="flex:1">{{ $sharedLink }}</code>
                 <button type="button" class="btn btn-small btn-primary" @click="navigator.clipboard.writeText(@js($sharedLink)); copied = true"><span x-text="copied ? @js(__('Copied')) : @js(__('Copy'))"></span></button>
             </div>
         </div>
@@ -64,7 +66,7 @@
 
     <div class="editor-grid">
         <div class="editor-paper">
-            <textarea class="editor-title" rows="1" wire:model.blur="title" placeholder="{{ __('Title') }}"
+            <textarea class="editor-title" rows="1" wire:model.blur="title" placeholder="{{ __('Title') }}" aria-label="{{ __('Title') }}"
                 x-init="$el.style.height = $el.scrollHeight + 'px'" @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"></textarea>
             @error('title')<p class="error" style="color:var(--danger);margin:-10px 0 16px">{{ $message }}</p>@enderror
 
@@ -78,7 +80,7 @@
                                 media: @js($mediaMap),
                                 labels: @js($labels),
                                 placeholder: @js(__('Start writing, or type / for blocks …')),
-                                onChange: Alpine.debounce(md => $wire.set('body', md, false), 400),
+                                onChange: (push => md => { this.dirty = true; push(md) })(Alpine.debounce(md => $wire.set('body', md, false), 400)),
                                 onUpload: file => new Promise(resolve => $wire.upload('upload', file, () => $wire.storeUpload().then(resolve), () => resolve(null))),
                             })
                         }
@@ -89,13 +91,13 @@
                  x-on:wake-insert-image.window="api && api.editor.chain().focus().setImage({ src: $event.detail.url, alt: $event.detail.alt || '' }).run()"
                  x-on:wake-upload-image.window="api && api.upload($event.detail.file, $event.detail.alt)">
                 <div class="editor-toolbar" role="toolbar" aria-label="{{ __('Formatting') }}">
-                    <button type="button" @click="api.command('bold')" title="{{ __('Bold') }}"><b>B</b></button>
-                    <button type="button" @click="api.command('italic')" title="{{ __('Italic') }}"><i>I</i></button>
-                    <button type="button" @click="api.command('h2')" title="{{ __('Heading') }}">H2</button>
-                    <button type="button" @click="api.command('quote')" title="{{ __('Quote') }}">“</button>
-                    <button type="button" @click="api.command('ul')" title="{{ __('List') }}">•</button>
-                    <button type="button" @click="api.command('link')" title="{{ __('Link') }}">🔗</button>
-                    <button type="button" @click="$dispatch('wake-image-dialog')" title="{{ __('Image') }}" style="display:inline-flex;align-items:center;gap:6px;padding:0 10px"><x-wake::icon name="media" size="16" />{{ __('Image') }}</button>
+                    <button type="button" @click="api.command('bold')" title="{{ __('Bold') }}" aria-label="{{ __('Bold') }}"><b>B</b></button>
+                    <button type="button" @click="api.command('italic')" title="{{ __('Italic') }}" aria-label="{{ __('Italic') }}"><i>I</i></button>
+                    <button type="button" @click="api.command('h2')" title="{{ __('Heading') }}" aria-label="{{ __('Heading') }}">H2</button>
+                    <button type="button" @click="api.command('quote')" title="{{ __('Quote') }}" aria-label="{{ __('Quote') }}">“</button>
+                    <button type="button" @click="api.command('ul')" title="{{ __('List') }}" aria-label="{{ __('List') }}">•</button>
+                    <button type="button" @click="api.command('link')" title="{{ __('Link') }}" aria-label="{{ __('Link') }}"><x-wake::icon name="link" size="15" /></button>
+                    <button type="button" class="wide" @click="$dispatch('wake-image-dialog')" title="{{ __('Image') }}" aria-label="{{ __('Image') }}"><x-wake::icon name="media" size="16" />{{ __('Image') }}</button>
                 </div>
                 <div x-ref="editor"></div>
             </div>
@@ -124,10 +126,10 @@
         </div>
 
         <aside class="side">
-            <div class="segmented" role="tablist">
-                <button type="button" role="tab" wire:click="$set('tab', 'entry')" @class(['on' => $tab === 'entry'])>{{ __('Entry') }}</button>
-                <button type="button" role="tab" wire:click="$set('tab', 'stats')" @class(['on' => $tab === 'stats']) @disabled(! $entry)>{{ __('Statistics') }}</button>
-                <button type="button" role="tab" wire:click="$set('tab', 'history')" @class(['on' => $tab === 'history']) @disabled(! $entry)>{{ __('Versions') }}</button>
+            <div class="segmented" role="tablist" aria-label="{{ __('Sidebar') }}">
+                <button type="button" role="tab" wire:click="$set('tab', 'entry')" @class(['on' => $tab === 'entry']) aria-selected="{{ $tab === 'entry' ? 'true' : 'false' }}">{{ __('Entry') }}</button>
+                <button type="button" role="tab" wire:click="$set('tab', 'stats')" @class(['on' => $tab === 'stats']) aria-selected="{{ $tab === 'stats' ? 'true' : 'false' }}" @disabled(! $entry)>{{ __('Statistics') }}</button>
+                <button type="button" role="tab" wire:click="$set('tab', 'history')" @class(['on' => $tab === 'history']) aria-selected="{{ $tab === 'history' ? 'true' : 'false' }}" @disabled(! $entry)>{{ __('Versions') }}</button>
             </div>
 
             @if ($tab === 'history')
@@ -210,8 +212,8 @@
                             @include('wake::livewire.partials.field', ['key' => $key, 'field' => $field])
                         @endforeach
                         @if ($occurrences)
-                            <div style="padding:12px 14px;border-radius:12px;background:var(--night);color:#fff">
-                                <div class="mono" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px">↻ {{ $occurrences['rule'] }}</div>
+                            <div style="padding:12px 14px;border-radius:4px;background:var(--night);color:#fff;border:1px solid var(--night-line)">
+                                <div class="mono" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-bottom:6px">↻ {{ $occurrences['rule'] }}</div>
                                 <div style="font-size:13px;line-height:1.7">{{ collect($occurrences['dates'])->map(fn ($d) => $d->locale(app()->getLocale())->isoFormat('dd D. MMM YYYY'))->implode(' · ') ?: __('No dates left.') }}</div>
                             </div>
                         @endif
@@ -223,13 +225,13 @@
                         @php($current = $entry && $$slot !== '' ? $entry->file($$slot) : null)
                         <div class="card" style="gap:10px" x-data="{ pick: false }" wire:key="slot-{{ $slot }}">
                             <div class="card-head"><h2 class="h2">{{ $label }}</h2>
-                                @if ($current)<button type="button" class="btn btn-small btn-danger" wire:click="setImage('{{ $slot }}', '')" title="{{ __('Remove') }}"><x-wake::icon name="trash" /></button>@endif
+                                @if ($current)<button type="button" class="btn btn-small btn-danger" wire:click="setImage('{{ $slot }}', '')" title="{{ __('Remove') }}" aria-label="{{ __('Remove') }}"><x-wake::icon name="trash" /></button>@endif
                             </div>
                             @if ($current)
-                                <img src="{{ $current->url(640) }}" alt="" style="width:100%;aspect-ratio:{{ $slot === 'cover' ? '16/9' : '4/3' }};object-fit:cover;border-radius:12px">
+                                <img src="{{ $current->url(640) }}" alt="" style="width:100%;aspect-ratio:{{ $slot === 'cover' ? '16/9' : '4/3' }};object-fit:cover;border-radius:6px">
                             @elseif ($slot === 'thumbnail' && $cover !== '' && $entry?->file($cover))
                                 <div style="position:relative">
-                                    <img src="{{ $entry->file($cover)->url(640) }}" alt="" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;opacity:.45">
+                                    <img src="{{ $entry->file($cover)->url(640) }}" alt="" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;opacity:.45">
                                     <span class="badge" style="position:absolute;left:10px;top:10px">{{ __('uses the header image') }}</span>
                                 </div>
                             @else
@@ -260,7 +262,7 @@
                         @if ($media->isNotEmpty())
                             <div class="media-grid">
                                 @foreach ($media as $file)
-                                    <span title="{{ $file->name() }}" style="position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--hover)">
+                                    <span title="{{ $file->name() }}" style="position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--hover)">
                                         @if ($file->isImage())<img src="{{ $file->url(320) }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">@else<span style="display:flex;align-items:center;justify-content:center;height:100%;font:600 11px var(--mono);color:var(--muted);padding:4px;word-break:break-all">{{ $file->name() }}</span>@endif
                                     </span>
                                 @endforeach
@@ -285,9 +287,9 @@
                     <div class="actions">
                         <button type="button" class="btn btn-small" wire:click="shareLink"><x-wake::icon name="external" />{{ __('Share a preview link') }}</button>
                         @if ($isPublished && $mayPublish)
-                            <button type="button" class="btn btn-small" wire:click="unpublish">{{ __('Unpublish') }}</button>
+                            <button type="button" class="btn btn-small" wire:click="unpublish" wire:confirm="{{ __('Take this entry off the website? It becomes a draft again.') }}">{{ __('Unpublish') }}</button>
                         @endif
-                        <button type="button" class="btn btn-small btn-danger" wire:click="trash" wire:confirm="{{ __('Move this entry with all languages and files to the trash?') }}"><x-wake::icon name="trash" />{{ __('Delete') }}</button>
+                        <button type="button" class="btn btn-small btn-danger" style="margin-left:auto" wire:click="trash" wire:confirm="{{ __('Move this entry with all languages and files to the trash?') }}"><x-wake::icon name="trash" />{{ __('Delete') }}</button>
                     </div>
                 @endif
             @endif

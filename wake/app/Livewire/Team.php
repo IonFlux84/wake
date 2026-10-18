@@ -74,7 +74,9 @@ class Team extends Component
         $account = $accounts->find($id);
         abort_unless($account && $this->mayManage($account) && in_array($role, $this->assignableRoles(), true), 403);
 
-        $accounts->save($account->with(['role' => $role]));
+        $updated = $account->with(['role' => $role]);
+        $accounts->save($updated);
+        session()->now('status', __(':name now has the role :role.', ['name' => $updated->name(), 'role' => app(Roles::class)->get($role)->label()]));
     }
 
     /**

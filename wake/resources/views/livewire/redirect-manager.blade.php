@@ -34,7 +34,7 @@
                         <td>@if ($row['entry'])<b>{{ $row['entry']->title() }}</b><br><span class="muted mono" style="font-size:12px">{{ parse_url($row['entry']->url(), PHP_URL_PATH) }}</span>@else<a href="{{ $row['target'] }}" target="_blank" rel="noopener">{{ $row['target'] }}</a>@endif
                             @if (! $row['entry'] && ! str_starts_with($row['target'], 'http'))<span class="badge">{{ __('target missing') }}</span>@endif</td>
                         @if ($languages->isMultilingual())<td><span class="chip current">{{ $row['language'] }}</span></td>@endif
-                        <td style="text-align:right"><button type="button" class="btn btn-small btn-danger" wire:click="remove('{{ $row['language'] }}', @js($row['path']))" aria-label="{{ __('Remove') }}"><x-wake::icon name="trash" /></button></td>
+                        <td style="text-align:right"><button type="button" class="btn btn-small btn-danger" wire:click="remove('{{ $row['language'] }}', @js($row['path']))" wire:confirm="{{ __('Remove this redirect? The old address then leads nowhere.') }}" aria-label="{{ __('Remove') }}" title="{{ __('Remove') }}"><x-wake::icon name="trash" /></button></td>
                     </tr>
                 @empty
                     <tr><td colspan="4" class="muted">{{ __('No redirects yet.') }}</td></tr>

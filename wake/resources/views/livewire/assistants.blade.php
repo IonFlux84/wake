@@ -20,7 +20,7 @@
             <h2 class="h2" style="margin-bottom:10px">{{ __('Your new token') }}</h2>
             <p class="muted" style="margin:0 0 12px">{{ __('Copy it now. Wake only stores a fingerprint and cannot show it again.') }}</p>
             <div x-data="{ copied: false }" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-                <code style="font:500 14px var(--mono);background:#1a1a1a;padding:10px 12px;border-radius:10px;color:var(--accent);word-break:break-all;flex:1">{{ $plain }}</code>
+                <div class="term" style="flex:1;min-width:0"><div class="term-bar">token · {{ __('shown once') }}</div><pre class="term-body" style="color:#fff;white-space:pre-wrap;word-break:break-all">{{ $plain }}</pre></div>
                 <button type="button" class="btn btn-primary btn-small" @click="navigator.clipboard.writeText(@js($plain)); copied = true"><span x-text="copied ? @js(__('Copied')) : @js(__('Copy'))"></span></button>
             </div>
         </section>
@@ -48,9 +48,9 @@
         <div class="card">
             <h2 class="h2">{{ __('Connect') }}</h2>
             <p style="margin:0">{{ __('Address of the MCP server:') }}</p>
-            <code style="font:500 13px var(--mono);background:var(--hover);padding:10px 12px;border-radius:10px;word-break:break-all">{{ $endpoint }}</code>
+            <code class="codebox">{{ $endpoint }}</code>
             <p style="margin:0">{{ __('For Claude Code, run in a terminal:') }}</p>
-            <pre style="margin:0;font:500 12px/1.6 var(--mono);background:var(--night);color:#fff;padding:12px 14px;border-radius:12px;overflow-x:auto">claude mcp add --transport http wake {{ $endpoint }} \
+            <pre style="margin:0;font:500 12px/1.6 var(--mono);background:var(--night);color:#fff;padding:12px 14px;border-radius:6px;overflow-x:auto">claude mcp add --transport http wake {{ $endpoint }} \
   --header "Authorization: Bearer wake_…"</pre>
             <p class="muted" style="margin:0;font-size:13px">{{ __('Other assistants need the same two things: the address and the token as a Bearer header.') }}</p>
         </div>

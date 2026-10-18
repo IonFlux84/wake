@@ -14,16 +14,19 @@
         @include('wake::livewire.partials.period')
     </header>
 
-    <section class="grid grid-4">
-        <div class="card"><div class="kpi-label">{{ __('Visitors') }}</div><div class="kpi-value">{{ $number($report->visitors()) }}</div><div class="kpi-note">{{ __('added up per day, without cookies') }}</div></div>
-        <div class="card"><div class="kpi-label">{{ __('Page views') }}</div><div class="kpi-value">{{ $number($report->pageviews()) }}</div><div class="kpi-note">{{ __(':n per visitor', ['n' => $report->visitors() ? number_format($report->pageviews() / $report->visitors(), 1, $de ? ',' : '.', '') : 0]) }}</div></div>
-        <div class="card"><div class="kpi-label">{{ __('Reading time') }}</div><div class="kpi-value">{{ $duration($report->averageDuration()) }}</div><div class="kpi-note">{{ __('active time per page view') }}</div></div>
-        <div class="card"><div class="kpi-label">{{ __('Returning') }}</div><div class="kpi-value">{{ $number($report->returning()) }}</div><div class="kpi-note">{{ __('only visitors with the statistics cookie (:share %)', ['share' => round($report->consentShare() * 100)]) }}</div></div>
+    <section class="kpis" aria-label="{{ __('Key figures') }}">
+        <div class="kpi"><div class="kpi-label">{{ __('Visitors') }}</div><div class="kpi-value">{{ $number($report->visitors()) }}</div><div class="kpi-note">{{ __('added up per day, without cookies') }}</div></div>
+        <div class="kpi"><div class="kpi-label">{{ __('Page views') }}</div><div class="kpi-value">{{ $number($report->pageviews()) }}</div><div class="kpi-note">{{ __(':n per visitor', ['n' => $report->visitors() ? number_format($report->pageviews() / $report->visitors(), 1, $de ? ',' : '.', '') : 0]) }}</div></div>
+        <div class="kpi"><div class="kpi-label">{{ __('Reading time') }}</div><div class="kpi-value">{{ $duration($report->averageDuration()) }}</div><div class="kpi-note">{{ __('active time per page view') }}</div></div>
+        <div class="kpi"><div class="kpi-label">{{ __('Returning') }}</div><div class="kpi-value">{{ $number($report->returning()) }}</div><div class="kpi-note">{{ __('only visitors with the statistics cookie (:share %)', ['share' => round($report->consentShare() * 100)]) }}</div></div>
     </section>
 
-    <section class="night" aria-label="{{ __('Visitors per day') }}">
-        <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:22px"><h2 class="h2">{{ __('Visitors per day') }}</h2><span class="muted mono" style="font-size:12px">{{ __('today glows') }}</span></div>
-        <div wire:key="bars-{{ $period }}"><x-wake::chart.bars :series="$report->series()" :label="__('Visitors per day')" /></div>
+    <section class="night window" aria-label="{{ __('Visitors per day') }}">
+        <div class="window-bar"><span>stats/visitors-per-day · {{ $period }}</span><span class="grow"></span><span>{{ __('Today is the bright bar.') }}</span></div>
+        <div class="window-body">
+            <h2 class="h2">{{ __('Visitors per day') }}</h2>
+            <div wire:key="bars-{{ $period }}"><x-wake::chart.bars :series="$report->series()" :label="__('Visitors per day')" /></div>
+        </div>
     </section>
 
     <section class="card">
@@ -52,18 +55,14 @@
         <div class="card"><h2 class="h2">{{ __('Sources') }}</h2><x-wake::top-list :items="$report->top('referrers', 8)" />
             @if ($report->top('campaigns'))<h2 class="h2" style="margin-top:8px">{{ __('Campaigns') }}</h2><x-wake::top-list :items="$report->top('campaigns', 5)" />@endif
         </div>
-        <div class="card">
-            <div class="card-head"><h2 class="h2">{{ __('Right now') }}</h2><span class="status published">{{ __('live') }}</span></div>
-            <div style="display:flex;align-items:baseline;gap:10px"><span class="kpi-value">{{ $live['visitors'] }}</span><span class="muted">{{ trans_choice('visitor on the site|visitors on the site', $live['visitors']) }}</span></div>
-            <x-wake::top-list :items="array_slice($live['pages'], 0, 6, true)" :empty="__('Calm waters. Nobody is reading at the moment.')" />
-        </div>
-        <div class="card" style="background:var(--night);color:#fff;border-color:var(--night)">
-            <h2 class="h2" style="color:#fff">{{ __('AI is reading along') }}</h2>
-            <div style="display:flex;align-items:baseline;gap:10px"><span class="kpi-value" style="color:var(--accent);text-shadow:0 0 18px var(--glow)">{{ $number($ai['total']) }}</span><span style="color:#bdbdbd">{{ __('visits by AI crawlers') }}</span></div>
+        <livewire:wake.live-visitors />
+        <div class="card night">
+            <h2 class="h2">{{ __('AI is reading along') }}</h2>
+            <div style="display:flex;align-items:baseline;gap:10px"><span class="kpi-value">{{ $number($ai['total']) }}</span><span class="muted">{{ __('visits by AI crawlers') }}</span></div>
             @forelse (array_slice($ai['bots'], 0, 6, true) as $bot => $count)
                 <div style="display:flex;justify-content:space-between;font-size:14px"><span>{{ $bot }}</span><span class="mono">{{ $count }}</span></div>
             @empty
-                <p style="margin:0;color:#bdbdbd">{{ __('No AI crawler has visited in this period.') }}</p>
+                <p class="muted" style="margin:0">{{ __('No AI crawler has visited in this period.') }}</p>
             @endforelse
         </div>
     </section>
