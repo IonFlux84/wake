@@ -21,7 +21,8 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first. Everything there applies to you.
   live next to it ([decision 0008](docs/decisions/0008-application-in-its-own-folder.md)).
 - `docs/internal/konzept.md` is the German founding concept. Decision records in
   `docs/decisions/` take precedence over it.
-- `design/` holds the approved design prototype ("Neon clean").
+- `design/` holds the design prototypes. Panel and website follow the "Hairline"
+  design ([decision 0010](docs/decisions/0010-hairline-design.md)).
 
 ## Commands
 

@@ -189,6 +189,15 @@ All notable changes to Wake are documented here. The format follows
 
 ### Changed
 
+- The panel and the sign-in pages use the Hairline design of getwake.dev:
+  greyscale with hairlines, Geist and Geist Mono, the Kelvin mark, no glow
+  ([decision 0010](docs/decisions/0010-hairline-design.md)). Newsreader stays
+  on the editor's writing surface. The accent colour now defaults to black
+  and only marks small live signals.
+- The sign-in pages show the claim and a wake drawing, a button to show the
+  password, and a busy state while signing in.
+- Editor: messages appear right away, unsaved text is protected by a warning,
+  and taking an entry offline or removing a redirect asks first.
 - New claim: “Every post leaves a wake.” (README, sign-in page, demo start page).
 
 ### Fixed

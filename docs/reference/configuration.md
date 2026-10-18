@@ -112,7 +112,7 @@ How Wake counts visits is explained in [analytics](../concepts/analytics.md).
 | Setting | Default | Description |
 |---|---|---|
 | `panel.language` | `'de'` | Language of the panel: `'de'` or `'en'`. Everyone can choose their own language under *Settings → Your account*; this is the language for everyone else. The language chosen during setup is stored here. |
-| `panel.accent` | `'#C6FF3D'` | The one neon colour of the panel. Text on it turns black or white by itself, so any colour stays readable. The design suggests lime, blue `#3D5AFE`, pink `#FF2D87` and orange `#FF6A1A`. |
+| `panel.accent` | `'#0A0A0A'` | Highlight colour of the panel. The panel is greyscale; this colour only marks small live signals: the dot for published entries and the main line in the statistics. Black keeps everything grey. Set it under *Settings*; blue `#3D5AFE`, pink `#FF2D87` and orange `#FF6A1A` are offered. The old default `#C6FF3D` counts as black. |
 
 ## Maintenance
 
