@@ -33,7 +33,7 @@
 
         <nav class="nav" aria-label="{{ __('Main menu') }}">
             @foreach ($nav as [$label, $items])
-                @if ($label)<div class="nav-label">{{ $label }}</div>@endif
+                @if ($label && collect($items)->contains(fn ($item) => Route::has($item[1])))<div class="nav-label">{{ $label }}</div>@endif
                 @foreach ($items as [$key, $route, $text, $icon])
                     @if (Route::has($route))
                         <a href="{{ route($route) }}" @class(['on' => $active === $key]) @if ($active === $key) aria-current="page" @endif>

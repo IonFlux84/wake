@@ -46,3 +46,7 @@ All notable changes to Wake are documented here. The format follows
   versioned texts in `site/consent.yml`, two-click embeds (`::: embed`) with
   privacy-friendly players, consent-gated scripts and `@wakeServices` for the
   privacy policy.
+- Dashboard: visitors, page views, reading time and consent share with change
+  against the previous period, a chart of the last 7, 30 or 90 days, most read
+  posts with read-through rate, sources, live visitors, drafts, scheduled and
+  recent posts, and a sentence about what stands out today.

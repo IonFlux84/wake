@@ -79,7 +79,7 @@ it('signs out', function () {
 });
 
 it('shows the panel in the language of the account', function () {
-    $this->actingAs(owner(['language' => 'de']))->get('/wake')->assertOk()->assertSee('Guten Morgen, Dana')->assertSee('Eigentümer');
+    $this->actingAs(owner(['language' => 'de']))->get('/wake')->assertOk()->assertSee('Hallo, Dana')->assertSee('Eigentümer');
 });
 
 it('keeps the website free of sessions and cookies', function () {

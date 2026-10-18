@@ -5,8 +5,10 @@ namespace Wake\Providers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\AccountUserProvider;
 use Wake\Cache\PageCache;
@@ -15,6 +17,8 @@ use Wake\Content\ContentChanged;
 use Wake\Content\ContentTypes;
 use Wake\Content\Index;
 use Wake\Content\Site;
+use Wake\Livewire\Dashboard;
+use Wake\Livewire\LiveVisitors;
 use Wake\Localization\Languages;
 use Wake\Maintenance\Maintenance;
 use Wake\Markdown\Markdown;
@@ -40,6 +44,12 @@ class AppServiceProvider extends ServiceProvider
         Blade::anonymousComponentPath(resource_path('views/components'), 'wake');
         $this->loadJsonTranslationsFrom(base_path('lang'));
         $this->loadTranslationsFrom(base_path('lang'), 'wake');
+
+        // Livewire answers under /wake, so the website's catch-all route never sees it.
+        Livewire::setUpdateRoute(fn ($handle) => Route::post('wake/livewire/update', $handle)->middleware(['web', 'wake.panel']));
+        Livewire::setScriptRoute(fn ($handle) => Route::get('wake/livewire/livewire.js', $handle));
+        Livewire::component('wake.dashboard', Dashboard::class);
+        Livewire::component('wake.live-visitors', LiveVisitors::class);
 
         Auth::provider('wake', fn ($app) => new AccountUserProvider($app->make(Accounts::class)));
         $this->app->make(Theme::class)->register();
