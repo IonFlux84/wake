@@ -70,7 +70,8 @@ it('finds addresses in the sitemap and by following links, and respects robots.t
         ->and($store->address('news/first.html')['title'])->toBe('First post | Old club')
         ->and($store->address('news/first.html')['sources'])->toBe(['sitemap'])
         ->and($store->address('team')['sources'])->toBe(['link'])
-        ->and($store->address('intern/secret')['note'])->toBe('robots.txt');
+        ->and($store->address('intern/secret')['note'])->toBe('robots.txt')
+        ->and(file_get_contents(dirname($store->file()).'/.gitignore'))->toBe("*\n!.gitignore\n");
 
     Http::assertNotSent(fn ($request) => str_contains($request->url(), '/intern/'));
 });

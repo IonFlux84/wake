@@ -89,6 +89,11 @@ class Store
     public function save(): void
     {
         Files::write($this->file(), json_encode($this->all(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+        // The search is working data of this copy of the site, never part of its Git history.
+        if (! is_file($ignore = dirname($this->file()).'/.gitignore')) {
+            Files::write($ignore, "*\n!.gitignore\n");
+        }
     }
 
     /**
