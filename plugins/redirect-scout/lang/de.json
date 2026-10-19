@@ -37,7 +37,6 @@
     ":count address so far|:count addresses so far": "bisher :count Adresse|bisher :count Adressen",
     ":count visited": ":count besucht",
     "Filter by state": "Nach Zustand filtern",
-    "Search addresses and titles": "Adressen und Titel durchsuchen",
     "Take all suggestions from :score % on?": "Alle Vorschläge ab :score % übernehmen?",
     "Take :count safe suggestion|Take :count safe suggestions": ":count sicheren Vorschlag übernehmen|:count sichere Vorschläge übernehmen",
     "Here": "Hier",
@@ -60,5 +59,9 @@
     "Nothing here.": "Hier ist nichts.",
     "The home page cannot be redirected.": "Die Startseite kann nicht weitergeleitet werden.",
     "An address like https://www.example.org.": "Eine Adresse wie https://www.example.org.",
-    ":count suggestion taken.|:count suggestions taken.": ":count Vorschlag übernommen.|:count Vorschläge übernommen."
+    ":count suggestion taken.|:count suggestions taken.": ":count Vorschlag übernommen.|:count Vorschläge übernommen.",
+    "Search addresses and titles, e.g. shop/": "Adressen und Titel durchsuchen, z. B. shop/",
+    "All :count shown:|All :count shown:": "Die :count gezeigte:|Alle :count gezeigten:",
+    "Answer 410 for :count address?|Answer 410 for :count addresses?": ":count Adresse mit 410 beantworten?|:count Adressen mit 410 beantworten?",
+    ":count address done.|:count addresses done.": ":count Adresse erledigt.|:count Adressen erledigt."
 }

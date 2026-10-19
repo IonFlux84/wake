@@ -92,8 +92,10 @@ it('asks the Wayback Machine for addresses nobody links to anymore', function ()
 
     expect($store->address('forgotten-page'))->not->toBeNull()
         ->and($store->address('forgotten-page')['sources'])->toBe(['wayback'])
-        ->and($store->address('forgotten-page')['old_status'])->toBe(404)
+        ->and($store->address('forgotten-page'))->not->toHaveKey('old_status')
         ->and($store->address('style.css'))->toBeNull();
+
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'old.example.org/forgotten-page'));
 });
 
 it('stops at the limit', function () {
@@ -140,6 +142,22 @@ it('takes all safe suggestions at once', function () {
     expect(app(Redirects::class)->target('en', 'news/first.html'))->toBe('posts/first')
         ->and(app(Redirects::class)->target('en', 'files/photo.png'))->toBe('media/posts/first/photo.png')
         ->and(app(Redirects::class)->target('en', 'history'))->toBeNull();
+});
+
+it('answers 410 for everything a search shows, at once', function () {
+    fakeOldWebsite();
+    scoutScan();
+
+    Livewire::actingAs(scoutOwner())->test(Scout::class)
+        ->set('search', 'news/')->call('bulk', 'gone')
+        ->set('search', 'intern')->call('bulk', 'ignore');
+
+    $store = app(Store::class);
+    $store->reload();
+
+    expect(app(Redirects::class)->target('en', 'news/first.html'))->toBe('gone')
+        ->and(app(Redirects::class)->target('en', 'history'))->toBeNull()
+        ->and(Store::filterOf($store->address('intern/secret')))->toBe('ignored');
 });
 
 it('runs the search from the panel step by step', function () {

@@ -149,6 +149,35 @@ class Scout extends Component
         session()->flash('status', trans_choice(':count suggestion taken.|:count suggestions taken.', $saved));
     }
 
+    /**
+     * 410 or ignore for every address the filter and search show, e.g. all
+     * spam pages under /shop/ at once.
+     */
+    public function bulk(Redirector $redirector, Store $store, string $action): void
+    {
+        $paths = array_keys($this->visible($store));
+
+        foreach ($paths as $path) {
+            $action === 'gone' ? $redirector->save((string) $path, 'gone', flush: false) : $redirector->ignore((string) $path);
+        }
+
+        app(PageCache::class)->flush();
+        session()->flash('status', trans_choice(':count address done.|:count addresses done.', count($paths)));
+    }
+
+    /**
+     * The addresses that the filter and the search let through.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected function visible(Store $store): array
+    {
+        $search = mb_strtolower(trim($this->search));
+
+        return array_filter($store->addresses(), fn (array $a) => ($this->filter === 'all' || Store::filterOf($a) === $this->filter)
+            && ($search === '' || str_contains(mb_strtolower($a['path'].' '.($a['title'] ?? '')), $search)));
+    }
+
     protected function apply(Redirector $redirector, string $key, string $target): void
     {
         $error = $redirector->save($this->path($key), $target);
@@ -176,9 +205,7 @@ class Scout extends Component
     public function render(Store $store, Scanner $scanner): View
     {
         $store->reload();
-        $search = mb_strtolower(trim($this->search));
-        $rows = array_filter($store->addresses(), fn (array $a) => ($this->filter === 'all' || Store::filterOf($a) === $this->filter)
-            && ($search === '' || str_contains(mb_strtolower($a['path'].' '.($a['title'] ?? '')), $search)));
+        $rows = $this->visible($store);
 
         uasort($rows, fn (array $a, array $b) => strnatcasecmp((string) $a['path'], (string) $b['path']));
 

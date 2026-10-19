@@ -77,10 +77,17 @@
         </section>
 
         <div class="actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
-            <input class="input" type="search" wire:model.live.debounce.300ms="search" placeholder="{{ __('Search addresses and titles') }}" aria-label="{{ __('Search addresses and titles') }}" style="max-width:340px">
-            @if ($safe && ! $running)
-                <button type="button" class="btn btn-primary" wire:click="acceptSafe" wire:confirm="{{ __('Take all suggestions from :score % on?', ['score' => \RedirectScout\Livewire\Scout::SAFE]) }}">{{ trans_choice('Take :count safe suggestion|Take :count safe suggestions', $safe) }}</button>
-            @endif
+            <input class="input" type="search" wire:model.live.debounce.300ms="search" placeholder="{{ __('Search addresses and titles, e.g. shop/') }}" aria-label="{{ __('Search addresses and titles, e.g. shop/') }}" style="max-width:340px">
+            <div class="actions" style="gap:6px">
+                @if ($filter === 'missing' && $search !== '' && $total && ! $running)
+                    <span class="muted" style="font-size:13px">{{ trans_choice('All :count shown:|All :count shown:', $total) }}</span>
+                    <button type="button" class="btn btn-small" wire:click="bulk('gone')" wire:confirm="{{ trans_choice('Answer 410 for :count address?|Answer 410 for :count addresses?', $total) }}">410</button>
+                    <button type="button" class="btn btn-small" wire:click="bulk('ignore')">{{ __('Ignore') }}</button>
+                @endif
+                @if ($safe && ! $running)
+                    <button type="button" class="btn btn-primary" wire:click="acceptSafe" wire:confirm="{{ __('Take all suggestions from :score % on?', ['score' => \RedirectScout\Livewire\Scout::SAFE]) }}">{{ trans_choice('Take :count safe suggestion|Take :count safe suggestions', $safe) }}</button>
+                @endif
+            </div>
         </div>
 
         <datalist id="rs-targets">

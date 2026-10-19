@@ -361,7 +361,8 @@ class Scanner
 
         $queued = $this->store->get('queued', []);
 
-        if (! isset($queued[$path])) {
+        // Most addresses only the archive knows are gone from the old website; visiting each would double the time.
+        if (! isset($queued[$path]) && $sources !== ['wayback']) {
             $fetch = $this->store->get('fetch', []);
             $fetch[] = $path;
             $queued[$path] = true;
