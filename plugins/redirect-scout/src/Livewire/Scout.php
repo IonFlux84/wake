@@ -39,6 +39,9 @@ class Scout extends Component
     /** @var array<string, string> address key => target typed in */
     public array $targets = [];
 
+    /** Target of a rule for the folder in the search, e.g. strasse/. */
+    public string $ruleTarget = '';
+
     public function mount(Store $store): void
     {
         abort_unless(auth()->user()->can('settings.manage'), 403);
@@ -150,19 +153,55 @@ class Scout extends Component
     }
 
     /**
-     * 410 or ignore for every address the filter and search show, e.g. all
-     * spam pages under /shop/ at once.
+     * 410, ignore or take the suggestion for every address the filter and
+     * search show, e.g. all spam pages under /shop/ at once.
      */
     public function bulk(Redirector $redirector, Store $store, string $action): void
     {
-        $paths = array_keys($this->visible($store));
+        $paths = [];
 
-        foreach ($paths as $path) {
-            $action === 'gone' ? $redirector->save((string) $path, 'gone', flush: false) : $redirector->ignore((string) $path);
+        foreach ($this->visible($store) as $path => $address) {
+            if ($action === 'ignore') {
+                $redirector->ignore((string) $path);
+                $paths[] = $path;
+
+                continue;
+            }
+
+            $target = $action === 'gone' ? 'gone' : ($address['suggestion']['target'] ?? null);
+
+            if ($target !== null && $redirector->save((string) $path, $target, flush: false) === null) {
+                $paths[] = $path;
+            }
         }
 
         app(PageCache::class)->flush();
         session()->flash('status', trans_choice(':count address done.|:count addresses done.', count($paths)));
+    }
+
+    /**
+     * A redirect for the whole folder in the search, e.g. strasse/* → /strassen.
+     */
+    public function rule(Redirector $redirector): void
+    {
+        $error = $redirector->saveRule($this->folder() ?? '', $this->ruleTarget);
+
+        if ($error !== null) {
+            $this->addError('ruleTarget', $error);
+
+            return;
+        }
+
+        session()->flash('status', __('Rule saved: every address below /:folder/ now has a target.', ['folder' => $this->folder()]));
+        $this->reset('ruleTarget');
+    }
+
+    /**
+     * The folder in the search box, when it is one ("strasse/" or "/strasse/").
+     */
+    protected function folder(): ?string
+    {
+        return preg_match('#^/?([^\s?*]+)/$#', trim($this->search), $m) ? $m[1] : null;
     }
 
     /**
@@ -230,6 +269,8 @@ class Scout extends Component
                 'check' => (int) round($checked / max(1, $all) * 100),
                 default => 0,
             },
+            'folder' => $this->folder(),
+            'filterLabel' => $this->filter,
             'safe' => count(array_filter($store->addresses(), fn (array $a) => Store::filterOf($a) === 'missing' && ($a['suggestion']['score'] ?? 0) >= self::SAFE)),
             'entries' => (new Query)->published()->orderBy('title')->get(),
             'categories' => app(Categories::class)->all(),

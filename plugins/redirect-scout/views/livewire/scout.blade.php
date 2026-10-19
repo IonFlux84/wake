@@ -15,6 +15,8 @@
         'similar slug' => __('similar slug'),
         'similar title' => __('similar title'),
         'parent page' => __('parent page'),
+        'same page' => __('same page without feed or page number'),
+        'same slug without number' => __('same slug without number or date'),
     ];
     $sources = ['home' => __('home'), 'sitemap' => 'sitemap', 'link' => __('link'), 'wayback' => 'wayback', 'list' => __('list')];
 @endphp
@@ -69,26 +71,40 @@
     @if ($counts['all'])
         <section class="kpis" aria-label="{{ __('Filter by state') }}" style="grid-template-columns:repeat(6,minmax(0,1fr))">
             @foreach ($filters as $key => $label)
-                <button type="button" class="kpi" wire:click="setFilter('{{ $key }}')" aria-pressed="{{ $filter === $key ? 'true' : 'false' }}">
+                <button type="button" class="kpi" wire:click="setFilter('{{ $key }}')" aria-pressed="{{ $filter === $key ? 'true' : 'false' }}" title="{{ __('Show these addresses') }}">
                     <span class="kpi-label">{{ $label }}</span>
                     <span class="kpi-value">{{ $counts[$key] }}</span>
                 </button>
             @endforeach
         </section>
+        <p class="note" style="margin-top:-12px">{{ __('Click a figure to show these addresses.') }}</p>
 
         <div class="actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
             <input class="input" type="search" wire:model.live.debounce.300ms="search" placeholder="{{ __('Search addresses and titles, e.g. shop/') }}" aria-label="{{ __('Search addresses and titles, e.g. shop/') }}" style="max-width:340px">
-            <div class="actions" style="gap:6px">
-                @if ($filter === 'missing' && $search !== '' && $total && ! $running)
-                    <span class="muted" style="font-size:13px">{{ trans_choice('All :count shown:|All :count shown:', $total) }}</span>
+            @if ($safe && ! $running)
+                <button type="button" class="btn btn-primary" wire:click="acceptSafe" wire:confirm="{{ __('Take all suggestions from :score % on?', ['score' => \RedirectScout\Livewire\Scout::SAFE]) }}">{{ trans_choice('Take :count safe suggestion|Take :count safe suggestions', $safe) }}</button>
+            @endif
+        </div>
+
+        @if ($filter === 'missing' && $search !== '' && $total && ! $running)
+            <section class="card" style="display:flex;flex-direction:column;gap:12px">
+                <div class="actions" style="gap:6px;flex-wrap:wrap;align-items:center">
+                    <span style="font-size:14px">{{ trans_choice('For the :count address shown:|For all :count addresses shown:', $total) }}</span>
+                    <button type="button" class="btn btn-small" wire:click="bulk('accept')" wire:confirm="{{ trans_choice('Take the suggestion for :count address?|Take the suggestions for :count addresses?', $total) }}">{{ __('Take the suggestions') }}</button>
                     <button type="button" class="btn btn-small" wire:click="bulk('gone')" wire:confirm="{{ trans_choice('Answer 410 for :count address?|Answer 410 for :count addresses?', $total) }}">410</button>
                     <button type="button" class="btn btn-small" wire:click="bulk('ignore')">{{ __('Ignore') }}</button>
+                </div>
+                @if ($folder)
+                    <form style="display:flex;gap:6px;flex-wrap:wrap;align-items:center" wire:submit="rule">
+                        <span style="font-size:14px">{!! __('Or one rule: everything below :folder leads to', ['folder' => '<b class="mono">/'.e($folder).'/*</b>']) !!}</span>
+                        <input class="input" style="flex:1;min-width:200px" list="rs-targets" wire:model="ruleTarget" placeholder="{{ __('/new-folder or /new-folder/* or gone') }}" aria-label="{{ __('Target of the rule') }}">
+                        <button type="submit" class="btn btn-small btn-primary">{{ __('Save rule') }}</button>
+                    </form>
+                    <span class="hint">{{ __('A target ending in /* keeps the rest of the address: /strasse/lindenweg leads to /strassen/lindenweg.') }}</span>
+                    @error('ruleTarget')<span class="error">{{ $message }}</span>@enderror
                 @endif
-                @if ($safe && ! $running)
-                    <button type="button" class="btn btn-primary" wire:click="acceptSafe" wire:confirm="{{ __('Take all suggestions from :score % on?', ['score' => \RedirectScout\Livewire\Scout::SAFE]) }}">{{ trans_choice('Take :count safe suggestion|Take :count safe suggestions', $safe) }}</button>
-                @endif
-            </div>
-        </div>
+            </section>
+        @endif
 
         <datalist id="rs-targets">
             @foreach ($entries as $entry)<option value="{{ $entry->id() }}">{{ $entry->title() }}</option>@endforeach
@@ -97,6 +113,8 @@
         </datalist>
 
         <section class="card">
+            <div class="card-head"><h2 class="h2">{{ __('Showing') }}: {{ $filters[$filter] ?? $filter }} · {{ $total }}</h2>
+                @if ($filter !== 'all')<button type="button" class="btn btn-small" wire:click="setFilter('all')">{{ __('Show all') }}</button>@endif</div>
             <div class="table-wrap">
                 <table class="table">
                     <thead><tr><th>{{ __('Old address') }}</th><th>{{ __('Here') }}</th><th style="min-width:340px">{{ __('Target') }}</th></tr></thead>
@@ -141,8 +159,13 @@
                                         <button type="button" class="btn btn-small" wire:click="ignore('{{ $key }}')">{{ __('Ignore') }}</button>
                                     </form>
                                     @error('targets.'.$key)<span class="error">{{ $message }}</span>@enderror
+                                @elseif ($state === 'exists')
+                                    <a href="{{ url('/'.$path) }}" target="_blank" rel="noopener">→ {{ $row['here'] ?? __('same address here') }}</a>
+                                    <br><span class="muted mono" style="font-size:12px">/{{ $path }}</span>
                                 @elseif (in_array($state, ['redirect', 'gone'], true) && ($row['target'] ?? null))
-                                    <span class="mono" style="font-size:13px;word-break:break-all">→ {{ $row['target'] }}</span>
+                                    @php($to = \RedirectScout\Redirector::describe($row['target']))
+                                    @if ($to['url'])<a href="{{ $to['url'] }}" target="_blank" rel="noopener">→ {{ $to['label'] }}</a>@else<span>→ {{ $to['label'] }}</span>@endif
+                                    @if ($to['label'] !== $row['target'])<br><span class="muted mono" style="font-size:12px;word-break:break-all">{{ $row['target'] }}</span>@endif
                                     <button type="button" class="btn btn-small btn-danger" wire:click="remove('{{ $key }}')" wire:confirm="{{ __('Remove this redirect? The old address then leads nowhere.') }}" aria-label="{{ __('Remove') }}" title="{{ __('Remove') }}"><x-wake::icon name="trash" /></button>
                                 @elseif ($state === 'ignored')
                                     <button type="button" class="btn btn-small" wire:click="ignore('{{ $key }}', false)">{{ __('Show again') }}</button>

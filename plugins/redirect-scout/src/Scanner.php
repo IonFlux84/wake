@@ -384,7 +384,7 @@ class Scanner
     protected function request(string $url, int $timeout = 15, string $method = 'get'): ?Response
     {
         try {
-            return Http::timeout($timeout)
+            return Http::connectTimeout(10)->timeout($timeout)
                 ->withUserAgent('WakeRedirectScout/1.0 (+https://getwake.dev)')
                 ->withOptions(['allow_redirects' => false])
                 ->{$method}($url);

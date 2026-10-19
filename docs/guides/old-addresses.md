@@ -67,6 +67,8 @@ reason:
 | same file name | `/uploads/flyer.pdf` and `media/…/flyer.pdf` | 100 |
 | same slug | `/news/summer-fest.html` and the post `summer-fest` | 95–100 |
 | same title | the old page's title equals a title here | 92 |
+| same page without feed or page number | `/news/summer-fest/feed` or `/tag/club/page/3` | 95 |
+| same slug without number or date | `/termin/stammtisch-42` or `/termin/stammtisch-2017-08-09` and the post `stammtisch` | 85 |
 | similar slug or title | small differences in spelling | 68–90 |
 | parent page | nothing similar, but `/club` exists for `/club/old-board` | 40 |
 
@@ -77,6 +79,23 @@ reason:
   starting with `https://`.
 - **410** marks a page that was removed on purpose.
 - **Ignore** hides addresses nobody will miss, like old admin pages.
+
+The figures on top are the filters: click *Exist here* or *Redirected* to see
+those addresses and where they lead now.
+
+## 4. Whole folders at once
+
+Type a folder into the search, for example `shop/`. For all addresses shown
+you can then:
+
+- **Take the suggestions**, also those under 90 %. Check a few first.
+- **410**, for example for spam pages an old hack left behind.
+- **Ignore** them.
+- Or save **one rule** for the folder: everything below `/strasse/*` leads to
+  `/strassen`. A target ending in `/*` keeps the rest of the address, so
+  `/strasse/*` → `/strassen/*` leads `/strasse/lindenweg` to
+  `/strassen/lindenweg`. Rules are patterns in `settings/redirects.yml`
+  ([how they work](../concepts/editing.md#redirects)).
 
 Every target is saved in `settings/redirects.yml`, the same file the
 *Redirects* page shows ([how redirects work](../concepts/editing.md#redirects)).

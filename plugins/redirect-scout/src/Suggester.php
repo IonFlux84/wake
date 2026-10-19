@@ -36,9 +36,57 @@ class Suggester
             return null;
         }
 
-        return Address::type($path) === 'file'
-            ? $this->file($last)
-            : ($this->page($path, $title) ?? $this->parent($path));
+        if (Address::type($path) === 'file') {
+            return $this->file($last);
+        }
+
+        // WordPress hangs feeds, page numbers and the like onto every address.
+        $base = self::base($path);
+
+        if ($base !== $path) {
+            return ($base === '' ? null : $this->existing($base, 'same page')) ?? $this->page($base, $title) ?? $this->parent($base);
+        }
+
+        return $this->page($path, $title) ?? $this->parent($path);
+    }
+
+    /**
+     * The address without /feed, /page/3, /amp, /embed, /trackback or /comment-page-2 at the end.
+     */
+    public static function base(string $path): string
+    {
+        return trim(preg_replace('#(/(feed|rss2?|atom|amp|embed|trackback|(page|comment-page-)/?\d+))+$#i', '', '/'.$path), '/');
+    }
+
+    /**
+     * "arbeitskreis-geschichte-2017-08-21" and "arbeitskreis-geschichte-13-2-2" are "arbeitskreis-geschichte".
+     */
+    public static function stem(string $slug): string
+    {
+        return preg_replace('/(-\d{4}-\d{2}-\d{2}|(-\d+)+)$/', '', $slug) ?: $slug;
+    }
+
+    /**
+     * The entry, tag or category that answers at a path here.
+     *
+     * @return array{target: string, label: string, score: int, reason: string}|null
+     */
+    protected function existing(string $path, string $reason): ?array
+    {
+        foreach ($this->pages() as $page) {
+            if ($page['path'] === $path) {
+                return ['target' => $page['target'], 'label' => $page['title'], 'score' => 95, 'reason' => $reason];
+            }
+        }
+
+        // Tags without a file, the search and the like have no entry, only an address.
+        $here = app(Checker::class)->check($path);
+
+        return match ($here['state']) {
+            'exists' => ['target' => '/'.$path, 'label' => '/'.$path, 'score' => 95, 'reason' => $reason],
+            'redirect' => $here['target'] !== null ? ['target' => $here['target'], 'label' => $here['target'], 'score' => 90, 'reason' => $reason] : null,
+            default => null,
+        };
     }
 
     /**
@@ -82,6 +130,11 @@ class Suggester
                 $title !== '' && Str::slug($title) === Str::slug($page['title']) => [92, 'same title'],
                 default => [0, ''],
             };
+
+            // A numbered copy or a dated event of a series: the series.
+            if ($score === 0 && $slug !== '' && self::stem($slug) !== $slug && self::stem($slug) === self::stem($page['slug'])) {
+                [$score, $reason] = [85, 'same slug without number'];
+            }
 
             if ($score === 0 && $slug !== '' && strlen($slug) > 5) {
                 similar_text($slug, $page['slug'], $percent);

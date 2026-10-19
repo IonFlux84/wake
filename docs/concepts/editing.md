@@ -45,7 +45,14 @@ de:
 en:
   old/page: https://example.org/elsewhere # another website
   old/offer: gone                         # removed on purpose: 410 Gone
+  shop/*: gone                            # a pattern: every address below /shop
+  strasse/*: /strassen/*                  # /strasse/lindenweg leads to /strassen/lindenweg
 ```
+
+An address ending in `/*` is a **pattern** for a whole folder, the folder
+itself included. An exact address always wins over a pattern, and a longer
+pattern over a shorter one. A target ending in `/*` keeps the rest of the
+address.
 
 A redirect only answers when nothing else lives at the address: an entry, a
 tag or a category page at the same path always wins. Files of the media

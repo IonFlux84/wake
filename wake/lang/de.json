@@ -731,5 +731,6 @@
     "Entry, /path, https://… or gone": "Eintrag, /pfad, https://… oder gone",
     "\"gone\" answers 410: the page was removed on purpose and search engines forget it sooner.": "„gone“ antwortet mit 410: Die Seite wurde bewusst entfernt, Suchmaschinen vergessen sie dann schneller.",
     "Choose an entry, a path like /blog, a file like media/flyer.pdf, a full address starting with https:// or \"gone\".": "Wähle einen Eintrag, einen Pfad wie /blog, eine Datei wie media/flyer.pdf, eine volle Adresse mit https:// oder „gone“.",
-    "There is no such file in the media library.": "Diese Datei gibt es in der Mediathek nicht."
+    "There is no such file in the media library.": "Diese Datei gibt es in der Mediathek nicht.",
+    "/old/* covers every address below /old. A target like /new/* keeps the rest of the address.": "/alt/* gilt für jede Adresse unter /alt. Ein Ziel wie /neu/* behält den Rest der Adresse."
 }

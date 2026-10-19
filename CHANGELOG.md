@@ -189,13 +189,17 @@ All notable changes to Wake are documented here. The format follows
 - Redirects lead to more than entries and other websites: to a path of the site
   (`/events`, also categories and tags), to a file of the media library
   (`media/downloads/flyer.pdf`) and to `gone`, which answers 410 Gone for pages
-  removed on purpose.
+  removed on purpose. Patterns like `shop/*` cover a whole folder; a target
+  like `/strassen/*` keeps the rest of the address.
 - Plugins can add pages to the panel (`$plugin->page()`), Livewire components
   for them (`$plugin->livewire()`) and tools to the MCP server (`$plugin->tool()`).
 - The plugin *Redirect scout* ships with Wake: under *Old addresses* it searches
   the website you replace (sitemaps, links, the Wayback Machine or a pasted
   list), checks every address against Wake and suggests a target for each one
-  that leads nowhere. Also as `redirect-scout:scan` and as two MCP tools.
+  that leads nowhere, also behind feeds, page numbers, numbered copies and
+  dates. For a folder typed into the search it takes all suggestions, answers
+  410, ignores or saves one rule at once. Also as `redirect-scout:scan` and as
+  two MCP tools.
 
 ### Changed
 

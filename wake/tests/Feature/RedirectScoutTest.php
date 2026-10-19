@@ -4,8 +4,10 @@ use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use RedirectScout\Address;
 use RedirectScout\Livewire\Scout;
+use RedirectScout\Redirector;
 use RedirectScout\Scanner;
 use RedirectScout\Store;
+use RedirectScout\Suggester;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Accounts\Tokens;
@@ -159,6 +161,59 @@ it('answers 410 for everything a search shows, at once', function () {
     expect(app(Redirects::class)->target('en', 'news/first.html'))->toBe('gone')
         ->and(app(Redirects::class)->target('en', 'history'))->toBeNull()
         ->and(Store::filterOf($store->address('intern/secret')))->toBe('ignored');
+});
+
+it('sees through feeds, page numbers, numbered copies and dates', function () {
+    expect(Suggester::base('blog/post/feed'))->toBe('blog/post')
+        ->and(Suggester::base('tag/stiepel/page/12'))->toBe('tag/stiepel')
+        ->and(Suggester::base('post/comment-page-2/amp'))->toBe('post')
+        ->and(Suggester::stem('arbeitskreis-geschichte-2017-08-21'))->toBe('arbeitskreis-geschichte')
+        ->and(Suggester::stem('arbeitskreis-geschichte-13-2-2'))->toBe('arbeitskreis-geschichte')
+        ->and(Suggester::stem('osterfeuer'))->toBe('osterfeuer');
+
+    $suggester = app(Suggester::class);
+
+    expect($suggester->suggest('2016/04/23/first/feed'))->toMatchArray(['target' => 'posts/first'])
+        ->and($suggester->suggest('tag/travel/page/2'))->toMatchArray(['target' => '/tag/travel', 'reason' => 'same page'])
+        ->and($suggester->suggest('termin/first-2017-08-09'))->toMatchArray(['target' => 'posts/first', 'score' => 85, 'reason' => 'same slug without number']);
+});
+
+it('saves one rule for a whole folder', function () {
+    fakeOldWebsite();
+    scoutScan();
+
+    Livewire::actingAs(scoutOwner())->test(Scout::class)
+        ->set('search', 'news/')
+        ->assertSee('/news/*')
+        ->set('ruleTarget', '/tag/*')->call('rule')->assertHasNoErrors()
+        ->set('ruleTarget', '/news/x')->call('rule')->assertHasErrors('ruleTarget');
+
+    $store = app(Store::class);
+    $store->reload();
+
+    expect(app(Redirects::class)->target('en', 'news/*'))->toBe('/tag/*')
+        ->and($store->address('news/first.html')['state'])->toBe('redirect')
+        ->and($store->address('news/first.html')['target'])->toBe('/tag/first.html');
+});
+
+it('takes the suggestions of all addresses shown', function () {
+    fakeOldWebsite();
+    scoutScan();
+
+    Livewire::actingAs(scoutOwner())->test(Scout::class)->set('search', 'files/')->call('bulk', 'accept');
+
+    expect(app(Redirects::class)->target('en', 'files/photo.png'))->toBe('media/posts/first/photo.png')
+        ->and(app(Redirects::class)->target('en', 'news/first.html'))->toBeNull();
+});
+
+it('shows where existing and redirected addresses lead', function () {
+    fakeOldWebsite();
+    scoutScan();
+    app(Redirector::class)->save('news/first.html', 'posts/first');
+
+    Livewire::actingAs(scoutOwner())->test(Scout::class)
+        ->call('setFilter', 'exists')->assertSee('Showing: Exist here')->assertSee('→ About')
+        ->call('setFilter', 'redirect')->assertSee('→ First post')->assertSee('posts/first');
 });
 
 it('runs the search from the panel step by step', function () {

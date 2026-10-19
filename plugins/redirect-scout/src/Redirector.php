@@ -49,6 +49,64 @@ class Redirector
         return null;
     }
 
+    /**
+     * Saves a pattern like "strasse/*" for every address below a folder,
+     * and looks at those addresses again.
+     *
+     * @return string|null an error, or null when saved
+     */
+    public function saveRule(string $folder, string $target): ?string
+    {
+        $folder = trim($folder, '/*');
+        [$language, $rest] = $this->resolver->split($folder);
+        $target = trim($target);
+
+        if ($rest === '') {
+            return __('A rule needs a folder, like strasse/.');
+        }
+
+        $error = match (Redirects::kind($target)) {
+            'entry' => $target === '' || ! (new Query)->find($target) ? __('Choose an entry, a path like /blog, a file like media/flyer.pdf, a full address starting with https:// or "gone".') : null,
+            'media' => Media::find($target) ? null : __('There is no such file in the media library.'),
+            'path' => str_starts_with(trim($target, '/*').'/', $rest.'/') ? __('An address cannot lead to itself.') : null,
+            default => null,
+        };
+
+        if ($error !== null) {
+            return $error;
+        }
+
+        $this->redirects->add($language, $rest.'/*', $target);
+
+        foreach (array_keys($this->store->addresses()) as $path) {
+            if (str_starts_with($path.'/', $folder.'/')) {
+                $this->refresh((string) $path);
+            }
+        }
+
+        app(PageCache::class)->flush();
+
+        return null;
+    }
+
+    /**
+     * A target as people read it: a title or address, and a link.
+     *
+     * @return array{label: string, url: ?string}
+     */
+    public static function describe(string $target): array
+    {
+        return match (Redirects::kind($target)) {
+            'gone' => ['label' => __('Gone (410)'), 'url' => null],
+            'url' => ['label' => $target, 'url' => $target],
+            'path' => ['label' => $target, 'url' => url(str_replace('*', '', $target))],
+            'media' => ['label' => basename($target), 'url' => Media::find($target)?->url()],
+            default => ($entry = (new Query)->find($target))
+                ? ['label' => $entry->title(), 'url' => $entry->url()]
+                : ['label' => $target, 'url' => null],
+        };
+    }
+
     public function remove(string $path): void
     {
         [$language, $rest] = $this->resolver->split($path);

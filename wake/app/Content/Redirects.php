@@ -18,6 +18,7 @@ use Wake\Support\Paths;
  *       old/flyer.pdf: media/downloads/flyer.pdf
  *       old/page: https://example.org/elsewhere
  *       old/offer: gone
+ *       strasse/*: /strassen/*
  */
 class Redirects
 {
@@ -41,11 +42,49 @@ class Redirects
     }
 
     /**
-     * The target for an old path: an entry id or an absolute URL.
+     * The target for an old path. An exact address wins; otherwise the
+     * longest pattern like "old/*" that covers the path. A target ending in
+     * "/*" gets the rest of the path: "strasse/*: /strassen/*" leads
+     * /strasse/lindenweg to /strassen/lindenweg.
      */
     public function target(string $language, string $path): ?string
     {
-        return $this->all()[$language][trim($path, '/')] ?? null;
+        $path = trim($path, '/');
+        $map = $this->all()[$language] ?? [];
+
+        if (isset($map[$path])) {
+            return $map[$path];
+        }
+
+        $best = null;
+
+        foreach ($map as $from => $target) {
+            $from = (string) $from;
+
+            // "strasse/*" also covers /strasse itself.
+            if (str_ends_with($from, '/*') && str_starts_with($path.'/', substr($from, 0, -1))
+                && ($best === null || strlen($from) > strlen($best))) {
+                $best = $from;
+            }
+        }
+
+        if ($best === null) {
+            return null;
+        }
+
+        $target = (string) $map[$best];
+
+        return str_ends_with($target, '/*')
+            ? rtrim(substr($target, 0, -1).substr($path, strlen($best) - 1), '/')
+            : $target;
+    }
+
+    /**
+     * Whether an old address is a pattern like "old/*".
+     */
+    public static function isPattern(string $from): bool
+    {
+        return str_ends_with(trim($from, '/'), '/*');
     }
 
     /**

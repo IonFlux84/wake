@@ -11,7 +11,8 @@
     <form class="card form" wire:submit="add">
         <h2 class="h2">{{ __('New redirect') }}</h2>
         <div class="grid grid-3" style="gap:12px;align-items:start">
-            <div class="field"><label for="r-from">{{ __('Old address') }}</label><input id="r-from" class="input" wire:model="from" placeholder="/alte-seite">@error('from')<span class="error">{{ $message }}</span>@enderror</div>
+            <div class="field"><label for="r-from">{{ __('Old address') }}</label><input id="r-from" class="input" wire:model="from" placeholder="/alte-seite">@error('from')<span class="error">{{ $message }}</span>@enderror
+                <span class="hint">{{ __('/old/* covers every address below /old. A target like /new/* keeps the rest of the address.') }}</span></div>
             <div class="field"><label for="r-to">{{ __('Leads to') }}</label>
                 <input id="r-to" class="input" wire:model="to" list="r-entries" placeholder="{{ __('Entry, /path, https://… or gone') }}">
                 <datalist id="r-entries">@foreach ($entries as $entry)<option value="{{ $entry->id() }}">{{ $entry->title() }}</option>@endforeach</datalist>

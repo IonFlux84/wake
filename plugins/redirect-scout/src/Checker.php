@@ -20,7 +20,7 @@ class Checker
     public function __construct(protected Resolver $resolver, protected Languages $languages, protected Redirects $redirects) {}
 
     /**
-     * @return array{state: string, target: ?string}
+     * @return array{state: string, target: ?string, here?: ?string} here: the title of the entry at the same address
      */
     public function check(string $path): array
     {
@@ -45,7 +45,10 @@ class Checker
             return ['state' => 'exists', 'target' => null];
         }
 
-        return ['state' => $this->render($path), 'target' => null];
+        $state = $this->render($path);
+        $entry = $state === 'exists' ? $this->resolver->resolve($language, $rest) : null;
+
+        return ['state' => $state, 'target' => null, 'here' => $entry?->title()];
     }
 
     /**
