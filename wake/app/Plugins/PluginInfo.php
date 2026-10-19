@@ -24,6 +24,15 @@ final class PluginInfo
         return (string) (is_array($description) ? ($description[app()->getLocale()] ?? reset($description)) : $description);
     }
 
+    /**
+     * Whether the plugin runs as soon as its folder is there. "enabled: false"
+     * in plugin.yml makes it wait until someone switches it on.
+     */
+    public function enabledByDefault(): bool
+    {
+        return ($this->data['enabled'] ?? true) !== false;
+    }
+
     public function version(): string
     {
         return (string) ($this->data['version'] ?? '');

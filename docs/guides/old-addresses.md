@@ -9,9 +9,10 @@ When Wake replaces an older website, links from search engines, other
 websites and bookmarks still point to the old addresses. This guide finds
 all of them and gives every address that leads nowhere a redirect.
 
-Wake ships the plugin **Redirect scout** for this. Its page is *Old
-addresses* in the panel, under *Manage* (people with `settings.manage`). If
-you don't see it, switch the plugin on under *Plugins*.
+Wake ships the plugin **Redirect scout** for this. It starts switched off:
+under *Plugins*, switch on *Redirect scout*. Its page is then *Old addresses*
+in the panel, under *Manage* (people with `settings.manage`). When the move is
+done, switch it off again; the redirects stay.
 
 ## 1. Search the old website
 

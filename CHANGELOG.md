@@ -199,7 +199,10 @@ All notable changes to Wake are documented here. The format follows
   that leads nowhere, also behind feeds, page numbers, numbered copies and
   dates. For a folder typed into the search it takes all suggestions, answers
   410, ignores or saves one rule at once. Also as `redirect-scout:scan` and as
-  two MCP tools.
+  two MCP tools. It starts switched off; switch it on under *Plugins*.
+- Plugins can start switched off with `enabled: false` in `plugin.yml`
+  (setting `plugins.enabled`).
+- Updates from the panel also replace the plugins that ship with Wake.
 
 ### Changed
 

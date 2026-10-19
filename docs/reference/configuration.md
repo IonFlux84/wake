@@ -30,7 +30,7 @@ Owners and administrators can change some settings under *Settings* in the
 panel. Wake stores them in `settings/general.yml`, which overrides
 `settings/config.php`, so the panel always shows what is in effect. These are
 `timezone`, `post_url`, `missing_translation`, `prefix_default_language`, the
-`tracking.*` settings, `mcp.approval`, `legal.imprint`, `legal.privacy`, `panel.accent`, `panel.language`, `closed`, `security.require_two_factor`, `theme`, `theme_options`, `plugins.disabled` and `plugins.options`. Everything else is
+`tracking.*` settings, `mcp.approval`, `legal.imprint`, `legal.privacy`, `panel.accent`, `panel.language`, `closed`, `security.require_two_factor`, `theme`, `theme_options`, `plugins.disabled`, `plugins.enabled` and `plugins.options`. Everything else is
 only set in `settings/config.php`.
 
 Secrets such as the application key and mail passwords belong in `.env`, not
@@ -52,6 +52,7 @@ panel are stored encrypted in `data/secrets/mail.yml`.
 | `theme` | `'tide'` | Folder in `themes/` that renders the website. |
 | `theme_options` | `[]` | Options of the active theme as declared in its `theme.yml`, usually set in the panel under *Themes*. See [Tide](tide.md). |
 | `plugins.disabled` | `[]` | Folders in `plugins/` that are switched off. Usually changed in the panel under *Plugins*. See [plugins](plugins.md). |
+| `plugins.enabled` | `[]` | Folders in `plugins/` that are switched on although their `plugin.yml` says `enabled: false`. Usually changed in the panel under *Plugins*. |
 | `plugins.options` | `[]` | Settings of each plugin as declared in its `plugin.yml`, folder → option → value. Usually changed in the panel under *Plugins*. |
 
 ## Addresses

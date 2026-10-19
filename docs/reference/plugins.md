@@ -40,6 +40,7 @@ description: { en: Shows today's opening hours., de: Zeigt die heutigen Öffnung
 version: 1.0.0
 author: Jane Doe
 url: https://example.org/opening-hours
+enabled: false                 # optional: starts switched off until someone switches it on
 autoload:
   OpeningHours: src            # PSR-4: OpeningHours\Hours is src/Hours.php
 options:

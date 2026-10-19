@@ -54,10 +54,12 @@ return [
     // Options for the active theme, e.g. ['accent' => '#3D5AFE'] for Tide.
     'theme_options' => [],
 
-    // Plugins in plugins/: folders that are switched off, and the
+    // Plugins in plugins/: folders that are switched off, folders that are
+    // switched on although their plugin.yml says "enabled: false", and the
     // settings of each plugin, usually changed in the panel under Plugins.
     'plugins' => [
         'disabled' => [],
+        'enabled' => [],
         'options' => [],
     ],
 

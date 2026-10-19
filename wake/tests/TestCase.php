@@ -6,6 +6,7 @@ use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Carbon;
+use Symfony\Component\Yaml\Yaml;
 use Wake\Support\Files;
 
 /**
@@ -25,10 +26,15 @@ abstract class TestCase extends BaseTestCase
             $this->copyDirectory(__DIR__.'/Fixtures/'.$folder, $this->sandbox.'/'.$folder);
         }
 
-        // The plugins that ship with Wake run in every test, next to the fixture plugin.
+        // The plugins that ship with Wake run in every test, next to the
+        // fixture plugin, also those that start switched off.
+        $bundled = [];
+
         foreach (glob(dirname(__DIR__, 2).'/plugins/*/plugin.php') ?: [] as $plugin) {
-            $this->copyDirectory(dirname($plugin), $this->sandbox.'/plugins/'.basename(dirname($plugin)));
+            $this->copyDirectory(dirname($plugin), $this->sandbox.'/plugins/'.($bundled[] = basename(dirname($plugin))));
         }
+
+        file_put_contents($this->sandbox.'/settings/general.yml', Yaml::dump(['plugins' => ['enabled' => $bundled]]));
         mkdir($this->sandbox.'/temp/framework/views', 0775, true);
         mkdir($this->sandbox.'/data', 0775, true);
         mkdir($this->sandbox.'/public', 0775, true);

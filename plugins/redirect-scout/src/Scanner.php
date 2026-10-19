@@ -408,7 +408,7 @@ class Scanner
 
     protected function limit(): int
     {
-        return max(1, (int) ($this->store->get('options')['limit'] ?? 2000));
+        return max(1, (int) ($this->store->get('options')['limit'] ?? 5000));
     }
 
     protected function delay(): int

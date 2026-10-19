@@ -65,7 +65,7 @@ class Scout extends Component
             'crawl' => $this->crawl,
             'wayback' => $this->wayback,
             'list' => array_values(array_filter(array_map('trim', preg_split('/\R/', $this->list)))),
-            'limit' => (int) $plugin->option('limit', 2000),
+            'limit' => (int) $plugin->option('limit', 5000),
             'delay' => (int) $plugin->option('delay', 250),
         ]);
 

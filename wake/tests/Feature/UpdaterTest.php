@@ -23,6 +23,8 @@ function fakeRelease(string $sandbox, string $version, bool $complete = true): s
         file_put_contents($build.'/wake/vendor/autoload.php', '<?php');
     }
     file_put_contents($build.'/public/index.php', '<?php // new index');
+    @mkdir($build.'/plugins/redirect-scout', 0775, true);
+    file_put_contents($build.'/plugins/redirect-scout/plugin.php', '<?php // new plugin');
 
     $zip = new ZipArchive;
     $zip->open($sandbox.'/release.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -40,6 +42,10 @@ beforeEach(function () {
     @mkdir($this->site.'/public', 0775, true);
     file_put_contents($this->site.'/wake/bootstrap/app.php', '<?php // old');
     file_put_contents($this->site.'/public/index.php', '<?php // old index');
+    @mkdir($this->site.'/plugins/redirect-scout', 0775, true);
+    @mkdir($this->site.'/plugins/own-plugin', 0775, true);
+    file_put_contents($this->site.'/plugins/redirect-scout/plugin.php', '<?php // old plugin');
+    file_put_contents($this->site.'/plugins/own-plugin/plugin.php', '<?php // mine');
     $this->updater = app(Updater::class);
     $this->updater->root = $this->site;
 });
@@ -76,7 +82,10 @@ it('installs a release and keeps a backup', function () {
     expect(file_get_contents($this->site.'/wake/bootstrap/app.php'))->toContain('new 9.0.0')
         ->and(file_get_contents($this->site.'/public/index.php'))->toContain('new index')
         ->and(file_get_contents($backup.'/wake/bootstrap/app.php'))->toContain('old')
-        ->and(file_get_contents($backup.'/public__index.php'))->toContain('old index');
+        ->and(file_get_contents($backup.'/public__index.php'))->toContain('old index')
+        ->and(file_get_contents($this->site.'/plugins/redirect-scout/plugin.php'))->toContain('new plugin')
+        ->and(file_get_contents($backup.'/plugins/redirect-scout/plugin.php'))->toContain('old plugin')
+        ->and(file_get_contents($this->site.'/plugins/own-plugin/plugin.php'))->toContain('mine');
 });
 
 it('changes nothing when the checksum does not match', function () {

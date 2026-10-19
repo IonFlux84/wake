@@ -84,9 +84,14 @@ class Plugins
         return $this->all()[$folder] ?? null;
     }
 
-    public function isEnabled(string $folder): bool
+    public function isEnabled(string $folder, ?PluginInfo $info = null): bool
     {
-        return ! in_array($folder, (array) config('wake.plugins.disabled', []), true);
+        if (in_array($folder, (array) config('wake.plugins.disabled', []), true)) {
+            return false;
+        }
+
+        return in_array($folder, (array) config('wake.plugins.enabled', []), true)
+            || (($info ?? $this->get($folder))?->enabledByDefault() ?? true);
     }
 
     public function isRunning(string $folder): bool
@@ -105,7 +110,7 @@ class Plugins
     public function boot(): void
     {
         foreach ($this->all() as $folder => $info) {
-            if (! $this->isEnabled($folder) || isset($this->booted[$folder])) {
+            if (! $this->isEnabled($folder, $info) || isset($this->booted[$folder])) {
                 continue;
             }
 

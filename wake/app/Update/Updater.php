@@ -12,9 +12,9 @@ use ZipArchive;
 
 /**
  * Updates Wake from a GitHub release: the installation ZIP and its SHA-256
- * checksum. Only the wake/ folder and the files Wake keeps in public/ and the
- * main folder are replaced. Wake only contacts GitHub when someone clicks
- * "Check for updates".
+ * checksum. Only the wake/ folder, the files Wake keeps in public/ and the
+ * main folder, and the folders of the plugins that ship with Wake are
+ * replaced. Wake only contacts GitHub when someone clicks "Check for updates".
  */
 class Updater
 {
@@ -119,10 +119,37 @@ class Updater
             }
         }
 
+        $this->switchPlugins($source, $backup);
+
         Files::deleteDirectory(storage_path('framework/views'));
         @mkdir(storage_path('framework/views'), 0775, true);
         app(PageCache::class)->flush();
 
         return $backup;
+    }
+
+    /**
+     * The plugins in the release's plugins/ folder replace their folders in
+     * the site; the old folders go into the backup. Whether a plugin is
+     * switched on, and its settings, stay as they were.
+     */
+    protected function switchPlugins(string $source, string $backup): void
+    {
+        $plugins = $this->root !== null ? $this->root.'/plugins' : Paths::plugins();
+        @mkdir($plugins, 0775, true);
+
+        foreach (glob($source.'/plugins/*/plugin.php') ?: [] as $file) {
+            $folder = basename(dirname($file));
+
+            if (is_dir($plugins.'/'.$folder)) {
+                @mkdir($backup.'/plugins', 0775, true);
+
+                if (! rename($plugins.'/'.$folder, $backup.'/plugins/'.$folder)) {
+                    continue;
+                }
+            }
+
+            rename(dirname($file), $plugins.'/'.$folder);
+        }
     }
 }

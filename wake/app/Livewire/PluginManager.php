@@ -30,14 +30,21 @@ class PluginManager extends Component
 
     public function toggle(Plugins $plugins, string $folder): void
     {
-        abort_unless($plugins->get($folder), 404);
+        $info = $plugins->get($folder) ?? abort(404);
+        $on = ! $plugins->isEnabled($folder);
+        $disabled = array_values(array_diff((array) config('wake.plugins.disabled', []), [$folder]));
+        $enabled = array_values(array_diff((array) config('wake.plugins.enabled', []), [$folder]));
 
-        $disabled = (array) config('wake.plugins.disabled', []);
-        $disabled = in_array($folder, $disabled, true) ? array_values(array_diff($disabled, [$folder])) : [...$disabled, $folder];
+        // Only what differs from the plugin's own default is written down.
+        if ($on && ! $info->enabledByDefault()) {
+            $enabled[] = $folder;
+        } elseif (! $on && $info->enabledByDefault()) {
+            $disabled[] = $folder;
+        }
 
-        Settings::save(['plugins.disabled' => $disabled]);
+        Settings::save(['plugins.disabled' => $disabled, 'plugins.enabled' => $enabled]);
         app(PageCache::class)->flush();
-        session()->flash('status', in_array($folder, $disabled, true) ? __('Plugin switched off.') : __('Plugin switched on.'));
+        session()->flash('status', $on ? __('Plugin switched on.') : __('Plugin switched off.'));
         $this->redirect(route('wake.plugins'));
     }
 

@@ -39,7 +39,7 @@ class ScanCommand extends Command
                 'crawl' => ! $this->option('no-crawl'),
                 'wayback' => (bool) $this->option('wayback'),
                 'list' => $list && is_file($list) ? array_values(array_filter(array_map('trim', file($list)))) : [],
-                'limit' => (int) $plugin->option('limit', 2000),
+                'limit' => (int) $plugin->option('limit', 5000),
                 'delay' => (int) $plugin->option('delay', 250),
             ]);
         }

@@ -119,3 +119,24 @@ it('adds tools to the MCP server', function () {
     $call(['method' => 'tools/call', 'params' => ['name' => 'greeter_greet', 'arguments' => []]])
         ->assertOk()->assertSee('Hello from a plugin tool');
 });
+
+it('leaves plugins with "enabled: false" off until someone switches them on', function () {
+    Files::write(Paths::plugins('sleeper/plugin.php'), "<?php\nreturn function (\$plugin) {};\n");
+    Files::write(Paths::plugins('sleeper/plugin.yml'), "name: Sleeper\nenabled: false\n");
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+
+    expect(app(Plugins::class)->isEnabled('sleeper'))->toBeFalse();
+
+    Livewire::actingAs($owner)->test(PluginManager::class)->call('toggle', 'sleeper');
+    expect(config('wake.plugins.enabled'))->toContain('sleeper')
+        ->and(app(Plugins::class)->isEnabled('sleeper'))->toBeTrue();
+
+    Livewire::actingAs($owner)->test(PluginManager::class)->call('toggle', 'sleeper');
+    expect(config('wake.plugins.enabled'))->not->toContain('sleeper')
+        ->and(config('wake.plugins.disabled'))->not->toContain('sleeper')
+        ->and(app(Plugins::class)->isEnabled('sleeper'))->toBeFalse();
+});
+
+it('ships the redirect scout switched off', function () {
+    expect(app(Plugins::class)->get('redirect-scout')->enabledByDefault())->toBeFalse();
+});

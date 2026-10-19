@@ -5,13 +5,14 @@ description:
 version: 1.0.0
 author: Wake
 url: https://getwake.dev
+enabled: false
 autoload:
   RedirectScout: src
 options:
   limit:
     type: text
     label: { en: Most addresses per search, de: Höchstens so viele Adressen pro Suche }
-    default: '2000'
+    default: '5000'
   delay:
     type: text
     label: { en: Pause between requests (milliseconds), de: Pause zwischen Abrufen (Millisekunden) }

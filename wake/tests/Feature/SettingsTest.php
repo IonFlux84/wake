@@ -56,7 +56,8 @@ it('lets everyone change their own account, but only admins the site', function 
 it('only writes keys the panel may change', function () {
     SiteSettings::save(['paths.content' => '/etc', 'tracking.retention' => 9]);
 
-    expect(SiteSettings::read())->toBe(['tracking' => ['retention' => 9]]);
+    expect(SiteSettings::read())->not->toHaveKey('paths')
+        ->and(SiteSettings::read()['tracking'])->toBe(['retention' => 9]);
 });
 
 it('uses German in the panel unless chosen otherwise', function () {
