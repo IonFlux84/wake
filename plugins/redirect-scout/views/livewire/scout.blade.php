@@ -132,7 +132,7 @@
                                     @if (($row['note'] ?? null) === 'robots.txt')<span class="chip missing">robots.txt</span>@endif
                                 </div>
                             </td>
-                            <td>
+                            <td style="white-space:nowrap">
                                 @switch($state)
                                     @case('exists')<span class="status published">{{ __('exists') }}</span>@break
                                     @case('redirect')<span class="status scheduled">{{ __('redirected') }}</span>@break
