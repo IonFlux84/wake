@@ -9,6 +9,7 @@ use Wake\Http\Controllers\Panel\LoginController;
 use Wake\Http\Controllers\Panel\PasswordController;
 use Wake\Http\Controllers\Panel\PreviewController;
 use Wake\Http\Controllers\Panel\SetupController;
+use Wake\Plugins\Plugins;
 
 // The panel lives under /wake. These routes use sessions and CSRF protection.
 
@@ -53,6 +54,7 @@ Route::prefix('wake')->name('wake.')->middleware('wake.panel')->group(function (
         Route::view('redirects', 'wake::panel.redirects')->middleware('can:settings.manage')->name('redirects');
         Route::view('plugins', 'wake::panel.plugins')->middleware('can:settings.manage')->name('plugins');
         Route::view('themes', 'wake::panel.themes')->middleware('can:themes.manage')->name('themes');
+        app(Plugins::class)->registerPanelRoutes();
 
         Route::get('posts', [ContentController::class, 'index'])->defaults('type', 'post')->name('posts');
         Route::get('pages', [ContentController::class, 'index'])->defaults('type', 'page')->name('pages');

@@ -14,6 +14,8 @@ use Wake\Content\Redirects;
 use Wake\Content\Search;
 use Wake\Content\Site;
 use Wake\Localization\Languages;
+use Wake\Media\Media;
+use Wake\Media\MediaAccess;
 use Wake\Routing\Resolver;
 use Wake\Theme\Theme;
 
@@ -87,9 +89,11 @@ class SiteController
     }
 
     /**
-     * An old address of an entry (settings/redirects.yml) gets a permanent redirect.
+     * An old address (settings/redirects.yml) gets a permanent redirect to
+     * an entry, a path of this site, a media file or another website, or
+     * "410 Gone".
      */
-    protected function redirect(string $language, string $path): ?RedirectResponse
+    protected function redirect(string $language, string $path): Response|RedirectResponse|null
     {
         $target = app(Redirects::class)->target($language, $path);
 
@@ -97,8 +101,23 @@ class SiteController
             return null;
         }
 
+        if ($target === Redirects::GONE) {
+            return $this->gone();
+        }
+
         if (preg_match('#^https?://#', $target)) {
             return redirect()->away($target, 301);
+        }
+
+        if (str_starts_with($target, '/')) {
+            return trim($target, '/') === $path ? null : redirect()->to($target, 301);
+        }
+
+        if (str_starts_with($target, 'media/')) {
+            $media = Media::find($target);
+
+            // Temporary: the file's address carries its version and changes with the file.
+            return $media && MediaAccess::isPublic($media->relativePath()) ? redirect()->to($media->url(), 302) : null;
         }
 
         $entry = (new Query)->in($language)->find($target);
@@ -159,6 +178,16 @@ class SiteController
 
         return response()->view($view, ['site' => $this->site, 'entry' => null, 'query' => $query, 'results' => $results])
             ->header('X-Robots-Tag', 'noindex');
+    }
+
+    /**
+     * An address that was removed on purpose: the theme's 410, else its 404 page, with status 410.
+     */
+    public function gone(): Response
+    {
+        $view = $this->theme->template('410', '404') ?? 'wake::404';
+
+        return response()->view($view, ['site' => $this->site, 'entry' => null], 410);
     }
 
     public function notFound(): Response

@@ -96,6 +96,9 @@ Laravel's container: `app()->instance(MyService::class, new MyService($plugin));
 | `head($closure)` | HTML for the `<head>` of every website page: `fn ($site, $entry) => '<meta …>'`. |
 | `on($event, $listener)` | an event listener, e.g. for `Wake\Content\ContentChanged`. |
 | `command($class)` | an Artisan command for `php wake/artisan`. |
+| `page($name, $view, $label, $icon, $can)` | a page in the panel at `/wake/plugin/{folder}/{name}`, listed under *Manage* for people with the capability `$can` (default `settings.manage`). The view is shown inside the panel layout and gets `$page`. `$label` is a text or one per language; `$icon` is the name of a panel icon (default `plug`). |
+| `livewire($name, $class)` | a [Livewire](https://livewire.laravel.com) component for your panel pages, used as `<livewire:{folder}.{name} />`. Check the capability again in its `mount()`: Livewire actions don't pass the page's middleware. |
+| `tool($class)` | a tool for the [MCP server](mcp.md). Extend `Wake\Mcp\Tools\WakeTool`, set `$scope` and implement `run()`; the base class checks the token's scope. Check the person's capabilities yourself where the scope is not enough. |
 
 And to help with that:
 
@@ -108,6 +111,27 @@ And to help with that:
 | `info` | the `plugin.yml` data: `name()`, `description()`, `version()`, `author()`, `url()`, `options()` |
 
 Every method that adds something returns the plugin, so calls can be chained.
+
+## Example: a panel page
+
+```php
+// plugin.php
+return function (Wake\Plugins\Plugin $plugin) {
+    $plugin->page('hours', 'opening-hours::panel', ['en' => 'Opening hours', 'de' => 'Öffnungszeiten'], 'calendar')
+        ->livewire('editor', OpeningHours\HoursEditor::class);
+};
+```
+
+```blade
+{{-- views/panel.blade.php --}}
+<header class="page-head"><h1 class="title">{{ __('Opening hours') }}</h1></header>
+<livewire:opening-hours.editor />
+```
+
+The panel's classes (`card`, `table`, `btn`, `input`, `kpis` …) are
+available, so a plugin page looks like the rest of the panel. Wake's own
+plugin `plugins/redirect-scout` is a complete example with a panel page,
+Livewire, MCP tools and a command.
 
 ## Views, translations and assets
 

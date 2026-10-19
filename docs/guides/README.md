@@ -12,6 +12,7 @@ description: Step-by-step instructions for concrete tasks.
 - [Categories and events](categories-and-events.md)
 - [Add a second language](second-language.md)
 - [Move from Ghost](move-from-ghost.md)
+- [Keep old addresses working](old-addresses.md)
 
 ## Running the site
 

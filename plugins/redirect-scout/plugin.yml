@@ -1,0 +1,19 @@
+name: Redirect scout
+description:
+  en: Finds every address of your old website and shows which ones need a redirect, with suggestions for the target.
+  de: Findet alle Adressen deiner alten Website und zeigt, welche eine Weiterleitung brauchen, mit Vorschlägen für das Ziel.
+version: 1.0.0
+author: Wake
+url: https://getwake.dev
+autoload:
+  RedirectScout: src
+options:
+  limit:
+    type: text
+    label: { en: Most addresses per search, de: Höchstens so viele Adressen pro Suche }
+    default: '2000'
+  delay:
+    type: text
+    label: { en: Pause between requests (milliseconds), de: Pause zwischen Abrufen (Millisekunden) }
+    default: '250'
+    hint: { en: Be gentle with the old server., de: Schont den alten Server. }

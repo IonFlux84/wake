@@ -23,6 +23,7 @@
             ['team', 'wake.team', __('Team'), 'team', 'team.manage'],
             ['backups', 'wake.backups', __('Backups'), 'download', 'settings.manage'],
             ['redirects', 'wake.redirects', __('Redirects'), 'arrow-left', 'settings.manage'],
+            ...app(\Wake\Plugins\Plugins::class)->menu(),
             ['settings', 'wake.settings', __('Settings'), 'settings', null],
         ]],
     ];

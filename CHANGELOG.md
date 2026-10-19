@@ -186,6 +186,16 @@ All notable changes to Wake are documented here. The format follows
   edited in the media library and stored next to the file (`photo.jpg.yml`).
   Images in Markdown without alt text take it from the details; cropped images
   keep the focus point in view.
+- Redirects lead to more than entries and other websites: to a path of the site
+  (`/events`, also categories and tags), to a file of the media library
+  (`media/downloads/flyer.pdf`) and to `gone`, which answers 410 Gone for pages
+  removed on purpose.
+- Plugins can add pages to the panel (`$plugin->page()`), Livewire components
+  for them (`$plugin->livewire()`) and tools to the MCP server (`$plugin->tool()`).
+- The plugin *Redirect scout* ships with Wake: under *Old addresses* it searches
+  the website you replace (sitemaps, links, the Wayback Machine or a pasted
+  list), checks every address against Wake and suggests a target for each one
+  that leads nowhere. Also as `redirect-scout:scan` and as two MCP tools.
 
 ### Changed
 

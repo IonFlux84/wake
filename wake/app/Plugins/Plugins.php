@@ -36,6 +36,12 @@ class Plugins
     /** @var list<\Closure> */
     public array $heads = [];
 
+    /** @var array<string, array{plugin: string, name: string, view: string, label: string|array<string, string>, icon: string, can: string}> "{folder}.{name}" => panel page */
+    public array $pages = [];
+
+    /** @var list<class-string> MCP tools */
+    public array $tools = [];
+
     /** @var array<string, string> folder => error message */
     protected array $errors = [];
 
@@ -168,6 +174,42 @@ class Plugins
         foreach ($this->routes as $routes) {
             Route::middleware('wake.closed')->group($routes);
         }
+    }
+
+    /**
+     * Called inside the panel's signed-in route group: one address per plugin page.
+     */
+    public function registerPanelRoutes(): void
+    {
+        foreach ($this->pages as $key => $page) {
+            Route::get('plugin/'.$page['plugin'].'/'.$page['name'], fn () => view('wake::panel.plugin', [
+                'page' => $page,
+                'active' => 'plugin:'.$key,
+                'title' => $this->label($page['label']),
+            ]))->middleware('can:'.$page['can'])->name('plugin.'.$key);
+        }
+    }
+
+    /**
+     * Panel pages as menu items: [key, route, label, icon, capability].
+     *
+     * @return list<array{0: string, 1: string, 2: string, 3: string, 4: string}>
+     */
+    public function menu(): array
+    {
+        return array_values(array_map(fn (string $key) => [
+            'plugin:'.$key, 'wake.plugin.'.$key, $this->label($this->pages[$key]['label']), $this->pages[$key]['icon'], $this->pages[$key]['can'],
+        ], array_keys($this->pages)));
+    }
+
+    /**
+     * A text given as one string or one per language.
+     *
+     * @param  string|array<string, string>  $label
+     */
+    public function label(string|array $label): string
+    {
+        return (string) (is_array($label) ? ($label[app()->getLocale()] ?? reset($label)) : $label);
     }
 
     /**

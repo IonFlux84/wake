@@ -6,6 +6,9 @@ use Closure;
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Event;
+use Laravel\Mcp\Server\Tool;
+use Livewire\Component;
+use Livewire\Livewire;
 use Wake\Maintenance\Maintenance;
 use Wake\Maintenance\Task;
 use Wake\Support\PublicAssets;
@@ -130,6 +133,53 @@ final class Plugin
     public function command(string $command): self
     {
         Artisan::starting(fn (Artisan $artisan) => $artisan->resolve($command));
+
+        return $this;
+    }
+
+    /**
+     * A page in the panel at /wake/plugin/{folder}/{name}, listed under
+     * "Manage" for people who have the capability. The view is shown inside
+     * the panel layout.
+     *
+     * @param  string|array<string, string>  $label  per language
+     */
+    public function page(string $name, string $view, string|array $label, string $icon = 'plug', string $can = 'settings.manage'): self
+    {
+        $this->plugins->pages[$this->key().'.'.$name] = [
+            'plugin' => $this->key(),
+            'name' => $name,
+            'view' => $view,
+            'label' => $label,
+            'icon' => $icon,
+            'can' => $can,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * A Livewire component for the plugin's panel pages, used as
+     * <livewire:{folder}.{name} />.
+     *
+     * @param  class-string<Component>  $component
+     */
+    public function livewire(string $name, string $component): self
+    {
+        Livewire::component($this->key().'.'.$name, $component);
+
+        return $this;
+    }
+
+    /**
+     * A tool for the MCP server, a class extending Wake\Mcp\Tools\WakeTool
+     * (or any Laravel MCP tool).
+     *
+     * @param  class-string<Tool>  $tool
+     */
+    public function tool(string $tool): self
+    {
+        $this->plugins->tools[] = $tool;
 
         return $this;
     }

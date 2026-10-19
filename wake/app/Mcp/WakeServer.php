@@ -3,6 +3,7 @@
 namespace Wake\Mcp;
 
 use Laravel\Mcp\Server;
+use Wake\Plugins\Plugins;
 use Wake\Wake;
 
 /**
@@ -61,4 +62,12 @@ class WakeServer extends Server
     protected array $prompts = [
         Prompts\WeeklyReviewPrompt::class,
     ];
+
+    /**
+     * Tools that plugins add with $plugin->tool().
+     */
+    protected function boot(): void
+    {
+        array_push($this->tools, ...app(Plugins::class)->tools);
+    }
 }

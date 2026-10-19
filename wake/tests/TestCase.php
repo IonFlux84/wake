@@ -24,6 +24,11 @@ abstract class TestCase extends BaseTestCase
         foreach (['content', 'settings', 'themes', 'plugins'] as $folder) {
             $this->copyDirectory(__DIR__.'/Fixtures/'.$folder, $this->sandbox.'/'.$folder);
         }
+
+        // The plugins that ship with Wake run in every test, next to the fixture plugin.
+        foreach (glob(dirname(__DIR__, 2).'/plugins/*/plugin.php') ?: [] as $plugin) {
+            $this->copyDirectory(dirname($plugin), $this->sandbox.'/plugins/'.basename(dirname($plugin)));
+        }
         mkdir($this->sandbox.'/temp/framework/views', 0775, true);
         mkdir($this->sandbox.'/data', 0775, true);
         mkdir($this->sandbox.'/public', 0775, true);

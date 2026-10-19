@@ -1,0 +1,1 @@
+<livewire:redirect-scout.scout />

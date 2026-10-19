@@ -113,7 +113,6 @@
     "Choose a new password for :site": "Neues Passwort für :site",
     "Choose a page": "Seite wählen",
     "Choose a password for :email to join as :role.": "Wähl ein Passwort für :email, um als :role dabei zu sein.",
-    "Choose an entry or enter a full address starting with https://.": "Wähle einen Eintrag oder gib eine vollständige Adresse mit https:// ein.",
     "Choose an image": "Bild auswählen",
     "Click a page to see its wake.": "Klick auf eine Seite, um ihr Kielwasser zu sehen.",
     "Click on the most important spot": "Klick auf die wichtigste Stelle",
@@ -195,7 +194,6 @@
     "Enter the code from your authenticator app. If you do not have your phone, use one of your recovery codes.": "Gib den Code aus deiner Authenticator-App ein. Ohne Handy nimmst du einen deiner Wiederherstellungscodes.",
     "Enter your email address. We send you a link to choose a new password.": "Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link für ein neues Passwort.",
     "Entry": "Eintrag",
-    "Entry or https://…": "Eintrag oder https://…",
     "Error": "Fehler",
     "Events": "Ereignisse",
     "Every :ordinal :weekday of the month": "Jeden :ordinal :weekday im Monat",
@@ -727,5 +725,11 @@
     "ZIP file": "ZIP-Datei",
     "“:name” is installed. Activate it when you are ready.": "„:name“ ist installiert. Aktiviere es, wenn du so weit bist.",
     "“:name” is now the theme of the website.": "„:name“ ist jetzt das Theme der Website.",
-    "“Per language” off means one value for all languages, e.g. for dates or links.": "Ohne „Je Sprache“ gilt ein Wert für alle Sprachen, z. B. für Daten oder Links."
+    "“Per language” off means one value for all languages, e.g. for dates or links.": "Ohne „Je Sprache“ gilt ein Wert für alle Sprachen, z. B. für Daten oder Links.",
+    "An address cannot lead to itself.": "Eine Adresse kann nicht auf sich selbst weiterleiten.",
+    "Gone (410)": "Entfernt (410)",
+    "Entry, /path, https://… or gone": "Eintrag, /pfad, https://… oder gone",
+    "\"gone\" answers 410: the page was removed on purpose and search engines forget it sooner.": "„gone“ antwortet mit 410: Die Seite wurde bewusst entfernt, Suchmaschinen vergessen sie dann schneller.",
+    "Choose an entry, a path like /blog, a file like media/flyer.pdf, a full address starting with https:// or \"gone\".": "Wähle einen Eintrag, einen Pfad wie /blog, eine Datei wie media/flyer.pdf, eine volle Adresse mit https:// oder „gone“.",
+    "There is no such file in the media library.": "Diese Datei gibt es in der Mediathek nicht."
 }

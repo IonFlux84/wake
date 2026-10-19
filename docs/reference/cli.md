@@ -138,3 +138,20 @@ php wake/artisan wake:import:ghost ghost-export.json --url=https://blog.example.
 ```
 
 See [Move from Ghost](../guides/move-from-ghost.md).
+
+## Commands from plugins
+
+Plugins add commands with [`$plugin->command()`](plugins.md#what-a-plugin-can-add).
+The plugin *Redirect scout*, which ships with Wake, adds one:
+
+```bash
+php wake/artisan redirect-scout:scan https://www.example.org --wayback
+```
+
+It searches the old website and checks every address it finds against this
+site. Options: `--wayback` also asks the Wayback Machine, `--no-sitemap`
+skips `robots.txt` and sitemaps, `--no-crawl` follows no links,
+`--list=file.txt` adds addresses from a file (one per line), `--check` only
+checks the addresses found before again. See
+[Keep old addresses working](../guides/old-addresses.md).
+

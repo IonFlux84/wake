@@ -7,16 +7,23 @@ use Wake\Support\Files;
 use Wake\Support\Paths;
 
 /**
- * Old addresses of entries, kept in settings/redirects.yml. When the slug of a
+ * Old addresses, kept in settings/redirects.yml. When the slug of a
  * published entry changes, Wake remembers the old address and answers it
- * with a permanent redirect to the new one.
+ * with a permanent redirect to the new one. A target is an entry id, a path
+ * of this site, a file in media/, another website or "gone" for 410 Gone.
  *
  *     en:
  *       old-slug: posts/2026-10-17-hello-world
+ *       old/archive: /blog
+ *       old/flyer.pdf: media/downloads/flyer.pdf
  *       old/page: https://example.org/elsewhere
+ *       old/offer: gone
  */
 class Redirects
 {
+    /** The target of an address that was removed on purpose (410 Gone). */
+    public const GONE = 'gone';
+
     /** @var array<string, array<string, string>>|null */
     protected ?array $map = null;
 
@@ -39,6 +46,20 @@ class Redirects
     public function target(string $language, string $path): ?string
     {
         return $this->all()[$language][trim($path, '/')] ?? null;
+    }
+
+    /**
+     * What a target is: "entry", "path", "media", "url" or "gone".
+     */
+    public static function kind(string $target): string
+    {
+        return match (true) {
+            $target === self::GONE => 'gone',
+            (bool) preg_match('#^https?://#', $target) => 'url',
+            str_starts_with($target, '/') => 'path',
+            str_starts_with($target, 'media/') => 'media',
+            default => 'entry',
+        };
     }
 
     public function add(string $language, string $path, string $target): void
@@ -72,7 +93,7 @@ class Redirects
 
         foreach ($map as $language => $paths) {
             foreach ($paths as $path => $target) {
-                if (! str_contains($target, '://') && ($new = $rename($target)) !== $target) {
+                if (self::kind($target) === 'entry' && ($new = $rename($target)) !== $target) {
                     $map[$language][$path] = $new;
                     $changed = true;
                 }

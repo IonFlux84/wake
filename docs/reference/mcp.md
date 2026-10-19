@@ -357,6 +357,20 @@ checks that the data really is an image and picks a free file name. Returns
 `markdown`, the snippet to put into the body
 (`![](media/posts/harbour/harbour.jpg)`).
 
+### Tools from plugins
+
+Plugins add tools with [`$plugin->tool()`](plugins.md#what-a-plugin-can-add).
+They appear in `tools/list` while the plugin is switched on. The plugin
+*Redirect scout*, which ships with Wake, adds two
+([Keep old addresses working](../guides/old-addresses.md)):
+
+| Tool | Scope | Does |
+|---|---|---|
+| `redirect_scout_list` | `content:read` | the old website's addresses with their state, old title and a suggested target; parameters `state` (`missing` by default), `search`, `limit`, `offset` |
+| `redirect_scout_set` | `content:write` | saves a target for an old address; parameters `path` and `target` (entry id, `/path`, `media/…`, `https://…` or `gone`) |
+
+Both also need a token owner who may manage settings (`settings.manage`).
+
 ## Resources
 
 | Resource | Type | Contents | Scope |

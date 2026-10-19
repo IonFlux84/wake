@@ -8,6 +8,7 @@ use Wake\Cache\PageCache;
 use Wake\Content\Query;
 use Wake\Content\Redirects;
 use Wake\Localization\Languages;
+use Wake\Media\Media;
 
 /**
  * Old addresses and where they lead, from settings/redirects.yml. Wake adds
@@ -37,10 +38,21 @@ class RedirectManager extends Component
         ], ['from.regex' => __('An address like /old-page, without spaces.')]);
 
         $target = trim($this->to);
-        $isUrl = (bool) preg_match('#^https?://#', $target);
 
-        if (! $isUrl && ! (new Query)->find($target)) {
-            $this->addError('to', __('Choose an entry or enter a full address starting with https://.'));
+        if (Redirects::kind($target) === 'entry' && ! (new Query)->find($target)) {
+            $this->addError('to', __('Choose an entry, a path like /blog, a file like media/flyer.pdf, a full address starting with https:// or "gone".'));
+
+            return;
+        }
+
+        if (Redirects::kind($target) === 'media' && ! Media::find($target)) {
+            $this->addError('to', __('There is no such file in the media library.'));
+
+            return;
+        }
+
+        if (Redirects::kind($target) === 'path' && trim($target, '/') === trim($this->from, '/')) {
+            $this->addError('to', __('An address cannot lead to itself.'));
 
             return;
         }
@@ -63,8 +75,9 @@ class RedirectManager extends Component
 
         foreach ($redirects->all() as $language => $paths) {
             foreach ($paths as $path => $target) {
-                $entry = preg_match('#^https?://#', $target) ? null : (new Query)->in($language)->find($target);
-                $rows[] = ['language' => $language, 'path' => $path, 'target' => $target, 'entry' => $entry];
+                $kind = Redirects::kind($target);
+                $entry = $kind === 'entry' ? (new Query)->in($language)->find($target) : null;
+                $rows[] = ['language' => $language, 'path' => $path, 'target' => $target, 'kind' => $kind, 'entry' => $entry];
             }
         }
 

@@ -35,14 +35,27 @@ When the address of a published entry changes (a new slug, or a page moved to
 another parent page), Wake writes the old address to
 `settings/redirects.yml` and answers it with a permanent redirect (301). You can add and
 remove redirects in the panel under *Redirects* (people with `settings.manage`)
-or by hand, also to other sites:
+or by hand. A target is one of five things:
 
 ```yaml
 de:
-  alte-seite: pages/about
+  alte-seite: pages/about                 # an entry, by its id
+  archiv/2019: /stiepel-frueher           # a path of this site, e.g. a category
+  flyer.pdf: media/downloads/flyer.pdf    # a file of the media library
 en:
-  old/page: https://example.org/elsewhere
+  old/page: https://example.org/elsewhere # another website
+  old/offer: gone                         # removed on purpose: 410 Gone
 ```
+
+A redirect only answers when nothing else lives at the address: an entry, a
+tag or a category page at the same path always wins. Files of the media
+library get a temporary redirect (302), because their address carries the
+file's version and changes with it. `gone` shows the theme's `410` template,
+or its `404` page with status 410, so search engines forget the address
+sooner.
+
+To find the old addresses of a website you move to Wake, use
+[Keep old addresses working](../guides/old-addresses.md).
 
 ## Trash
 

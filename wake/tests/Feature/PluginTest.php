@@ -3,6 +3,7 @@
 use Livewire\Livewire;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
+use Wake\Accounts\Tokens;
 use Wake\Content\Categories;
 use Wake\Content\Category;
 use Wake\Content\Writer;
@@ -89,4 +90,32 @@ it('loads plugin classes from the folders in "autoload", never from outside the 
 
     expect(array_keys($info->autoload()))->toBe(['Greeter\\'])
         ->and(class_exists('Greeter\\Text\\Salutation'))->toBeTrue();
+});
+
+it('adds pages to the panel menu for people who may see them', function () {
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+    $editor = app(Accounts::class)->create(['name' => 'Eda', 'email' => 'eda@example.com', 'password' => 'secret secret', 'role' => Role::Editor]);
+
+    $this->actingAs($owner)->get('/wake/plugin/greeter/desk')->assertOk()
+        ->assertSee('Greeter desk')->assertSee('Count 0')
+        ->assertSee('href="'.route('wake.plugin.greeter.desk').'"', false);
+
+    $this->actingAs($editor)->get('/wake')->assertDontSee(route('wake.plugin.greeter.desk'));
+    $this->actingAs($editor)->get('/wake/plugin/greeter/desk')->assertForbidden();
+});
+
+it('registers Livewire components under the plugin name', function () {
+    Livewire::test('greeter.counter')->call('add')->assertSee('Count 1');
+});
+
+it('adds tools to the MCP server', function () {
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+    [$token] = app(Tokens::class)->create($owner, 'Test', ['content:read']);
+    $call = fn (array $body) => $this->withHeaders(['Authorization' => "Bearer {$token}", 'Accept' => 'application/json, text/event-stream'])
+        ->postJson('/wake/mcp', ['jsonrpc' => '2.0', 'id' => 1, ...$body]);
+
+    expect(collect($call(['method' => 'tools/list'])->json('result.tools'))->pluck('name'))->toContain('greeter_greet', 'site_info');
+
+    $call(['method' => 'tools/call', 'params' => ['name' => 'greeter_greet', 'arguments' => []]])
+        ->assertOk()->assertSee('Hello from a plugin tool');
 });
