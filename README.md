@@ -9,7 +9,9 @@
     /          \
 </pre>
 
-**A free flat-file CMS on Laravel, with analytics, consent and an MCP server built in.**<br>
+**The flat-file CMS that speaks MCP.**<br>
+Markdown files on the hosting you already have. Unzip it, connect the AI agent
+you already use, and run your site by asking.<br>
 No database. No cron. No Node on the server. Just files.
 
 <br>
@@ -18,7 +20,7 @@ No database. No cron. No Node on the server. Just files.
 ![Version](https://img.shields.io/badge/version-1.0.0--dev-111?style=flat-square)
 [![License: MIT](https://img.shields.io/badge/license-MIT-111?style=flat-square)](LICENSE)
 ![Database](https://img.shields.io/badge/database-none-111?style=flat-square)
-![Tests](https://img.shields.io/badge/pest-383%20passing-111?style=flat-square)
+![Tests](https://img.shields.io/badge/pest-413%20passing-111?style=flat-square)
 
 ![PHP](https://img.shields.io/badge/PHP-8.4%20%7C%208.5-777BB4?style=flat-square&logo=php&logoColor=white)
 ![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel&logoColor=white)
@@ -32,9 +34,10 @@ No database. No cron. No Node on the server. Just files.
 <br>
 
 [Quick start](#quick-start) ·
+[Run it by asking](#run-it-by-asking) ·
 [Features](#features) ·
 [How it works](#how-it-works) ·
-[For assistants](#for-ai-assistants) ·
+[Connect your agent](#connect-your-agent) ·
 [Docs](docs/README.md) ·
 [Contributing](CONTRIBUTING.md)
 
@@ -47,8 +50,13 @@ No database. No cron. No Node on the server. Just files.
 ## `$ cat why.md`
 
 Most CMSs make you choose: **simple** (files, Git, no database) or **complete**
-(analytics, consent, a real editor, an API). Wake refuses to choose.
+(analytics, consent, a real editor, an API). Wake refuses to choose. And it
+adds a third way to work: you can simply ask.
 
+- **Run it by asking.** Every Wake site ships with an MCP server. Connect
+  Claude, ChatGPT, Cursor, VS Code or any other agent that speaks MCP, and it
+  writes, translates, schedules, restyles and reads your statistics for you.
+  The panel is still there when you'd rather click.
 - **As simple as Kirby.** Every page and post is a folder with a `content.md`.
   Open it in Vim, push it with Git, upload it by FTP. Wake notices.
 - **As calm as Ghost.** A focused editor that writes clean Markdown, and a
@@ -56,8 +64,6 @@ Most CMSs make you choose: **simple** (files, Git, no database) or **complete**
 - **Analytics and consent in the box.** Your own statistics on your own
   server, a consent banner that treats *Decline* like *Accept*, and a privacy
   policy section that writes itself.
-- **Built for AI assistants.** An MCP server with scoped tokens and OAuth, so
-  Claude can answer "how did last week's post do?" or draft the next one.
 - **Runs on a 3 € web host.** Shared hosting without SSH, cron or Node is the
   target, not an afterthought.
 - **Free. Really.** MIT licensed. No paid tier, no pro version, no "contact
@@ -71,7 +77,7 @@ Most CMSs make you choose: **simple** (files, Git, no database) or **complete**
 | Cron jobs needed | **0** |
 | Node.js on the server | **no** |
 | Tracking script | **1.6 KB** gzipped, readable, no cookies by itself |
-| Tests | **383** Pest tests, docs checked by tests too |
+| Tests | **413** Pest tests, docs checked by tests too |
 | MCP tools | **16**, plus OAuth for connectors |
 | Decision records | **11** ([docs/decisions](docs/decisions)) |
 | Time to first page | download, upload, open `/wake` |
@@ -100,6 +106,48 @@ php wake/artisan serve
 
 Requirements: PHP 8.4+ with the usual extensions, any web server. Details in
 [System requirements](docs/getting-started/requirements.md).
+
+## Run it by asking
+
+Unzip, connect, ask. The MCP server comes in the same ZIP, so there is nothing
+extra to install. Give your agent `https://your-site/wake/mcp` and talk to your
+site:
+
+```text
+  ● connected  https://your-site/wake/mcp  ·  16 tools
+
+you   How was last week? Which post did best?
+  →   stats_overview   period=7d
+  →   stats_post       posts/summer-festival-2027
+agent 2,318 visitors, up 12 %. "Summer festival 2027" led with 640,
+      most of them from search.
+
+you   Write a short follow-up with the photos and schedule it for Friday at 9.
+  →   content_create   posts/summer-festival-recap   draft
+  →   content_publish  at=2027-07-09 09:00
+agent Done. The draft is scheduled for Friday, 9:00.
+```
+
+| You say | Wake's tool |
+|---|---|
+| *"How was last week?"* | `stats_overview` |
+| *"Where did readers come from in March?"* | `stats_query` |
+| *"Which AI crawlers came by this month?"* | `stats_ai_crawlers` |
+| *"Draft a post about the summer festival."* | `content_create` |
+| *"Add an English version of the about page."* | `content_update` |
+| *"Make the headings on the about page bigger."* | `content_style` |
+| *"Publish the recap on Friday at 9."* | `content_publish` |
+
+**Your agent works for you, not instead of you.**
+
+- **One token per agent**, with its own rights (read stats, read content,
+  write drafts, publish) and an expiry date, 90 days by default.
+- **Drafts first.** Everything an agent creates starts as a draft. In approval
+  mode a person publishes it in the panel.
+- **Nothing gets deleted.** There is no delete tool. The worst an agent can do
+  is a draft you throw away.
+- **You can see who did what.** Entries carry `via: mcp`, the history names the
+  token, and every earlier version is one click away.
 
 ## Features
 
@@ -149,13 +197,15 @@ Requirements: PHP 8.4+ with the usual extensions, any web server. Details in
 </details>
 
 <details>
-<summary><b>🤖 For AI assistants</b></summary>
+<summary><b>🤖 For AI agents</b></summary>
 
-- **MCP server** over HTTP (`/wake/mcp`) and stdio (`wake:mcp`): stats,
-  content, cards, design, publishing.
+- **MCP server** over HTTP (`/wake/mcp`) and stdio (`wake:mcp`) with 16 tools:
+  stats, consent, content, media, cards, design, publishing.
+- Works with any MCP client: Claude, ChatGPT, Cursor, VS Code and others.
 - Personal **tokens** with scopes and an expiry date, or **OAuth** for
-  connectors such as claude.ai: enter the address, confirm in the panel, done.
-- Assistants never delete anything, create drafts only, and can be limited to
+  connectors that sign in themselves: enter the address, confirm in the panel,
+  done.
+- Agents never delete anything, create drafts only, and can be limited to
   *ask before publishing*.
 </details>
 
@@ -226,14 +276,23 @@ The *why* behind every big choice is written down in the
 Livewire, Markdown with YAML, analytics and MCP in the core, one folder per
 entry, and more.
 
-## For AI assistants
+## Connect your agent
+
+Every agent needs the same thing: the address `https://your-site/wake/mcp`.
+Agents that sign in themselves use OAuth and you confirm them in the panel.
+All others get a token from the panel (*Assistants*) as the header
+`Authorization: Bearer wake_…`.
 
 ```bash
-# Claude Code, with a token from the panel (Assistants)
+# Claude Code
 claude mcp add --transport http wake https://your-site/wake/mcp \
   --header "Authorization: Bearer wake_…"
 
-# claude.ai: Settings → Connectors → Add custom connector → https://your-site/wake/mcp
+# claude.ai and other connectors that use OAuth: add a custom connector
+# with the address https://your-site/wake/mcp and confirm it in the panel.
+
+# Working on the server itself? stdio works too:
+php wake/artisan wake:mcp
 ```
 
 Then ask things like *"Which posts did people read to the end last month?"*
