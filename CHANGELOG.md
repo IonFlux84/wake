@@ -204,6 +204,9 @@ All notable changes to Wake are documented here. The format follows
   (setting `plugins.enabled`).
 - Updates from the panel also replace the plugins that ship with Wake.
 
+- The published imprint and privacy policy stay reachable while the site is
+  closed, and the sign-in page (also setup and password pages) links both.
+
 ### Changed
 
 - The `.htaccess` in the main folder no longer relies on `DOCUMENT_ROOT`. On

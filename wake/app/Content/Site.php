@@ -162,6 +162,31 @@ class Site
             ->values();
     }
 
+    /**
+     * The addresses of the published imprint and privacy policy in every
+     * language, as paths from the main folder ("privacy", "de/datenschutz").
+     * They stay reachable while the site is closed.
+     *
+     * @return list<string>
+     */
+    public function legalPaths(): array
+    {
+        $paths = [];
+
+        foreach (app(Languages::class)->codes() as $code) {
+            foreach (['imprint', 'privacy'] as $kind) {
+                $id = (string) config('wake.legal.'.$kind, '');
+                $page = $id !== '' ? (new Query)->withFallback(true)->in($code)->find($id) : null;
+
+                if ($page?->isPublished()) {
+                    $paths[] = trim(rawurldecode((string) parse_url($page->url(), PHP_URL_PATH)), '/');
+                }
+            }
+        }
+
+        return array_values(array_unique($paths));
+    }
+
     protected function legalPage(string $kind): ?Entry
     {
         $id = (string) config('wake.legal.'.$kind, '');

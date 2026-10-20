@@ -78,7 +78,7 @@
                                 @error($model)<span class="error">{{ $message }}</span>@enderror</div>
                         @endforeach
                     </div>
-                    <p class="muted" style="margin:0;font-size:13px">{{ __('Themes link them in the footer once they are published; the cookie banner links the privacy policy.') }}</p>
+                    <p class="muted" style="margin:0;font-size:13px">{{ __('Once published, themes link them in the footer, the cookie banner links the privacy policy and the sign-in page links both. They stay reachable while the site is closed.') }}</p>
                     <h2 class="h2" style="margin-top:8px">{{ __('Panel') }}</h2>
                     <div class="field"><label for="panel-lang">{{ __('Language of the panel') }}</label>
                         <select id="panel-lang" class="select" wire:model="panelLanguage"><option value="de">Deutsch</option><option value="en">English</option></select>

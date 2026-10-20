@@ -605,7 +605,6 @@
     "Theme moved to the trash.": "Theme in den Papierkorb gelegt.",
     "Theme settings saved.": "Theme-Einstellungen gespeichert.",
     "Themes": "Themes",
-    "Themes link them in the footer once they are published; the cookie banner links the privacy policy.": "Themes verlinken sie im Fuß, sobald sie veröffentlicht sind; der Cookie-Banner verlinkt die Datenschutzerklärung.",
     "There is already a role with this name.": "Es gibt schon eine Rolle mit diesem Namen.",
     "There is already an account with this address.": "Mit dieser Adresse gibt es schon ein Konto.",
     "These details do not match an account.": "Diese Angaben passen zu keinem Konto.",
@@ -732,5 +731,7 @@
     "\"gone\" answers 410: the page was removed on purpose and search engines forget it sooner.": "„gone“ antwortet mit 410: Die Seite wurde bewusst entfernt, Suchmaschinen vergessen sie dann schneller.",
     "Choose an entry, a path like /blog, a file like media/flyer.pdf, a full address starting with https:// or \"gone\".": "Wähle einen Eintrag, einen Pfad wie /blog, eine Datei wie media/flyer.pdf, eine volle Adresse mit https:// oder „gone“.",
     "There is no such file in the media library.": "Diese Datei gibt es in der Mediathek nicht.",
-    "/old/* covers every address below /old. A target like /new/* keeps the rest of the address.": "/alt/* gilt für jede Adresse unter /alt. Ein Ziel wie /neu/* behält den Rest der Adresse."
+    "/old/* covers every address below /old. A target like /new/* keeps the rest of the address.": "/alt/* gilt für jede Adresse unter /alt. Ein Ziel wie /neu/* behält den Rest der Adresse.",
+    "Once published, themes link them in the footer, the cookie banner links the privacy policy and the sign-in page links both. They stay reachable while the site is closed.": "Sobald sie veröffentlicht sind, verlinken Themes sie in der Fußzeile, der Cookie-Banner verlinkt die Datenschutzerklärung und die Anmeldeseite beide. Auch bei geschlossener Website bleiben sie erreichbar.",
+    "Legal notices": "Rechtliche Hinweise"
 }

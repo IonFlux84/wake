@@ -37,6 +37,12 @@
             <span>{{ parse_url(url('/'), PHP_URL_HOST) }}</span>
         </div>
         <div @class(['auth-body', 'is-wide' => $wide])>{{ $slot }}</div>
+        @php($legal = collect([app(\Wake\Content\Site::class)->imprint(), app(\Wake\Content\Site::class)->privacy()])->filter())
+        @if ($legal->isNotEmpty())
+            <nav class="auth-legal mono" aria-label="{{ __('Legal notices') }}">
+                @foreach ($legal as $page)<a href="{{ $page->url() }}">{{ $page->title() }}</a>@endforeach
+            </nav>
+        @endif
     </main>
 </div>
 </x-wake::layout.base>

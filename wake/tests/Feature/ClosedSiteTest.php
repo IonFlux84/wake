@@ -4,6 +4,7 @@ use Livewire\Livewire;
 use Wake\Accounts\Accounts;
 use Wake\Accounts\Role;
 use Wake\Cache\PageCache;
+use Wake\Content\Writer;
 use Wake\Livewire\Settings;
 use Wake\Stats\TrackingConfig;
 
@@ -56,4 +57,30 @@ it('is switched in the settings and clears the page cache', function () {
     expect(Wake\Support\Settings::read()['closed'])->toBeTrue()
         ->and(app(PageCache::class)->has('http_localhost/first'))->toBeFalse()
         ->and(is_file(storage_path('cache/pages/.rules.php')))->toBeFalse();
+});
+
+it('keeps the published imprint and privacy policy open and links them on the sign-in page', function () {
+    $writer = app(Writer::class);
+    $imprint = $writer->create('page', ['title' => 'Imprint', 'slug' => 'imprint']);
+    $privacy = $writer->create('page', ['title' => 'Privacy policy', 'slug' => 'privacy']);
+    $writer->publish($imprint->id(), 'en');
+    $writer->publish($privacy->id(), 'en');
+    config(['wake.legal.imprint' => $imprint->id(), 'wake.legal.privacy' => $privacy->id()]);
+
+    $this->get('/imprint')->assertOk()->assertSee('Imprint')->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+    $this->get('/privacy')->assertOk();
+    $this->get('/about')->assertRedirect(route('wake.login'));
+
+    $this->get('/wake/login')->assertOk()
+        ->assertSee('href="'.url('/imprint').'"', false)
+        ->assertSee('href="'.url('/privacy').'"', false);
+});
+
+it('keeps drafts of the legal pages closed and does not link them', function () {
+    $writer = app(Writer::class);
+    $privacy = $writer->create('page', ['title' => 'Privacy policy', 'slug' => 'privacy']);
+    config(['wake.legal.privacy' => $privacy->id(), 'wake.legal.imprint' => '']);
+
+    $this->get('/privacy')->assertRedirect(route('wake.login'));
+    $this->get('/wake/login')->assertOk()->assertDontSee('auth-legal');
 });
