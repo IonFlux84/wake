@@ -2,7 +2,7 @@
     <div class="auth-head">
         <p class="eyebrow">{{ app(\Wake\Content\Site::class)->title() }}</p>
         <h1 class="auth-title">{{ __('Sign in') }}</h1>
-        @if (config('wake.closed'))<p class="auth-lead">{{ __('This website is only visible to its team at the moment.') }}</p>@endif
+        @if (config('wake.closed'))<p class="auth-lead">{{ __('This website is only visible to the team at the moment.') }}</p>@endif
     </div>
 
     @if (session('status'))

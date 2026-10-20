@@ -625,7 +625,6 @@
     "This site asks everyone on the team to sign in with a second step. Set it up once, then you can continue.": "Diese Website verlangt von allen im Team einen zweiten Schritt bei der Anmeldung. Richte ihn einmal ein, dann geht es weiter.",
     "This site requires two-factor sign-in for everyone.": "Diese Website verlangt die Zwei-Faktor-Anmeldung für alle.",
     "This site requires two-factor sign-in for everyone. It takes two minutes: you need an authenticator app on your phone.": "Diese Website verlangt die Zwei-Faktor-Anmeldung für alle. Das dauert zwei Minuten, du brauchst nur eine Authenticator-App auf dem Handy.",
-    "This website is only visible to its team at the moment.": "Diese Website ist gerade nur für ihr Team sichtbar.",
     "This ZIP is not a Wake backup.": "Diese ZIP-Datei ist keine Wake-Sicherung.",
     "Time": "Zeit",
     "Time zone": "Zeitzone",
@@ -733,5 +732,6 @@
     "There is no such file in the media library.": "Diese Datei gibt es in der Mediathek nicht.",
     "/old/* covers every address below /old. A target like /new/* keeps the rest of the address.": "/alt/* gilt für jede Adresse unter /alt. Ein Ziel wie /neu/* behält den Rest der Adresse.",
     "Once published, themes link them in the footer, the cookie banner links the privacy policy and the sign-in page links both. They stay reachable while the site is closed.": "Sobald sie veröffentlicht sind, verlinken Themes sie in der Fußzeile, der Cookie-Banner verlinkt die Datenschutzerklärung und die Anmeldeseite beide. Auch bei geschlossener Website bleiben sie erreichbar.",
-    "Legal notices": "Rechtliche Hinweise"
+    "Legal notices": "Rechtliche Hinweise",
+    "This website is only visible to the team at the moment.": "Diese Website ist gerade nur für das Team sichtbar."
 }

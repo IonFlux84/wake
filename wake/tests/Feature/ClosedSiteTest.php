@@ -18,7 +18,7 @@ it('sends visitors to the sign-in page', function () {
     $this->get('/')->assertRedirect(route('wake.login'));
     $this->get('/feed.xml')->assertRedirect(route('wake.login'));
     $this->get('/sitemap.xml')->assertRedirect(route('wake.login'));
-    $this->get('/wake/login')->assertOk()->assertSee('only visible to its team');
+    $this->get('/wake/login')->assertOk()->assertSee('only visible to the team');
 });
 
 it('returns visitors to the page they wanted after signing in', function () {
