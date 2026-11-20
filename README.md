@@ -20,7 +20,7 @@ No database. No cron. No Node on the server. Just files.
 ![Version](https://img.shields.io/badge/version-1.0.0--dev-111?style=flat-square)
 [![License: MIT](https://img.shields.io/badge/license-MIT-111?style=flat-square)](LICENSE)
 ![Database](https://img.shields.io/badge/database-none-111?style=flat-square)
-![Tests](https://img.shields.io/badge/pest-413%20passing-111?style=flat-square)
+![Tests](https://img.shields.io/badge/pest-438%20passing-111?style=flat-square)
 
 ![PHP](https://img.shields.io/badge/PHP-8.4%20%7C%208.5-777BB4?style=flat-square&logo=php&logoColor=white)
 ![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel&logoColor=white)
@@ -77,7 +77,7 @@ adds a third way to work: you can simply ask.
 | Cron jobs needed | **0** |
 | Node.js on the server | **no** |
 | Tracking script | **1.6 KB** gzipped, readable, no cookies by itself |
-| Tests | **413** Pest tests, docs checked by tests too |
+| Tests | **438** Pest tests, docs checked by tests too |
 | MCP tools | **16**, plus OAuth for connectors |
 | Decision records | **11** ([docs/decisions](docs/decisions)) |
 | Time to first page | download, upload, open `/wake` |
@@ -182,6 +182,9 @@ agent Done. The draft is scheduled for Friday, 9:00.
   hashes rotate daily.
 - Privacy by default: counting starts with consent. Switch to cookieless
   counting without asking if that is allowed for your site.
+- **Campaign short links:** with one setting, `/a` to `/z` and `/0` to `/9`
+  forward to your home page with `utm_source` and `utm_campaign`, so every
+  profile and channel gets its own link. Real pages always win.
 </details>
 
 <details>
@@ -189,6 +192,9 @@ agent Done. The draft is scheduled for Friday, 9:00.
 
 - A banner that offers *Decline* as prominently as *Accept*, with anonymous
   records of every decision.
+- **Your own categories** next to statistics, media and marketing, for any
+  service that needs its own yes (say, an analytics tool in another country).
+  Gate a script with `data-wake-consent="your-id"`.
 - Two-click embeds for YouTube, Vimeo, maps and more, with "always allow".
 - `::: privacy-details` puts an always current section on statistics, cookies
   and embeds into your privacy policy.
@@ -207,6 +213,8 @@ agent Done. The draft is scheduled for Friday, 9:00.
   done.
 - Agents never delete anything, create drafts only, and can be limited to
   *ask before publishing*.
+- **`/llms.txt`** lists every published page and post with its description,
+  from the same source as `sitemap.xml`, so language models find your content.
 </details>
 
 <details>
@@ -220,6 +228,8 @@ agent Done. The draft is scheduled for Friday, 9:00.
 - Read-only **content API**, full-text search, import from Ghost, backups as
   ZIP, two-factor sign-in (optionally required for everyone), roles built from
   13 rights, updates from the panel.
+- Security headers on every response, cached pages included: HSTS over HTTPS,
+  `nosniff`, `SAMEORIGIN` framing and a strict referrer policy.
 - Documentation is part of every change: tests fail when a setting, command,
   MCP tool or decision record is undocumented.
 </details>
