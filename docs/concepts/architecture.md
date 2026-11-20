@@ -78,6 +78,21 @@ site (`/de/ueber-uns`). Without one, the default language applies, unless
 `prefix_default_language` is on. Every entry has its own address per language,
 built from its translated `slug`.
 
+### Feeds, sitemap and llms.txt
+
+Wake writes these on request, so they never go stale:
+
+| Address | What it is |
+|---|---|
+| `/feed.xml`, `/de/feed.xml` | RSS feed of the latest posts per language (`feed.limit`). |
+| `/sitemap.xml` | Every published entry of every language, without those with `noindex`, plus the home page of each language. |
+| `/llms.txt` | The same entries for language models, in the [llms.txt](https://llmstxt.org) format: `# Site title`, `> description` from `content/website.md`, then one section per content type (`## Pages`, `## Posts`, then the others), each entry as `- [Title](address): description`. The description is `seo.description`, else the excerpt. Sent as `text/plain; charset=utf-8` with `Cache-Control: public` for `page_cache.ttl` seconds. |
+| `/robots.txt` | Keeps search engines out of `/wake/` and points them to the sitemap. |
+
+A file of the same name in `public/` wins: the web server sends it before Wake
+is asked, and for `llms.txt` Wake itself also prefers `public/llms.txt`. While
+the site is `closed`, everything but `robots.txt` needs a signed-in team member.
+
 ## The index
 
 A database answers "the five newest posts tagged *travel*" without reading

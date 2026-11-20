@@ -222,6 +222,10 @@ All notable changes to Wake are documented here. The format follows
   `Referrer-Policy: strict-origin-when-cross-origin` and, over HTTPS,
   `Strict-Transport-Security: max-age=31536000`. Headers a response already
   sets are kept. Settings `security.headers` and `security.hsts_max_age`.
+- `/llms.txt` in the [llms.txt](https://llmstxt.org) format: site title and
+  description, then pages, posts and the other content types as link lists
+  with their SEO description or excerpt. It lists the same published entries
+  without `noindex` as `sitemap.xml`. A file `public/llms.txt` wins.
 
 ### Changed
 

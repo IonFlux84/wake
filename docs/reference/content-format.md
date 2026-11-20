@@ -75,7 +75,7 @@ The part between the `---` lines is the **front matter** in
 | `excerpt` | Short summary for lists, feeds and search engines. Without it, Wake takes the start of the text. |
 | `template` | Render this entry with another template of the theme, e.g. `template: landing`. |
 | `seo.title`, `seo.description` | Override title and description for search engines. |
-| `noindex` | `true` keeps the entry out of the sitemap and asks search engines not to index it. |
+| `noindex` | `true` keeps the entry out of the sitemap and `llms.txt` and asks search engines not to index it. |
 
 Any other field is available in templates as well: `location: Town hall` is
 `$entry->location`.

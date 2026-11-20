@@ -23,6 +23,7 @@ Route::middleware('wake.closed')->group(function () use ($languages) {
     Route::get('feed.xml', [FeedController::class, 'feed'])->name('wake.feed');
     Route::get('{language}/feed.xml', [FeedController::class, 'feed'])->where('language', $languages);
     Route::get('sitemap.xml', [FeedController::class, 'sitemap'])->name('wake.sitemap');
+    Route::get('llms.txt', [FeedController::class, 'llms'])->name('wake.llms');
 
     Route::get('{path?}', [SiteController::class, 'show'])
         ->where('path', '(?!wake(/|$)).*')
