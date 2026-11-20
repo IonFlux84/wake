@@ -17,7 +17,8 @@ decide. With `always: false` it appears only when the site actually needs
 consent up front:
 
 - the statistics cookie is offered (`statistics: true`),
-- marketing scripts are used (`marketing: true`), or
+- marketing scripts are used (`marketing: true`),
+- the site has [its own categories](#your-own-categories), or
 - level-1 statistics wait for consent (`tracking.level1: 'consent'`, the
   default).
 
@@ -35,6 +36,52 @@ settings at any time, so visitors can change or withdraw their choice.
 | Statistics | the `wake_v` cookie for level-2 statistics (returning visitors) |
 | External media | all embeds (YouTube, Vimeo, maps, …) without a click |
 | Marketing | your own scripts marked with `data-wake-consent="marketing"` |
+| Your own | your own scripts marked with `data-wake-consent="<id>"`, see below |
+
+Visitors who choose *Accept all* agree to every category the banner shows,
+your own ones included. In the detailed settings every category except
+*Necessary* starts switched off.
+
+### Your own categories
+
+Some scripts need a yes of their own, independent of *Marketing*: an analytics
+service that sends data to the USA, a chat widget, a newsletter popup. Add a
+category for each under *Consent* → *Own categories* in the panel, with an id
+and, per language, a label and a description. Or write them into
+`settings/consent.yml`:
+
+```yaml
+categories:
+  - id: heycatch
+texts:
+  en:
+    heycatch: HeyCatch analytics (USA)
+    heycatch_text: Counts visits on servers in the USA. Data is sent to HeyCatch.
+  de:
+    heycatch: HeyCatch-Statistik (USA)
+    heycatch_text: Zählt Besuche auf Servern in den USA. Dabei werden Daten an HeyCatch übertragen.
+```
+
+Then mark the scripts with the id:
+
+```html
+<script type="text/plain" data-wake-consent="heycatch" src="https://example.com/heycatch.js"></script>
+```
+
+The rules:
+
+- An id has 2 to 32 characters: lowercase letters, digits, `-` and `_`,
+  starting with a letter. It cannot be `necessary`, `statistics`, `media` or
+  `marketing`, the name of one of the banner's own texts (`title`, `accept`,
+  …) or end in `_text`. Wake ignores ids that break these rules, and
+  duplicates.
+- Your categories appear after the built-in ones, in the order of the list.
+- The label is `texts.<language>.<id>`, the description
+  `texts.<language>.<id>_text`. Without a label the banner shows the id.
+- With at least one category of your own, the banner appears even with
+  `always: false`.
+- Adding or removing a category raises the [version](#versions), so visitors
+  are asked again. Removing one also removes its texts.
 
 ## Two-click embeds
 
@@ -62,6 +109,10 @@ Scripts in a theme or code injection run only after consent when you mark them:
 ```html
 <script type="text/plain" data-wake-consent="marketing" src="https://example.com/pixel.js"></script>
 ```
+
+`data-wake-consent` takes any category the banner offers: `statistics`,
+`media`, `marketing` or [one of your own](#your-own-categories). The script
+runs as soon as the visitor agrees, without reloading the page.
 
 ## The list for your privacy policy
 
@@ -97,20 +148,23 @@ Every decision is sent to `public/hit.php` and appended to
 ```
 
 The record contains a random consent id (also stored in the visitor's cookie),
-the time, the categories, the language and the version of the banner texts. It
+the time, the categories (only those the site knows, your own included), the
+language and the version of the banner texts. It
 contains no IP address and nothing else that identifies a person. That is
 enough to prove that a given consent was given with a given text (Art. 7 GDPR).
 
 ## Versions
 
-Changing the banner texts raises the version in `settings/consent.yml`. Visitors
+Changing the banner texts or the list of your own categories raises the
+version in `settings/consent.yml`. Visitors
 whose stored choice has an older version are asked again.
 
 ## In the panel
 
-*Consent* shows the decisions of the last 30 days, the agreement per category,
-the latest records and the embedded services. Administrators edit the banner
-there, with a live preview per language.
+*Consent* shows the decisions of the last 30 days, the agreement per category
+(your own ones included), the latest records and the embedded services.
+Administrators edit the banner and their own categories there, with a live
+preview per language.
 
 ## Settings file
 
@@ -124,10 +178,14 @@ always: true              # show the banner even if nothing needs consent (defau
 position: bottom          # bottom or center
 privacy_page: ''          # page for the banner's privacy link; '' = the site's privacy policy (legal.privacy)
 privacy_url: ''           # or any address; wins over privacy_page
+categories:               # your own categories, after the built-in ones
+  - id: heycatch
 texts:
   de:
     title: Ihre Privatsphäre
     accept: Alle akzeptieren
+    heycatch: HeyCatch-Statistik (USA)     # label of your own category
+    heycatch_text: Zählt Besuche in den USA.  # its description
 ```
 
 Texts you leave out use Wake's defaults in English or German.

@@ -206,6 +206,12 @@ All notable changes to Wake are documented here. The format follows
 
 - The published imprint and privacy policy stay reachable while the site is
   closed, and the sign-in page (also setup and password pages) links both.
+- Own consent categories: besides statistics, external media and marketing,
+  a site can ask for a separate yes, for example for an analytics service in
+  the USA (`categories` in `settings/consent.yml`, or *Own categories* under
+  *Consent* in the panel, with label and description per language). Scripts
+  marked with `data-wake-consent="<id>"` run only after that yes, "Accept all"
+  includes them, and consent records keep them.
 
 ### Changed
 
@@ -327,3 +333,6 @@ All notable changes to Wake are documented here. The format follows
   a failing mail server no longer breaks inviting or password resets.
 - Images uploaded to a new post without a title were lost. Wake now saves the
   post as a draft called "Untitled" first.
+- Saving the consent banner in the panel now clears the page cache, so cached
+  pages no longer show the old banner, and it raises the banner version only
+  when a text really changed.

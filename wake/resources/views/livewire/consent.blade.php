@@ -63,6 +63,23 @@
                 </div>
             @endforeach
             @error('texts.*')<span class="error">{{ $message }}</span>@enderror
+            <h2 class="h2" style="margin-top:8px">{{ __('Own categories') }}</h2>
+            <p class="muted" style="margin:0;font-size:13px">{{ __('For scripts that need their own yes, such as an analytics service. Mark them with data-wake-consent and the id.') }}</p>
+            @foreach ($categories as $i => $category)
+                <div wire:key="category-{{ $i }}" style="display:grid;gap:12px;padding:12px;border:1px solid var(--line-strong);border-radius:6px">
+                    <div class="field"><label for="category-{{ $i }}-id">{{ __('Id') }}</label><input id="category-{{ $i }}-id" class="input mono" wire:model="categories.{{ $i }}.id" placeholder="analytics">
+                        @error('categories.'.$i.'.id')<span class="error">{{ $message }}</span>@enderror</div>
+                    @foreach ($category['label'] as $code => $label)
+                        <div @if ($code !== $language) hidden @endif style="display:grid;gap:12px">
+                            <div class="field"><label>{{ __('Label') }}</label><input class="input" wire:model="categories.{{ $i }}.label.{{ $code }}">
+                                @error('categories.'.$i.'.label.'.$code)<span class="error">{{ $message }}</span>@enderror</div>
+                            <div class="field"><label>{{ __('Description') }}</label><textarea class="textarea" wire:model="categories.{{ $i }}.text.{{ $code }}"></textarea></div>
+                        </div>
+                    @endforeach
+                    <div><button type="button" class="btn btn-small" wire:click="removeCategory({{ $i }})">{{ __('Remove category') }}</button></div>
+                </div>
+            @endforeach
+            <div><button type="button" class="btn btn-small" wire:click="addCategory">{{ __('Add category') }}</button></div>
             <div class="actions"><button class="btn btn-primary" type="submit">{{ __('Save') }}</button><span class="muted" style="font-size:13px">{{ __('Changing the texts asks every visitor again.') }}</span></div>
         </form>
 
@@ -85,7 +102,7 @@
     <section class="grid grid-2">
         <div class="card">
             <h2 class="h2">{{ __('Agreement by category') }}</h2>
-            @foreach (['statistics' => __('Statistics'), 'media' => __('External media'), 'marketing' => __('Marketing')] as $key => $label)
+            @foreach ($labels as $key => $label)
                 <div style="display:grid;gap:6px">
                     <div style="display:flex;justify-content:space-between;font-size:14px"><span>{{ $label }}</span><span class="mono">{{ $rate($key) }} %</span></div>
                     <div class="bar"><i style="width:{{ $rate($key) }}%"></i></div>
@@ -107,7 +124,7 @@
                     @forelse ($summary['recent'] as $record)
                         <tr>
                             <td class="mono" style="font-size:12px">{{ \Carbon\CarbonImmutable::parse($record['time'])->setTimezone(config('app.timezone'))->format('d.m. H:i') }}<br><span class="muted">{{ substr($record['id'], 0, 8) }}…</span></td>
-                            <td>{{ implode(', ', array_map(fn ($c) => ['statistics' => __('Statistics'), 'media' => __('External media'), 'marketing' => __('Marketing')][$c] ?? $c, array_diff($record['categories'], ['necessary']))) ?: __('Necessary only') }}</td>
+                            <td>{{ implode(', ', array_map(fn ($c) => $labels[$c] ?? $c, array_diff($record['categories'], ['necessary']))) ?: __('Necessary only') }}</td>
                             <td class="mono">{{ $record['version'] }}</td>
                         </tr>
                     @empty

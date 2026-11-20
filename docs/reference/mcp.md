@@ -206,7 +206,8 @@ Scope `stats:read`. How visitors answered the consent banner.
 | `days` | integer | no | days back from today, 1–366, default 30 |
 
 Returns the decisions and the agreement per category, plus `banner_needed`,
-`banner_version`, `categories_offered` and `embedded_services`. See
+`banner_version`, `categories_offered` (the site's own categories included)
+and `embedded_services`. See
 [consent](../concepts/consent.md).
 
 ### `content_list`

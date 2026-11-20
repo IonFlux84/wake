@@ -288,7 +288,10 @@ not reachable.
 | `@wakeConsentLink` | a "Cookie settings" link that opens the consent settings. Put it in the footer |
 | `@wakeServices` | a section for the privacy policy listing Wake's statistics, cookies and embedded services |
 
-`@wakeHead` already loads the consent manager and the tracking script. See
+`@wakeHead` already loads the consent manager and the tracking script. Scripts
+marked `<script type="text/plain" data-wake-consent="marketing">` run only once
+the visitor agrees to that category, which can also be one of the site's
+[own categories](../concepts/consent.md#your-own-categories). See
 [consent](../concepts/consent.md).
 
 ## Forms

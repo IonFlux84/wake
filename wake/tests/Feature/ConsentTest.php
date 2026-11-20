@@ -114,3 +114,102 @@ it('lets only administrators change the banner', function () {
 
     Livewire::actingAs($author)->test(Consent::class)->call('save')->assertForbidden();
 });
+
+describe('own categories', function () {
+    it('offers valid custom categories after the built-in ones', function () {
+        file_put_contents(Paths::settings('consent.yml'), <<<'YAML'
+            categories:
+              - id: heycatch
+              - id: marketing
+              - id: Bad Id
+              - id: title
+              - id: heycatch_text
+              - x
+              - heycatch
+              - id: chat-widget
+            YAML);
+
+        $settings = new ConsentSettings;
+
+        expect($settings->customCategories())->toBe(['heycatch', 'chat-widget'])
+            ->and($settings->categories())->toBe(['statistics', 'media', 'heycatch', 'chat-widget'])
+            ->and($settings->texts('en'))->toMatchArray(['heycatch' => 'heycatch', 'heycatch_text' => '']);
+    });
+
+    it('puts custom categories and their texts into the banner config', function () {
+        app(ConsentSettings::class)->save([
+            'categories' => [['id' => 'heycatch']],
+            'texts' => ['en' => ['heycatch' => 'HeyCatch analytics (USA)', 'heycatch_text' => 'Counts visits on servers in the USA.']],
+        ]);
+
+        $config = consentConfig($this->get('/first')->getContent());
+
+        expect($config['categories'])->toBe(['statistics', 'media', 'heycatch'])
+            ->and($config['texts'])->toMatchArray(['heycatch' => 'HeyCatch analytics (USA)', 'heycatch_text' => 'Counts visits on servers in the USA.']);
+    });
+
+    it('needs the banner for a custom category alone', function () {
+        config(['wake.tracking.level1' => 'always']);
+        $settings = app(ConsentSettings::class);
+        $settings->save(['always' => false]);
+
+        expect($settings->bannerNeeded())->toBeFalse();
+
+        $settings->save(['categories' => [['id' => 'heycatch']]]);
+
+        expect($settings->bannerNeeded())->toBeTrue()
+            ->and($settings->get('version'))->toBe(2);
+    });
+
+    it('drops the texts of a removed category', function () {
+        $settings = app(ConsentSettings::class);
+        $settings->save(['categories' => [['id' => 'heycatch'], ['id' => 'chat']], 'texts' => ['en' => ['heycatch' => 'HeyCatch', 'chat' => 'Chat', 'title' => 'Cookies?']]]);
+        $settings->save(['categories' => [['id' => 'chat']]]);
+
+        expect($settings->customCategories())->toBe(['chat'])
+            ->and($settings->get('texts.en'))->toBe(['chat' => 'Chat', 'title' => 'Cookies?']);
+    });
+
+    it('keeps, edits and adds categories in the panel', function () {
+        $owner = app(Accounts::class)->create(['name' => 'Dana', 'email' => 'dana@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+        app(ConsentSettings::class)->save([
+            'categories' => [['id' => 'heycatch']],
+            'texts' => ['en' => ['heycatch' => 'HeyCatch', 'heycatch_text' => 'USA.'], 'de' => ['heycatch' => 'HeyCatch (USA)']],
+        ]);
+
+        $this->actingAs($owner)->get('/wake/consent')->assertOk()->assertSee('Own categories')->assertSee('HeyCatch');
+
+        // Saving something else keeps the category and does not ask again.
+        Livewire::actingAs($owner)->test(Consent::class)
+            ->assertSet('categories.0.id', 'heycatch')
+            ->assertSet('categories.0.label.de', 'HeyCatch (USA)')
+            ->set('position', 'center')
+            ->call('save');
+
+        $settings = new ConsentSettings;
+        expect($settings->customCategories())->toBe(['heycatch'])
+            ->and($settings->texts('en'))->toMatchArray(['heycatch' => 'HeyCatch', 'heycatch_text' => 'USA.'])
+            ->and($settings->get('version'))->toBe(2);
+
+        Livewire::actingAs($owner)->test(Consent::class)
+            ->call('addCategory')
+            ->set('categories.1.id', 'media')
+            ->call('save')
+            ->assertHasErrors('categories.1.id')
+            ->set('categories.1.id', 'chat')
+            ->set('categories.1.label.en', 'Chat')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $settings = new ConsentSettings;
+        expect($settings->customCategories())->toBe(['heycatch', 'chat'])
+            ->and($settings->texts('en')['chat'])->toBe('Chat')
+            ->and($settings->texts('de')['chat'])->toBe('chat')
+            ->and($settings->get('version'))->toBe(3);
+
+        Livewire::actingAs($owner)->test(Consent::class)->call('removeCategory', 0)->call('save');
+
+        expect((new ConsentSettings)->customCategories())->toBe(['chat'])
+            ->and((new ConsentSettings)->get('texts.en.heycatch'))->toBeNull();
+    });
+});

@@ -2,6 +2,7 @@
 
 namespace Wake\Stats;
 
+use Wake\Consent\ConsentSettings;
 use Wake\Support\Files;
 use Wake\Support\Paths;
 
@@ -29,7 +30,7 @@ class TrackingConfig
             'timezone' => (string) config('app.timezone'),
             'geo' => (string) config('wake.tracking.geo'),
             'bots' => self::BOTS,
-            'consent_categories' => ['necessary', 'statistics', 'media', 'marketing'],
+            'consent_categories' => [...ConsentSettings::BUILT_IN, ...app(ConsentSettings::class)->customCategories()],
         ];
     }
 

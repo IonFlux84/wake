@@ -201,4 +201,16 @@ describe('public/hit.php', function () {
 
         expect($proof)->toMatchArray(['categories' => ['necessary', 'statistics'], 'version' => 3, 'action' => 'custom', 'language' => 'de']);
     });
+
+    it('keeps the site\'s own consent categories in the proof', function () {
+        app(ConsentSettings::class)->save(['categories' => [['id' => 'heycatch']]]);
+        app(TrackingConfig::class)->sync();
+
+        beacon($this->port, ['t' => 'consent', 'id' => str_repeat('c3', 10), 'c' => ['necessary', 'heycatch', 'evil'], 'a' => 'accept', 'v' => 2]);
+
+        $proof = json_decode(trim(file_get_contents($this->sandbox.'/data/consent/'.gmdate('Y-m').'.log')), true);
+
+        expect($proof['categories'])->toBe(['necessary', 'heycatch'])
+            ->and(require Paths::data('stats/.config.php'))->toMatchArray(['consent_categories' => ['necessary', 'statistics', 'media', 'marketing', 'heycatch']]);
+    });
 });

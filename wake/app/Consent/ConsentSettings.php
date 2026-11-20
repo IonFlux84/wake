@@ -15,6 +15,12 @@ use Wake\Support\Paths;
  */
 class ConsentSettings
 {
+    /** The categories Wake brings itself. Custom categories cannot use these ids. */
+    public const BUILT_IN = ['necessary', 'statistics', 'media', 'marketing'];
+
+    /** What the id of a custom category looks like. */
+    public const ID_PATTERN = '/^[a-z][a-z0-9_-]{1,31}$/';
+
     /** @var array<string, mixed>|null */
     protected ?array $settings = null;
 
@@ -44,11 +50,53 @@ class ConsentSettings
      */
     public function categories(): array
     {
-        return array_values(array_filter([
+        return [...array_values(array_filter([
             $this->asksForStatistics() ? 'statistics' : null,
             'media',
             $this->get('marketing') ? 'marketing' : null,
-        ]));
+        ])), ...$this->customCategories()];
+    }
+
+    /**
+     * The site's own categories from the "categories" list, in their order.
+     * Invalid ids, ids of built-in categories or texts, and duplicates are
+     * ignored.
+     *
+     * @return list<string>
+     */
+    public function customCategories(): array
+    {
+        return $this->normalizeCategories($this->get('categories', []));
+    }
+
+    /**
+     * Whether an id can name a custom category: lowercase, 2 to 32 characters,
+     * not a built-in category and not one of the banner's own text keys.
+     */
+    public function isValidCategoryId(string $id): bool
+    {
+        return preg_match(self::ID_PATTERN, $id) === 1
+            && ! str_ends_with($id, '_text')
+            && ! in_array($id, self::BUILT_IN, true)
+            && ! array_key_exists($id, $this->defaultTexts('en'));
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function normalizeCategories(mixed $categories): array
+    {
+        $ids = [];
+
+        foreach (is_array($categories) ? $categories : [] as $category) {
+            $id = is_array($category) ? ($category['id'] ?? null) : $category;
+
+            if (is_string($id) && $this->isValidCategoryId($id) && ! in_array($id, $ids, true)) {
+                $ids[] = $id;
+            }
+        }
+
+        return $ids;
     }
 
     /**
@@ -82,12 +130,14 @@ class ConsentSettings
 
     /**
      * Whether the banner appears on its own. Without a statistics cookie,
-     * marketing scripts or level-1 tracking that waits for consent there is
-     * nothing to ask for up front: embeds ask when they are clicked.
+     * marketing scripts, custom categories or level-1 tracking that waits for
+     * consent there is nothing to ask for up front: embeds ask when they are
+     * clicked.
      */
     public function bannerNeeded(): bool
     {
         return (bool) ($this->get('statistics') || $this->get('marketing') || $this->get('always')
+            || $this->customCategories() !== []
             || config('wake.tracking.level1') === 'consent');
     }
 
@@ -106,17 +156,45 @@ class ConsentSettings
 
         unset($defaults['statistics_anonymous_text']);
 
+        // A custom category without a text shows its id and no description.
+        foreach ($this->customCategories() as $id) {
+            $defaults[$id] = $id;
+            $defaults[$id.'_text'] = '';
+        }
+
         return array_merge($defaults, $texts[$language] ?? []);
     }
 
     /**
+     * Merge changes into the settings. A "categories" list replaces the old
+     * one, and the texts of removed categories go with them. Changing the
+     * texts or the categories raises the version.
+     *
      * @param  array<string, mixed>  $changes
      */
     public function save(array $changes): void
     {
-        $settings = array_replace_recursive($this->all(), $changes);
+        $before = $this->all();
+        $settings = array_replace_recursive($before, $changes);
 
-        if (($changes['texts'] ?? null) !== null && $changes['texts'] != ($this->all()['texts'] ?? [])) {
+        if (array_key_exists('categories', $changes)) {
+            $ids = $this->normalizeCategories($changes['categories']);
+            $settings['categories'] = array_map(fn (string $id) => ['id' => $id], $ids);
+            $removed = array_diff($this->customCategories(), $ids);
+
+            foreach ($settings['texts'] as $language => $texts) {
+                foreach ($removed as $id) {
+                    unset($texts[$id], $texts[$id.'_text']);
+                }
+
+                $settings['texts'][$language] = $texts;
+            }
+
+            $settings['texts'] = array_filter($settings['texts']);
+        }
+
+        if ($settings['texts'] != $before['texts']
+            || $this->normalizeCategories($settings['categories']) !== $this->customCategories()) {
             $settings['version'] = (int) $settings['version'] + 1;
         }
 
@@ -142,6 +220,7 @@ class ConsentSettings
             'position' => 'bottom',
             'privacy_page' => '',
             'privacy_url' => '',
+            'categories' => [],
             'texts' => [],
         ];
     }
