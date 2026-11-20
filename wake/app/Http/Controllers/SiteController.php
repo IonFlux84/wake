@@ -38,7 +38,8 @@ class SiteController
         $this->languages->setCurrent($language);
 
         if (config('wake.prefix_default_language') && $this->languages->prefix($language) !== explode('/', trim($path, '/'))[0]) {
-            return redirect()->to($this->languages->url($rest, $language), 301);
+            // Nothing can live at /a when every address has a language prefix.
+            return $this->shortLink($path) ?? redirect()->to($this->languages->url($rest, $language), 301);
         }
 
         if ($rest === 'search') {
@@ -62,10 +63,34 @@ class SiteController
         }
 
         if ($entry === null) {
-            return $this->redirect($language, $rest) ?? $this->notFound();
+            return $this->redirect($language, $rest) ?? $this->shortLink($path) ?? $this->notFound();
         }
 
         return $this->renderEntry($entry);
+    }
+
+    /**
+     * Campaign short links (setting short_links.source): /a … /z and
+     * /0 … /9 send visitors to the home page with utm_source and
+     * utm_campaign. Only asked when nothing else lives at the address, so
+     * real content always wins. Other query parameters are kept.
+     */
+    protected function shortLink(string $path): ?RedirectResponse
+    {
+        $source = trim((string) config('wake.short_links.source'));
+        $path = trim($path, '/');
+
+        if ($source === '' || ! preg_match('/^[a-z0-9]$/', $path)) {
+            return null;
+        }
+
+        $query = http_build_query([
+            ...request()->query(),
+            'utm_source' => $source,
+            'utm_campaign' => $path,
+        ], '', '&', PHP_QUERY_RFC3986);
+
+        return redirect()->to(rtrim($this->languages->url('', $this->languages->default()), '/').'/?'.$query, 302);
     }
 
     /**

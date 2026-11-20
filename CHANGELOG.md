@@ -212,6 +212,11 @@ All notable changes to Wake are documented here. The format follows
   *Consent* in the panel, with label and description per language). Scripts
   marked with `data-wake-consent="<id>"` run only after that yes, "Accept all"
   includes them, and consent records keep them.
+- Campaign short links for marketing tools (setting `short_links.source`, or
+  *Campaign short links* under *Settings*): `/a` to `/z` and `/0` to `/9`
+  redirect (302) to `/?utm_source={source}&utm_campaign={character}`, keeping
+  other query parameters. Off by default; real content at such an address
+  always wins, and no `.htaccess` change is needed.
 
 ### Changed
 

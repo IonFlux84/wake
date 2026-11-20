@@ -69,6 +69,14 @@ return [
     // URL segment in front of tag pages, e.g. /tag/travel.
     'tag_url' => 'tag',
 
+    // Campaign short links for marketing tools: with a source such as
+    // "heycatch", /a … /z and /0 … /9 redirect (302) to the home page with
+    // ?utm_source={source}&utm_campaign={character}. null keeps them off.
+    // A published entry, category or old address at such a path wins.
+    'short_links' => [
+        'source' => null,
+    ],
+
     // Posts per page on lists and in feeds.
     'per_page' => 10,
 

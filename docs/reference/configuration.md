@@ -29,7 +29,7 @@ Nested settings are written as nested arrays:
 Owners and administrators can change some settings under *Settings* in the
 panel. Wake stores them in `settings/general.yml`, which overrides
 `settings/config.php`, so the panel always shows what is in effect. These are
-`timezone`, `post_url`, `missing_translation`, `prefix_default_language`, the
+`timezone`, `post_url`, `short_links.source`, `missing_translation`, `prefix_default_language`, the
 `tracking.*` settings, `mcp.approval`, `legal.imprint`, `legal.privacy`, `panel.accent`, `panel.language`, `closed`, `security.require_two_factor`, `theme`, `theme_options`, `plugins.disabled`, `plugins.enabled` and `plugins.options`. Everything else is
 only set in `settings/config.php`.
 
@@ -62,6 +62,11 @@ panel are stored encrypted in `data/secrets/mail.yml`.
 | `post_url` | `'{slug}'` | URL pattern for posts. Placeholders: `{slug}`, `{year}`, `{month}`, `{day}`. Example: `'{year}/{slug}'` gives `/2026/hello-world`. |
 | `tag_url` | `'tag'` | Segment in front of tag pages: `/tag/travel`. |
 | `per_page` | `10` | Posts per page in lists (`$site->posts()->paginate()`). |
+| `short_links.source` | `null` | Campaign short links for marketing tools that hand out one-character addresses. With a source such as `'heycatch'`, `/a` to `/z` and `/0` to `/9` answer with a temporary redirect (302) to the home page, `/?utm_source=heycatch&utm_campaign=a`. Other query parameters are kept, Wake's two `utm_` values replace any sent along. Only lowercase letters and digits count; `/A`, `/ab` and `/de/a` are left alone. A published entry, a category or an [old address](../guides/old-addresses.md) at such a path always wins. `null` (or empty) keeps short links off. Set it under *Settings* → *Addresses and languages*. No `.htaccess` change is needed. |
+
+```php
+'short_links' => ['source' => 'heycatch'],
+```
 
 Pages always follow their folder structure (`pages/about/team` → `/about/team`),
 and custom content types use the `url` of their [`type.yml`](content-format.md#custom-content-types).

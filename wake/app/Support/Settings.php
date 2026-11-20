@@ -11,7 +11,7 @@ use Symfony\Component\Yaml\Yaml;
 class Settings
 {
     public const EDITABLE = [
-        'timezone', 'post_url', 'missing_translation', 'prefix_default_language',
+        'timezone', 'post_url', 'short_links.source', 'missing_translation', 'prefix_default_language',
         'tracking.enabled', 'tracking.level1', 'tracking.respect_privacy_signals', 'tracking.retention',
         'mcp.approval', 'legal.imprint', 'legal.privacy', 'panel.accent', 'panel.language', 'closed', 'security.require_two_factor', 'theme', 'theme_options', 'plugins.disabled', 'plugins.enabled', 'plugins.options',
     ];

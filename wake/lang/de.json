@@ -738,5 +738,8 @@
     "/old/* covers every address below /old. A target like /new/* keeps the rest of the address.": "/alt/* gilt für jede Adresse unter /alt. Ein Ziel wie /neu/* behält den Rest der Adresse.",
     "Once published, themes link them in the footer, the cookie banner links the privacy policy and the sign-in page links both. They stay reachable while the site is closed.": "Sobald sie veröffentlicht sind, verlinken Themes sie in der Fußzeile, der Cookie-Banner verlinkt die Datenschutzerklärung und die Anmeldeseite beide. Auch bei geschlossener Website bleiben sie erreichbar.",
     "Legal notices": "Rechtliche Hinweise",
-    "This website is only visible to the team at the moment.": "Diese Website ist gerade nur für das Team sichtbar."
+    "This website is only visible to the team at the moment.": "Diese Website ist gerade nur für das Team sichtbar.",
+    "Campaign short links": "Kampagnen-Kurzlinks",
+    "With a source, /a to /z and /0 to /9 lead to the home page with utm_source and utm_campaign. Empty for off.": "Mit einer Quelle führen /a bis /z und /0 bis /9 zur Startseite, mit utm_source und utm_campaign. Leer für aus.",
+    "Letters, digits, dots, dashes and underscores only.": "Nur Buchstaben, Ziffern, Punkte, Binde- und Unterstriche."
 }

@@ -48,6 +48,9 @@ class Settings extends Component
 
     public string $postUrl = '{slug}';
 
+    /** utm_source of the campaign short links /a … /z, /0 … /9 ("" for off). */
+    public string $shortLinkSource = '';
+
     /** Entry ids of the imprint and the privacy policy ("" for none). */
     public string $imprint = '';
 
@@ -92,6 +95,7 @@ class Settings extends Component
 
         $this->timezone = (string) config('app.timezone');
         $this->postUrl = (string) config('wake.post_url');
+        $this->shortLinkSource = (string) config('wake.short_links.source');
         $this->imprint = (string) config('wake.legal.imprint', '');
         $this->privacyPage = (string) config('wake.legal.privacy', '');
         $this->missingTranslation = (string) config('wake.missing_translation');
@@ -147,6 +151,7 @@ class Settings extends Component
             'site.*.description' => 'nullable|string|max:300',
             'timezone' => 'required|timezone',
             'postUrl' => ['required', 'string', 'max:60', 'regex:/\{slug\}/'],
+            'shortLinkSource' => ['nullable', 'string', 'max:40', 'regex:/^[A-Za-z0-9._-]+$/'],
             'missingTranslation' => 'in:hide,fallback',
             'level1' => 'in:always,consent',
             'retention' => 'integer|min:1|max:3650',
@@ -175,6 +180,7 @@ class Settings extends Component
         SiteSettings::save([
             'timezone' => $this->timezone,
             'post_url' => $this->postUrl,
+            'short_links.source' => trim($this->shortLinkSource) !== '' ? trim($this->shortLinkSource) : null,
             'missing_translation' => $this->missingTranslation,
             'tracking.enabled' => $this->trackingEnabled,
             'tracking.level1' => $this->level1,

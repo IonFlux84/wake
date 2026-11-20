@@ -60,6 +60,8 @@
                     <h2 class="h2">{{ __('Addresses and languages') }}</h2>
                     <div class="field"><label for="post-url">{{ __('Address of posts') }}</label><input id="post-url" class="input mono" wire:model="postUrl">
                         <span class="hint">{{ __('Placeholders: {slug}, {year}, {month}, {day}. Example: {year}/{slug}') }}</span>@error('postUrl')<span class="error">{{ __('The address needs {slug}.') }}</span>@enderror</div>
+                    <div class="field"><label for="short-links">{{ __('Campaign short links') }}</label><input id="short-links" class="input mono" wire:model="shortLinkSource" placeholder="heycatch">
+                        <span class="hint">{{ __('With a source, /a to /z and /0 to /9 lead to the home page with utm_source and utm_campaign. Empty for off.') }}</span>@error('shortLinkSource')<span class="error">{{ __('Letters, digits, dots, dashes and underscores only.') }}</span>@enderror</div>
                     @if ($languages->isMultilingual())
                         <div class="field"><label for="missing">{{ __('When a translation is missing') }}</label>
                             <select id="missing" class="select" wire:model="missingTranslation"><option value="hide">{{ __('Show nothing (404)') }}</option><option value="fallback">{{ __('Show the default language with a notice') }}</option></select></div>
