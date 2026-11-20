@@ -10,6 +10,7 @@ use Wake\Http\Middleware\ClosedSite;
 use Wake\Http\Middleware\GuardForm;
 use Wake\Http\Middleware\PanelLocale;
 use Wake\Http\Middleware\RequireTwoFactor;
+use Wake\Http\Middleware\SecurityHeaders;
 use Wake\Plugins\Plugins;
 use Wake\Support\EnvFile;
 
@@ -42,6 +43,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'wake.two-factor' => RequireTwoFactor::class,
             'wake.form' => GuardForm::class,
         ]);
+        // Every response, website and panel alike (setting security.headers).
+        $middleware->append(SecurityHeaders::class);
         $middleware->appendToGroup('wake.panel', [PanelLocale::class]);
         $middleware->redirectGuestsTo(fn () => route('wake.login'));
         $middleware->redirectUsersTo(fn () => route('wake.dashboard'));

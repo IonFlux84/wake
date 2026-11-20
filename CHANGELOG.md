@@ -217,6 +217,11 @@ All notable changes to Wake are documented here. The format follows
   redirect (302) to `/?utm_source={source}&utm_campaign={character}`, keeping
   other query parameters. Off by default; real content at such an address
   always wins, and no `.htaccess` change is needed.
+- Security headers for the website and the panel, cached pages included:
+  `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`,
+  `Referrer-Policy: strict-origin-when-cross-origin` and, over HTTPS,
+  `Strict-Transport-Security: max-age=31536000`. Headers a response already
+  sets are kept. Settings `security.headers` and `security.hsts_max_age`.
 
 ### Changed
 

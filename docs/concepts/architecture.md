@@ -59,6 +59,10 @@ Pages are cached per scheme and host (`temp/cache/pages/https_example.org/…`),
 so the `http://` or `www.` version of a site never hands out links of another.
 At most ten hosts are kept, so forged `Host` headers cannot fill the disk.
 
+A cached page is sent with the same security headers as any other response
+(`security.headers`); `PageCache` keeps them in `.rules.php` next to the
+pages, so `public/index.php` knows them without Laravel.
+
 Pages are only cached when they are the same for everyone: `GET` requests
 without a query string, without the panel's session cookie, with status 200.
 The website routes don't start a session or set cookies at all.

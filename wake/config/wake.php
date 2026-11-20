@@ -31,6 +31,13 @@ return [
     // two-factor sign-in before they can use the panel.
     'security' => [
         'require_two_factor' => false,
+
+        // Send X-Content-Type-Options, X-Frame-Options (SAMEORIGIN) and
+        // Referrer-Policy with every response, also with cached pages.
+        'headers' => true,
+
+        // Strict-Transport-Security over HTTPS, in seconds. 0 sends none.
+        'hsts_max_age' => 31536000,
     ],
 
     // Languages of the site. The first one is the default language.

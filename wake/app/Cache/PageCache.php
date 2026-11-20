@@ -2,6 +2,7 @@
 
 namespace Wake\Cache;
 
+use Wake\Http\Middleware\SecurityHeaders;
 use Wake\Support\Files;
 
 /**
@@ -101,6 +102,9 @@ class PageCache
             'dir' => $this->directory(),
             'cookie' => (string) config('session.cookie'),
             'ttl' => (int) config('wake.page_cache.ttl', 300),
+            // Security headers; Strict-Transport-Security only over HTTPS.
+            'headers' => SecurityHeaders::headers(false),
+            'hsts' => SecurityHeaders::headers(true)['Strict-Transport-Security'] ?? null,
         ];
 
         if (! is_file($file) || (@include $file) !== $rules) {

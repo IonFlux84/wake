@@ -40,6 +40,14 @@ if (file_exists($rules = $root.'/temp/cache/pages/.rules.php')) {
         && filemtime($file) + $rules['ttl'] > time()) {
         header('Content-Type: text/html; charset=UTF-8');
         header('X-Wake-Cache: hit');
+
+        // The same security headers Laravel sends (Wake\Http\Middleware\SecurityHeaders).
+        foreach ($rules['headers'] ?? [] as $name => $value) {
+            header($name.': '.$value);
+        }
+        if ($secure && ! empty($rules['hsts'])) {
+            header('Strict-Transport-Security: '.$rules['hsts']);
+        }
         readfile($file);
         exit;
     }
