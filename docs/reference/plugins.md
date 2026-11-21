@@ -99,6 +99,7 @@ Laravel's container: `app()->instance(MyService::class, new MyService($plugin));
 | `command($class)` | an Artisan command for `php wake/artisan`. |
 | `page($name, $view, $label, $icon, $can)` | a page in the panel at `/wake/plugin/{folder}/{name}`, listed under *Manage* for people with the capability `$can` (default `settings.manage`). The view is shown inside the panel layout and gets `$page`. `$label` is a text or one per language; `$icon` is the name of a panel icon (default `plug`). |
 | `livewire($name, $class)` | a [Livewire](https://livewire.laravel.com) component for your panel pages, used as `<livewire:{folder}.{name} />`. Check the capability again in its `mount()`: Livewire actions don't pass the page's middleware. |
+| `dashboard($component, $replaces, $capability, $order)` | a board on the panel dashboard, below the greeting: one of your Livewire components, named as in `livewire()`. People without the capability `$capability` don't see it (default: everyone signed in). `$replaces: 'stats'` hides Wake's own statistics (key figures, chart, most read, sources, live visitors) wherever the board is shown, so a site has one board with numbers; `stats` is the only part that can be replaced. Boards are sorted by `$order` (default 100, lower first). See [example](#example-a-dashboard-board). |
 | `tool($class)` | a tool for the [MCP server](mcp.md). Extend `Wake\Mcp\Tools\WakeTool`, set `$scope` and implement `run()`; the base class checks the token's scope. Check the person's capabilities yourself where the scope is not enough. |
 
 And to help with that:
@@ -133,6 +134,24 @@ The panel's classes (`card`, `table`, `btn`, `input`, `kpis` …) are
 available, so a plugin page looks like the rest of the panel. Wake's own
 plugin `plugins/redirect-scout` is a complete example with a panel page,
 Livewire, MCP tools and a command.
+
+## Example: a dashboard board
+
+```php
+// plugin.php
+return function (Wake\Plugins\Plugin $plugin) {
+    $plugin->livewire('numbers', Tally\Numbers::class)
+        ->dashboard('numbers', replaces: 'stats', capability: 'stats.view', order: 10);
+};
+```
+
+Wake renders the component with `@livewire('tally.numbers')` right after the
+greeting. Reminders, the greeting and the cards with drafts, scheduled and
+recently published posts stay. With `replaces: 'stats'`, Wake skips its key
+figures, chart, sources and live visitors and the period switch, and does not
+read the statistics for them; people who don't have `$capability` still see
+Wake's statistics. Check the capability again in the component's `mount()`
+and actions, like on a panel page.
 
 ## Views, translations and assets
 

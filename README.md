@@ -223,8 +223,9 @@ agent Done. The draft is scheduled for Friday, 9:00.
 - **Themes** are Blade templates with options in `theme.yml`; Tide is the
   calm, fast default.
 - **Plugins** are PHP folders with a small API: cards, field types, routes,
-  maintenance tasks, `<head>` tags, events, commands, PSR-4 autoloading and
-  protected public forms.
+  maintenance tasks, `<head>` tags, events, commands, panel pages, dashboard
+  boards (which may replace the built-in statistics), MCP tools, PSR-4
+  autoloading and protected public forms.
 - Read-only **content API**, full-text search, import from Ghost, backups as
   ZIP, two-factor sign-in (optionally required for everyone), roles built from
   13 rights, updates from the panel.

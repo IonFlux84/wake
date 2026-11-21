@@ -226,6 +226,11 @@ All notable changes to Wake are documented here. The format follows
   description, then pages, posts and the other content types as link lists
   with their SEO description or excerpt. It lists the same published entries
   without `noindex` as `sitemap.xml`. A file `public/llms.txt` wins.
+- Plugins can put their own Livewire component on the panel dashboard
+  (`$plugin->dashboard('numbers', replaces: 'stats', capability: 'stats.view', order: 10)`),
+  shown below the greeting to people with the capability. With
+  `replaces: 'stats'` it takes the place of Wake's own statistics, which are
+  then not read at all, so a site has one board with numbers.
 
 ### Changed
 

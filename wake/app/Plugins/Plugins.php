@@ -39,6 +39,12 @@ class Plugins
     /** @var array<string, array{plugin: string, name: string, view: string, label: string|array<string, string>, icon: string, can: string}> "{folder}.{name}" => panel page */
     public array $pages = [];
 
+    /** Parts of the dashboard a plugin board may replace. */
+    public const REPLACEABLE = ['stats'];
+
+    /** @var list<array{plugin: string, component: string, replaces: ?string, capability: ?string, order: int}> dashboard boards */
+    public array $boards = [];
+
     /** @var list<class-string> MCP tools */
     public array $tools = [];
 
@@ -205,6 +211,20 @@ class Plugins
         return array_values(array_map(fn (string $key) => [
             'plugin:'.$key, 'wake.plugin.'.$key, $this->label($this->pages[$key]['label']), $this->pages[$key]['icon'], $this->pages[$key]['can'],
         ], array_keys($this->pages)));
+    }
+
+    /**
+     * The dashboard boards of all plugins, lowest order first (in the order
+     * they were added when two have the same).
+     *
+     * @return list<array{plugin: string, component: string, replaces: ?string, capability: ?string, order: int}>
+     */
+    public function dashboard(): array
+    {
+        $boards = $this->boards;
+        usort($boards, fn (array $a, array $b) => $a['order'] <=> $b['order']);
+
+        return $boards;
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
 
+use Greeter\Livewire\Board;
 use Greeter\Livewire\Counter;
 use Greeter\Text\Salutation;
 use Greeter\Tools\GreetTool;
@@ -13,5 +14,7 @@ return function (Plugin $plugin) {
         ->head(fn ($site, $entry) => '<meta name="greeter" content="'.e($plugin->option('greeting')).'">')
         ->page('desk', 'greeter::desk', ['en' => 'Greeter desk', 'de' => 'Grüßpult'])
         ->livewire('counter', Counter::class)
+        ->livewire('board', Board::class)
+        ->dashboard('board')
         ->tool(GreetTool::class);
 };

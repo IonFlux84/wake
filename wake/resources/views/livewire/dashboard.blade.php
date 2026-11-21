@@ -41,18 +41,24 @@
             </p>
         </div>
         <div class="actions">
+            @unless ($statsReplaced)
             <div class="segmented" role="group" aria-label="{{ __('Period') }}">
                 @foreach (['7d' => __('7 days'), '30d' => __('30 days'), '90d' => __('90 days')] as $key => $label)
                     <button type="button" wire:click="setPeriod('{{ $key }}')" @class(['on' => $period === $key]) aria-pressed="{{ $period === $key ? 'true' : 'false' }}">{{ $label }}</button>
                 @endforeach
             </div>
+            @endunless
             @can('content.write')
                 <a class="btn btn-primary" href="{{ route('wake.entries.create', ['type' => 'post']) }}"><x-wake::icon name="plus" />{{ __('New post') }}</a>
             @endcan
         </div>
     </header>
 
-    @if (auth()->user()->can('stats.view'))
+    @foreach ($boards as $board)
+        @livewire($board['component'], key('board-'.$board['component']))
+    @endforeach
+
+    @if (! $statsReplaced && auth()->user()->can('stats.view'))
     <section class="kpis" aria-label="{{ __('Key figures') }}">
         <div class="kpi">
             <div class="kpi-label">{{ __('Visitors') }} {!! $delta($deltas['visitors']) !!}</div>

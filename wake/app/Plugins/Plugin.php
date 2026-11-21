@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Event;
+use InvalidArgumentException;
 use Laravel\Mcp\Server\Tool;
 use Livewire\Component;
 use Livewire\Livewire;
@@ -167,6 +168,30 @@ final class Plugin
     public function livewire(string $name, string $component): self
     {
         Livewire::component($this->key().'.'.$name, $component);
+
+        return $this;
+    }
+
+    /**
+     * A board on the panel dashboard: one of the plugin's Livewire components
+     * (registered with livewire()), shown below the greeting to people who
+     * have the capability (everyone signed in without one). A board that
+     * replaces "stats" takes the place of Wake's own statistics, so a site
+     * has one board with numbers. Lower orders come first.
+     */
+    public function dashboard(string $component, ?string $replaces = null, ?string $capability = null, int $order = 100): self
+    {
+        if ($replaces !== null && ! in_array($replaces, Plugins::REPLACEABLE, true)) {
+            throw new InvalidArgumentException('A dashboard board can only replace one of: '.implode(', ', Plugins::REPLACEABLE).", not \"{$replaces}\".");
+        }
+
+        $this->plugins->boards[] = [
+            'plugin' => $this->key(),
+            'component' => $this->key().'.'.$component,
+            'replaces' => $replaces,
+            'capability' => $capability,
+            'order' => $order,
+        ];
 
         return $this;
     }

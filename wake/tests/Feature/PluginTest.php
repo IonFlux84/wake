@@ -7,8 +7,10 @@ use Wake\Accounts\Tokens;
 use Wake\Content\Categories;
 use Wake\Content\Category;
 use Wake\Content\Writer;
+use Wake\Livewire\Dashboard;
 use Wake\Livewire\PluginManager;
 use Wake\Markdown\Markdown;
+use Wake\Plugins\Plugin;
 use Wake\Plugins\Plugins;
 use Wake\Support\Files;
 use Wake\Support\Paths;
@@ -139,4 +141,51 @@ it('leaves plugins with "enabled: false" off until someone switches them on', fu
 
 it('ships the redirect scout switched off', function () {
     expect(app(Plugins::class)->get('redirect-scout')->enabledByDefault())->toBeFalse();
+});
+
+it('puts plugin boards on the dashboard next to the statistics', function () {
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+
+    expect(app(Plugins::class)->dashboard())->toContain(['plugin' => 'greeter', 'component' => 'greeter.board', 'replaces' => null, 'capability' => null, 'order' => 100]);
+
+    $this->actingAs($owner)->get('/wake')->assertOk()
+        ->assertSeeInOrder(['Ola', 'Greeter board', 'Key figures', 'Most read', 'Drafts'])
+        ->assertSee('aria-label="Period"', false);
+});
+
+it('lets a plugin board replace the statistics for people who may see it', function () {
+    Files::write(Paths::plugins('tally/plugin.yml'), "name: Tally\nautoload:\n  Tally: src\n");
+    Files::write(Paths::plugins('tally/src/Board.php'), "<?php\nnamespace Tally;\nclass Board extends \\Livewire\\Component\n{\n    public function render()\n    {\n        return '<section>Tally board</section>';\n    }\n}\n");
+    Files::write(Paths::plugins('tally/plugin.php'), "<?php\nreturn fn (\$plugin) => \$plugin->livewire('board', Tally\\Board::class)->dashboard('board', replaces: 'stats', capability: 'settings.manage', order: 10);\n");
+
+    $plugins = new Plugins;
+    $plugins->boot();
+    app()->instance(Plugins::class, $plugins);
+
+    expect(array_column($plugins->dashboard(), 'component'))->toBe(['tally.board', 'greeter.board']);
+
+    $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
+    $editor = app(Accounts::class)->create(['name' => 'Eda', 'email' => 'eda@example.com', 'password' => 'secret secret', 'role' => Role::Editor]);
+
+    $this->actingAs($owner)->get('/wake')->assertOk()
+        ->assertSeeInOrder(['Tally board', 'Greeter board', 'Drafts'])
+        ->assertDontSee('Key figures')
+        ->assertDontSee('Most read')
+        ->assertDontSee('aria-label="Period"', false);
+
+    Livewire::actingAs($owner)->test(Dashboard::class)
+        ->assertSet('period', '7d')
+        ->assertViewHas('statsReplaced', true)
+        ->assertViewMissing('report');
+
+    $this->actingAs($editor)->get('/wake')->assertOk()
+        ->assertDontSee('Tally board')
+        ->assertSee('Greeter board')
+        ->assertSee('Key figures');
+});
+
+it('only lets dashboard boards replace the statistics', function () {
+    $plugin = new Plugin(app(Plugins::class)->get('greeter'), app(Plugins::class));
+
+    expect(fn () => $plugin->dashboard('board', replaces: 'drafts'))->toThrow(InvalidArgumentException::class);
 });
