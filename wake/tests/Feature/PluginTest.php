@@ -143,7 +143,18 @@ it('ships the redirect scout switched off', function () {
     expect(app(Plugins::class)->get('redirect-scout')->enabledByDefault())->toBeFalse();
 });
 
+/**
+ * Only the boards of the test plugins. A site that runs Wake's suite next to
+ * its own plugins may have boards of its own, even one that replaces the
+ * statistics; they would change what the dashboard shows.
+ */
+function onlyTestBoards(Plugins $plugins): void
+{
+    $plugins->boards = array_values(array_filter($plugins->boards, fn (array $board) => in_array($board['plugin'], ['greeter', 'tally'], true)));
+}
+
 it('puts plugin boards on the dashboard next to the statistics', function () {
+    onlyTestBoards(app(Plugins::class));
     $owner = app(Accounts::class)->create(['name' => 'Ola', 'email' => 'ola@example.com', 'password' => 'secret secret', 'role' => Role::Owner]);
 
     expect(app(Plugins::class)->dashboard())->toContain(['plugin' => 'greeter', 'component' => 'greeter.board', 'replaces' => null, 'capability' => null, 'order' => 100]);
@@ -160,6 +171,7 @@ it('lets a plugin board replace the statistics for people who may see it', funct
 
     $plugins = new Plugins;
     $plugins->boot();
+    onlyTestBoards($plugins);
     app()->instance(Plugins::class, $plugins);
 
     expect(array_column($plugins->dashboard(), 'component'))->toBe(['tally.board', 'greeter.board']);
